@@ -1,0 +1,7 @@
+*.sw[a-z]
+*.pyc
+*.o
+*~
+databases/
+test/
+vsearch/
