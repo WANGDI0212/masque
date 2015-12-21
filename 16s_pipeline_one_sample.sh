@@ -65,10 +65,29 @@ function check_dir {
     fi
 }
 
+check_fastq () {
+  for i in $@
+  do
+      if [ -f "$i" ]
+      then
+        filename=$(basename "$i")
+        extension=".${filename##*.}"
+        if [ "$extension" != ".fastq" ] && [ "$extension" != ".fq" ]
+        then
+            error "The input file : $i should be a fastq file."
+            display_help 0
+        fi
+      fi
+  done
+}
+
 display_help() {
+    echo $1
     if [ "$1" -eq "0" ]
     then
-        echo """$0 -1 <read_R1.fastq> -2 <read_R2.fastq> -s <sample_name> -o </path/to/result/directory/>"""
+        echo """module add  AlienTrimmer/0.4.0 bowtie2/2.2.6 fastqc/0.11.2
+$0 -1 <read_R1.fastq> -2 <read_R2.fastq> -s <sample_name> -o </path/to/result/directory/>
+$0 -i <read.fastq> -s <sample_name> -o </path/to/result/directory/>"""
     else
         display_parameters
     fi
@@ -77,9 +96,15 @@ display_help() {
 
 display_parameters() {
    # Display the parameters of the analysis
-   say_parameters "Sample fastq [-1] [-2] :"
-   echo $input1 >&2
-   echo $input2 >&2
+   if [ -f "$input1" ] && [ -f "$input2" ]
+   then
+      say_parameters "Sample fastq [-1] [-2] :"
+      echo $input1 >&2
+      echo $input2 >&2
+   elif [ -f "$input" ]
+   then
+       say_parameters "Sample fastq : $input"
+   fi
 }
 
 function timer()
@@ -108,9 +133,16 @@ SCRIPTPATH=$(dirname "${BASH_SOURCE[0]}")
 gold="$SCRIPTPATH/databases/gold.fa"
 # Alien sequences
 alienseq="$SCRIPTPATH/databases/alienTrimmerPF8contaminants.fasta"
+# Filtering database
+filterRef=("$SCRIPTPATH/databases/homo_sapiens.fna" "$SCRIPTPATH/databases/phi.fa")
+# Greengenes
+#ftp://greengenes.microbio.me/greengenes_release/gg_13_5/
+greengenes="$SCRIPTPATH/databases/gg_13_5.fasta"
+#greengenes="/local/databases/fasta/greengenes.fa"
+greengenes_taxonomy="$SCRIPTPATH/databases/gg_13_5_taxonomy.txt"
 # RDP
 #http://rdp.cme.msu.edu/misc/resources.jsp
-rdp="$SCRIPTPATH/databases/rdp_11_4.fa"
+#rdp="$SCRIPTPATH/databases/rdp_11_4.fa"
 # Silva
 #http://www.arb-silva.de/no_cache/download/archive/release_123/Exports/
 silva="$SCRIPTPATH/databases/SILVA_123_SSURef_Nr99_tax_silva.fasta"
@@ -126,11 +158,13 @@ NbProc=$(grep -c ^processor /proc/cpuinfo)
 # Programs #
 ############
 # AlienTrimmer
-alientrimmer="$SCRIPTPATH/AlienTrimmer_0.4.0/src/AlienTrimmer.jar"
+alientrimmer="AlienTrimmer" #"$SCRIPTPATH/AlienTrimmer_0.4.0/src/AlienTrimmer.jar"
+# Bowtie2
+bowtie2="bowtie2" #"$SCRIPTPATH/bowtie2-2.2.6/bowtie2"
 # Fastq2fasta
 fastq2fasta="$SCRIPTPATH/fastq2fasta/fastq2fasta.py"
 # Fastqc
-fastqc="$SCRIPTPATH/FastQC/fastqc"
+fastqc="fastqc" #"$SCRIPTPATH/FastQC/fastqc"
 # FLASH
 flash="$SCRIPTPATH/FLASH-1.2.11/flash" #$(which flash)
 # usearch
@@ -143,7 +177,7 @@ vsearch="$SCRIPTPATH/vsearch-1.1.3-linux-x86_64"
 # Main #
 ########
 # Execute getopt on the arguments passed to this program, identified by the special character $@
-PARSED_OPTIONS=$(getopt -n "$0"  -o hs:1:2:o:r:n: --long "help,sample_name:,input1:,input2:,output:,NbProc:,SamplePrefix:"  -- "$@")
+PARSED_OPTIONS=$(getopt -n "$0"  -o hs:1:2:i:o:r:n: --long "help,sample_name:,input1:,input2:,input:,output:,NbProc:,SamplePrefix:"  -- "$@")
 
 #Check arguments
 if [ $# -eq 0 ]
@@ -179,6 +213,10 @@ do
         check_file $2
         input2=$2
         shift 2;;
+    -i|--input)
+        check_file $2
+        input=$2
+        shift 2;;
     -r|--SamplePrefix)
         SamplePrefix=$2
         shift 2;;
@@ -208,33 +246,20 @@ then
 fi
 
 # Check sample
-if [ -f "$input1" ] && [ -f "$input2" ]
+if [ -f "$input1" ] && [ -f "$input2" ] || [ -f "$input" ]
 then
-    if [ "$sample_name" = ""  ]
-    then
-      error "Please provide a sample name [-s]"
-      exit 1
-    fi
-    filename=$(basename "$input1")
-    extension=".${filename##*.}"
-    if [ "$extension" != ".fastq" ] && [ "$extension" != ".fq" ]
-    then
-        error "The input file should be a fastq file."
-        display_help
-    fi
-    SamplePath1=$(dirname $input1)
-    SamplePath2=$(dirname $input2)
-    if [ "$SamplePath1" != "$SamplePath2" ]
-    then
-        error "The sample must be in the same directory (for the moment)."
-        exit 1
-    else
-        SamplePath="$SamplePath1"
-    fi
-    SampleName=$sample_name
+    check_fastq $input1 $input2 $input
 else
     error "No input file !"
     exit 1
+fi
+
+
+if [ "$sample_name" = ""  ]
+then
+    error "Please provide a sample name [-s]"
+    exit 1
+else SampleName=$sample_name
 fi
 
 # display parameters
@@ -244,15 +269,24 @@ display_parameters
 say "Start analysis"
 wall_time=$(timer)
 
+
 if [ -f "$input1" ] && [ -f "$input2" ] && [ ! -f "${resultDir}/${SampleName}_alien_f.fastq" ]
 then
     say "Triming reads with Alientrimmer"
     start_time=$(timer)
-    java -jar $alientrimmer -if $input1 -ir $input2 -of ${resultDir}/${SampleName}_alien_f.fastq -or ${resultDir}/${SampleName}_alien_r.fastq -os ${resultDir}/${SampleName}_alien_s.fastq -c $alienseq  > ${logDir}/log_alientrimmer_${SampleName}.txt 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+    $alientrimmer -if $input1 -ir $input2 -of ${resultDir}/${SampleName}_alien_f.fastq -or ${resultDir}/${SampleName}_alien_r.fastq -os ${resultDir}/${SampleName}_alien_s.fastq -c $alienseq  > ${logDir}/log_alientrimmer_${SampleName}.txt 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
     check_file ${resultDir}/${SampleName}_alien_f.fastq
     check_file ${resultDir}/${SampleName}_alien_r.fastq
     check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
-    say "Elapsed time to trim with alientrimmer : $(timer $start_time)"
+    say "Elapsed time to trim with Alientrimmer : $(timer $start_time)"
+elif [ -f "$input" ] && [ ! -f "${resultDir}/${SampleName}_alien.fastq" ]
+then
+    say "Triming reads with Alientrimmer"
+    start_time=$(timer)
+    $alientrimmer -i $input -q 20 -p 80 -o ${resultDir}/${SampleName}_alien.fastq -c $alienseq   > ${logDir}/log_alientrimmer_${SampleName}.txt 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+    check_file ${resultDir}/${SampleName}_alien.fastq
+    check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+    say "Elapsed time to trim with Alientrimmer : $(timer $start_time)"
 fi
 
 if [ -f "${resultDir}/${SampleName}_alien_f.fastq" ] && [ -f "${resultDir}/${SampleName}_alien_r.fastq" ] && [ ! -f "${resultDir}/${SampleName}.extendedFrags.fastq" ]
@@ -270,6 +304,14 @@ then
     start_time=$(timer)
     $fastqc ${resultDir}/${SampleName}.extendedFrags.fastq --nogroup -q -t $NbProc 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
     check_file ${resultDir}/${SampleName}.extendedFrags_fastqc.html
+    check_log ${errorlogDir}/error_log_fastqc_${SampleName}.txt
+    say "Elapsed time to quality control: $(timer $start_time)"
+elif [ -f "${resultDir}/${SampleName}_alien.fastq" ] && [ ! -f "${resultDir}/${SampleName}_alien_fastqc.html" ]
+then
+    say "Quality control with Fastqc"
+    start_time=$(timer)
+    $fastqc ${resultDir}/${SampleName}_alien.fastq --nogroup -q -t $NbProc 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
+    check_file ${resultDir}/${SampleName}_alien_fastqc.html
     check_log ${errorlogDir}/error_log_fastqc_${SampleName}.txt
     say "Elapsed time to quality control: $(timer $start_time)"
 fi
@@ -299,12 +341,20 @@ fi
 
 
 
-if [ -f "${resultDir}/${SampleName}.extendedFrags.fastq" ] && [ ! -f ${resultDir}/${SampleName}_extendedFrags.fasta ]
+if [ -f "${resultDir}/${SampleName}.extendedFrags.fastq" ] && [ ! -f "${resultDir}/${SampleName}_extendedFrags.fasta" ]
 then
     say "Convert fastq to fasta..."
     start_time=$(timer)
     $fastq2fasta -i ${resultDir}/${SampleName}.extendedFrags.fastq -o ${resultDir}/${SampleName}_extendedFrags.fasta  2> ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
     check_file ${resultDir}/${SampleName}_extendedFrags.fasta
+    check_log ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
+    say "Elapsed time to convert fastq to fasta : $(timer $start_time)"
+elif [ -f "${resultDir}/${SampleName}_alien.fastq" ] && [ ! -f "${resultDir}/${SampleName}_alien.fasta" ]
+then
+    say "Convert fastq to fasta..."
+    start_time=$(timer)
+    $fastq2fasta -i ${resultDir}/${SampleName}_alien.fastq -o ${resultDir}/${SampleName}_alien.fasta 2> ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
+    check_file ${resultDir}/${SampleName}_alien.fasta
     check_log ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
     say "Elapsed time to convert fastq to fasta : $(timer $start_time)"
 fi
