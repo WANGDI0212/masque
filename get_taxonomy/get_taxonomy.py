@@ -65,7 +65,8 @@ def getArguments():
     parser.add_argument('-d', dest='database_file', type=isfile, required=True,
                         help='Path to the database file.')
     parser.add_argument('-dtype', dest='database_type', type=str,
-                        default="silva", choices=["silva", "rdp", "greengenes"],
+                        default="silva", choices=["silva", "rdp",
+                                                  "greengenes", "unite"],
                         help='Database format (default = silva).')
     parser.add_argument('-t', dest='taxonomy_file', type=isfile,
                         help='Path to the taxonomy file (Greengenes only).')
@@ -100,7 +101,7 @@ def load_vsearch(input_file):
 
 
 def parse_rdp(header, vsearch_dict, annotation_dict):
-    """Unused
+    """Parse RDP annotation
     """
     identified = 0
     tax = header.strip().split(" ")[0][1:]
@@ -108,6 +109,20 @@ def parse_rdp(header, vsearch_dict, annotation_dict):
     if tax in vsearch_dict:
         lineage = lineage.split(";")[2:]
         lineage = [lineage[i].replace("\"","") for i in xrange(0, len(lineage), 2)]
+        annotation_dict[tax] = ";".join(lineage)
+        identified = 1
+    return annotation_dict, identified
+
+
+def parse_unite(header, vsearch_dict, annotation_dict):
+    """Parse unite annotation
+    """
+    identified = 0
+    tax = header.strip().split(" ")[0][1:]
+    lineage = header.strip().split(" ")[1]
+    if tax in vsearch_dict:
+        lineage = lineage.split(";")
+        lineage = [lineage[i].split("_")[2] for i in xrange(0, len(lineage))]
         annotation_dict[tax] = ";".join(lineage)
         identified = 1
     return annotation_dict, identified
@@ -145,6 +160,8 @@ def load_taxonomy(database_file, vsearch_dict, database_type):
     annotation_dict = {}
     if database_type == "rdp":
         parse_result = parse_rdp
+    elif database_type == "unite":
+        parse_result = parse_unite
     else:
         parse_result = parse_silva
     nb_id = len(vsearch_dict)
