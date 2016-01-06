@@ -69,6 +69,15 @@ function check_dir {
     fi
 }
 
+function check_name {
+    if [ "$1" = "" ]
+    then
+        error "Error failed to parse the sample name:"
+        echo "sample name=$1"
+        exit 1
+    fi
+}
+
 display_help() {
     if [ "$1" -eq "0" ]
     then
@@ -130,6 +139,8 @@ gold="$SCRIPTPATH/databases/gold.fa"
 alienseq="$SCRIPTPATH/databases/alienTrimmerPF8contaminants.fasta"
 # Filtering database
 filterRef=("$SCRIPTPATH/databases/homo_sapiens.fna" "$SCRIPTPATH/databases/phi.fa")
+# Findley
+findley=("$SCRIPTPATH/databases/ITSdb.findley.fasta")
 # Greengenes
 #ftp://greengenes.microbio.me/greengenes_release/gg_13_5/
 greengenes="$SCRIPTPATH/databases/gg_13_5.fasta"
@@ -201,7 +212,7 @@ vsearch="$SCRIPTPATH/vsearch_bin/bin/vsearch" #"vsearch"
 # Main #
 ########
 # Execute getopt on the arguments passed to this program, identified by the special character $@
-PARSED_OPTIONS=$(getopt -n "$0"  -o hi:o:r:t:a:sbf: --long "help,input_dir:,output:,thread:,maxoverlap:,minoverlap:,identity_threshold:,evalueTaxAnnot:,NbMismatchMapping:,amplicon:,swarm,blast:,fungi:"  -- "$@")
+PARSED_OPTIONS=$(getopt -n "$0"  -o hi:o:r:t:a:sbf --long "help,input_dir:,output:,thread:,maxoverlap:,minoverlap:,identity_threshold:,evalueTaxAnnot:,NbMismatchMapping:,amplicon:,swarm,blast:,fungi"  -- "$@")
 
 #Check arguments
 if [ $# -eq 0 ]
@@ -314,107 +325,172 @@ all_start_time=$(timer)
 
 if [ -d "$input_dir" ]
 then
-list_product_fa=""
-nb_samples=$(ls $input_dir/*R1*.fastq -1 |wc -l)
-num_sample=0
-
-for r1_file in $(ls $input_dir/*R1*.{fastq,fq})
-do
-    let "num_sample=$num_sample+1"
-    input1=$r1_file
-    input2=$(echo $r1_file|sed "s:R1:R2:g")
-    check_file $input1
-    check_file $input2
-    # Get the sample name
-    SampleName=$(basename $input1 |sed "s:_L001:@:g"|cut -f 1 -d"@")
-
-    if [ "$SampleName" = "" ]
+    list_product_fa=""
+    nb_samples=$(ls $input_dir/*R1*.{fastq,fq} -1 |wc -l)
+    num_sample=0
+    if [ "$nb_samples" -eq "0" ]
     then
-        error "Error failed to parse the sample name:"
-        echo "sample name=$SampleName"
-        exit 1
+        nb_samples=$(ls $input_dir/*.{fastq,fq} -1 |wc -l)
+        for input in $(ls $input_dir/*.{fastq,fq})
+        do
+            let "num_sample=$num_sample+1"
+            # Get the sample name
+            filename=$(basename "$input")
+            SampleName="${filename%.*}"
+            check_name $SampleName
+            list_product_fa+="${resultDir}/reads/${SampleName}_alien.fasta "
+            let "essai=1";
+            # Filtering reads against contaminant db
+            if [ ! -d "${readsDir}/${SampleName}_${#filterRef[@]}" ]
+            then
+                for db in ${filterRef[@]}
+                do
+                        let "num=$essai-1";
+                        if [ ! -f "${readsDir}/${SampleName}_${essai}.fastq" ] && [ -f "${readsDir}/${SampleName}_${num}.fastq" ]
+                        then
+                                say "$num_sample/$nb_samples - Filter reads against $db"
+                                start_time=$(timer)
+                                # Next mapping
+                                $bowtie2  -q -N $NbMismatchMapping -p $NbProc -x $db -U ${readsDir}/${SampleName}_${num}.fastq -S /dev/null --un ${readsDir}/${SampleName}_${essai}.fastq -t --end-to-end --very-fast  > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
+                                check_file ${readsDir}/${SampleName}_${essai}.fastq
+                                # Remove old file
+                                rm -f ${readsDir}/${SampleName}_${num}.fastq
+                                say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
+                        elif [ -f "$input" ] && [ "$essai" -eq "1" ] && [ ! -f "${readsDir}/${SampleName}_${essai}.fastq" ]
+                        then
+                                say "$num_sample/$nb_samples - Filter reads against $db"
+                                start_time=$(timer)
+                                # First mapping
+                                $bowtie2 -q -N $NbMismatchMapping -p $NbProc -x $db  -U $input -S /dev/null --un ${readsDir}/${SampleName}_${essai}.fastq -t --end-to-end --very-fast  > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
+                                check_file ${readsDir}/${SampleName}_${essai}.fastq
+                                say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
+                        fi
+                        let "essai=$essai+1";
+                done
+            fi
+            # Triming
+            if [ -f "${readsDir}/${SampleName}_${#filterRef[@]}.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien.fastq" ]
+            then
+                say "Triming reads with alientrimmer"
+                start_time=$(timer)
+                $alientrimmer -i ${readsDir}/${SampleName}_${#filterRef[@]}.fastq -o ${readsDir}/${SampleName}_alien.fastq -c $alienseq -l 35 -p 80  > ${logDir}/log_alientrimmer_${SampleName}.txt 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+                check_file ${readsDir}/${SampleName}_alien.fastq
+                check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+                say "Elapsed time to trim with alientrimmer : $(timer $start_time)"
+            fi
+            # Quality control
+            if [ -f "${readsDir}/${SampleName}_alien.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien_fastqc.html" ]
+            then
+                say "$num_sample/$nb_samples - Quality control with Fastqc"
+                start_time=$(timer)
+                $fastqc ${readsDir}/${SampleName}_alien.fastq --nogroup -q -t $NbProc 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
+                check_file ${readsDir}/${SampleName}_alien_fastqc.html
+                check_log ${errorlogDir}/error_log_fastqc_${SampleName}.txt
+                say "$num_sample/$nb_samples - Elapsed time with Fastqc: $(timer $start_time)"
+            fi
+            # Convert to fasta with the right name
+            if [ -f "${readsDir}/${SampleName}_alien.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien.fasta" ]
+            then
+                say "$num_sample/$nb_samples - Convert fastq to fasta with fastq2fasta"
+                start_time=$(timer)
+                $fastq2fasta -i ${readsDir}/${SampleName}_alien.fastq -o ${readsDir}/${SampleName}_alien.fasta -s ${SampleName}  2> ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
+                check_file ${readsDir}/${SampleName}_alien.fasta
+                check_log ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
+                say "$num_sample/$nb_samples - Elapsed time with fastq2fasta : $(timer $start_time)"
+            fi
+        done
     else
-        list_product_fa+="${resultDir}/reads/${SampleName}_extendedFrags.fasta "
+        for r1_file in $(ls $input_dir/*R1*.{fastq,fq})
+        do
+            let "num_sample=$num_sample+1"
+            input1=$r1_file
+            input2=$(echo $r1_file|sed "s:R1:R2:g")
+            check_file $input1
+            check_file $input2
+            # Get the sample name
+            filename=$(basename "$input1")
+            #SampleName=$(echo "${filename%.*}" |sed "s:_L001:@:g"|cut -f 1 -d"@")
+            SampleName=$(echo "${filename%.*}" |sed "s:_R1:@:g"|cut -f 1 -d"@")
+            check_name $SampleName
+            list_product_fa+="${resultDir}/reads/${SampleName}_extendedFrags.fasta "
+            let "essai=1";
+            # Filtering reads against contaminant db
+            if [ ! -d "${readsDir}/filter_${#filterRef[@]}" ] && [ ! -f "${readsDir}/${SampleName}_alien_f.fastq" ]
+            then
+                    for db in ${filterRef[@]}
+                    do
+                            let "num=$essai-1";
+                            if [ ! -d "${readsDir}/filter_${essai}" ] && [ -d "${readsDir}/filter_${num}" ] || [ "$essai" -ne "1" ] 
+                            then
+                                    say "$num_sample/$nb_samples - Filter reads against $db"
+                                    start_time=$(timer)
+                                    mkdir ${readsDir}/filter_${essai}
+                                    # Next mapping
+                                    $bowtie2  -q -N $NbMismatchMapping -p $NbProc -x $db -1 ${readsDir}/filter_${num}/un-conc-mate.1  -2 ${readsDir}/filter_${num}/un-conc-mate.2 -S /dev/null --un-conc ${readsDir}/filter_${essai}/ -t --very-fast  > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
+                                    check_file ${readsDir}/filter_${essai}/un-conc-mate.1
+                                    # Remove old file
+                                    rm -rf ${readsDir}/filter_${num}
+                                    say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
+                            elif [ -f "$input1" ] && [ -f "$input2" ]  && [ "$essai" -eq "1" ] && [ ! -d "${readsDir}/filter_${essai}" ]
+                            then
+                                    say "$num_sample/$nb_samples - Filter reads against $db"
+                                    start_time=$(timer)
+                                    mkdir  ${readsDir}/filter_${essai}
+                                    # First mapping
+                                    $bowtie2 -q -N $NbMismatchMapping -p $NbProc -x $db  -1 $input1 -2 $input2 -S /dev/null --un-conc ${readsDir}/filter_${essai} -t --very-fast > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
+                                    check_file ${readsDir}/filter_${essai}/un-conc-mate.1
+                                    say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
+                            fi
+                            let "essai=$essai+1";
+                    done
+                    mv ${readsDir}/filter_${#filterRef[@]}/un-conc-mate.1 ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_1.fastq
+                    mv ${readsDir}/filter_${#filterRef[@]}/un-conc-mate.2 ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_2.fastq
+            fi
+            # Trimming
+            if [ -f "${readsDir}/filter_${#filterRef[@]}/un-conc-mate_1.fastq" ] && [ -f "${readsDir}/filter_${#filterRef[@]}/un-conc-mate_2.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien_f.fastq" ]
+            then
+                say "$num_sample/$nb_samples - Triming reads with Alientrimmer"
+                start_time=$(timer)
+                $alientrimmer -if ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_1.fastq -ir ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_2.fastq -of ${readsDir}/${SampleName}_alien_f.fastq -or ${readsDir}/${SampleName}_alien_r.fastq -os ${readsDir}/${SampleName}_alien_s.fastq -c $alienseq  > ${logDir}/log_alientrimmer_${SampleName}.txt -p 80 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+                check_file ${readsDir}/${SampleName}_alien_f.fastq
+                check_file ${readsDir}/${SampleName}_alien_r.fastq
+                check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+                rm -rf ${readsDir}/filter_${#filterRef[@]}
+                say "$num_sample/$nb_samples - Elapsed time with Alientrimmer : $(timer $start_time)"
+            fi
+            # Merging reads
+            if [ -f "${readsDir}/${SampleName}_alien_f.fastq" ] && [ -f "${readsDir}/${SampleName}_alien_r.fastq" ] && [ ! -f "${readsDir}/${SampleName}.extendedFrags.fastq" ]
+            then
+                say "$num_sample/$nb_samples - Merging paired reads with FLASH"
+                start_time=$(timer)
+                $flash ${readsDir}/${SampleName}_alien_f.fastq ${readsDir}/${SampleName}_alien_r.fastq -M $maxoverlap -m $minoverlap -d $readsDir/ -o $SampleName -t $NbProc  > ${logDir}/log_flash_${SampleName}.txt
+                check_file ${readsDir}/${SampleName}.extendedFrags.fastq
+                say "$num_sample/$nb_samples - Elapsed time with FLASH : $(timer $start_time)"
+            fi
+            # Quality control
+            if [ -f "${readsDir}/${SampleName}.extendedFrags.fastq" ] && [ ! -f "${readsDir}/${SampleName}.extendedFrags_fastqc.html" ] 
+            then
+                say "$num_sample/$nb_samples - Quality control with Fastqc"
+                start_time=$(timer)
+                $fastqc ${readsDir}/${SampleName}.extendedFrags.fastq --nogroup -q -t $NbProc 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
+                check_file ${readsDir}/${SampleName}.extendedFrags_fastqc.html
+                check_log ${errorlogDir}/error_log_fastqc_${SampleName}.txt
+                say "$num_sample/$nb_samples - Elapsed time with Fastqc: $(timer $start_time)"
+            fi
+            # Convert to fasta with the right name
+            if [ -f "${readsDir}/${SampleName}.extendedFrags.fastq" ] && [ ! -f "${readsDir}/${SampleName}_extendedFrags.fasta" ]
+            then
+                say "$num_sample/$nb_samples - Convert fastq to fasta with fastq2fasta"
+                start_time=$(timer)
+                $fastq2fasta -i ${readsDir}/${SampleName}.extendedFrags.fastq -o ${readsDir}/${SampleName}_extendedFrags.fasta -s ${SampleName}  2> ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
+                check_file ${readsDir}/${SampleName}_extendedFrags.fasta
+                check_log ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
+                say "$num_sample/$nb_samples - Elapsed time with fastq2fasta : $(timer $start_time)"
+            fi
+        done
     fi
-
-    let "essai=1";
-    if [ ! -d "${readsDir}/filter_${#filterRef[@]}" ] && [ ! -f "${readsDir}/${SampleName}_alien_f.fastq" ]
-    then
-            for db in ${filterRef[@]}
-            do
-                    let "num=$essai-1";
-                    if [ ! -d "${readsDir}/filter_${essai}" ] && [ -d "${readsDir}/filter_${num}" ] || [ "$essai" -ne "1" ] 
-                    then
-                            say "$num_sample/$nb_samples - Filter reads against $db"
-                            start_time=$(timer)
-                            mkdir ${readsDir}/filter_${essai}
-                            # Next mapping
-                            $bowtie2  -q -N $NbMismatchMapping -p $NbProc -x $db -1 ${readsDir}/filter_${num}/un-conc-mate.1  -2 ${readsDir}/filter_${num}/un-conc-mate.2 -S /dev/null --un-conc ${readsDir}/filter_${essai}/ -t --very-fast  > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
-                            check_file ${readsDir}/filter_${essai}/un-conc-mate.1
-                            # Remove old file
-                            rm -rf ${readsDir}/filter_${num}
-                            say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
-                    elif [ -f "$input1" ] && [ -f "$input2" ]  && [ "$essai" -eq "1" ] && [ ! -d "${readsDir}/filter_${essai}" ]
-                    then
-                            say "$num_sample/$nb_samples - Filter reads against $db"
-                            start_time=$(timer)
-                            mkdir  ${readsDir}/filter_${essai}
-                            # First mapping
-                            $bowtie2 -q -N $NbMismatchMapping -p $NbProc -x $db  -1 $input1 -2 $input2 -S /dev/null --un-conc ${readsDir}/filter_${essai} -t --very-fast > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
-                            check_file ${readsDir}/filter_${essai}/un-conc-mate.1
-                            say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
-                    fi
-                    let "essai=$essai+1";
-            done
-            mv ${readsDir}/filter_${#filterRef[@]}/un-conc-mate.1 ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_1.fastq
-            mv ${readsDir}/filter_${#filterRef[@]}/un-conc-mate.2 ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_2.fastq
-    fi
-
-
-    if [ -f "${readsDir}/filter_${#filterRef[@]}/un-conc-mate_1.fastq" ] && [ -f "${readsDir}/filter_${#filterRef[@]}/un-conc-mate_2.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien_f.fastq" ]
-    then
-        say "$num_sample/$nb_samples - Triming reads with Alientrimmer"
-        start_time=$(timer)
-        $alientrimmer -if ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_1.fastq -ir ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_2.fastq -of ${readsDir}/${SampleName}_alien_f.fastq -or ${readsDir}/${SampleName}_alien_r.fastq -os ${readsDir}/${SampleName}_alien_s.fastq -c $alienseq  > ${logDir}/log_alientrimmer_${SampleName}.txt -p 80 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
-        check_file ${readsDir}/${SampleName}_alien_f.fastq
-        check_file ${readsDir}/${SampleName}_alien_r.fastq
-        check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
-        rm -rf ${readsDir}/filter_${#filterRef[@]}
-        say "$num_sample/$nb_samples - Elapsed time with Alientrimmer : $(timer $start_time)"
-    fi
-
-    if [ -f "${readsDir}/${SampleName}_alien_f.fastq" ] && [ -f "${readsDir}/${SampleName}_alien_r.fastq" ] && [ ! -f "${readsDir}/${SampleName}.extendedFrags.fastq" ]
-    then
-        say "$num_sample/$nb_samples - Merging paired reads with FLASH"
-        start_time=$(timer)
-        $flash ${readsDir}/${SampleName}_alien_f.fastq ${readsDir}/${SampleName}_alien_r.fastq -M $maxoverlap -m $minoverlap -d $readsDir/ -o $SampleName -t $NbProc  > ${logDir}/log_flash_${SampleName}.txt
-        check_file ${readsDir}/${SampleName}.extendedFrags.fastq
-        say "$num_sample/$nb_samples - Elapsed time with FLASH : $(timer $start_time)"
-    fi
-
-    if [ -f "${readsDir}/${SampleName}.extendedFrags.fastq" ] && [ ! -f "${readsDir}/${SampleName}.extendedFrags_fastqc.html" ] 
-    then
-        say "$num_sample/$nb_samples - Quality control with Fastqc"
-        start_time=$(timer)
-        $fastqc ${readsDir}/${SampleName}.extendedFrags.fastq --nogroup -q -t $NbProc 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
-        check_file ${readsDir}/${SampleName}.extendedFrags_fastqc.html
-        check_log ${errorlogDir}/error_log_fastqc_${SampleName}.txt
-        say "$num_sample/$nb_samples - Elapsed time with Fastqc: $(timer $start_time)"
-    fi
-
-    if [ -f "${readsDir}/${SampleName}.extendedFrags.fastq" ] && [ ! -f ${readsDir}/${SampleName}_extendedFrags.fasta ]
-    then
-        say "$num_sample/$nb_samples - Convert fastq to fasta with fastq2fasta"
-        start_time=$(timer)
-        $fastq2fasta -i ${readsDir}/${SampleName}.extendedFrags.fastq -o ${readsDir}/${SampleName}_extendedFrags.fasta -s ${SampleName}  2> ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
-        check_file ${readsDir}/${SampleName}_extendedFrags.fasta
-        check_log ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
-        say "$num_sample/$nb_samples - Elapsed time with fastq2fasta : $(timer $start_time)"
-    fi
-done
-say "Elapsed time with read processing: $(timer $all_start_time)"
+    say "Elapsed time with read processing: $(timer $all_start_time)"
 fi
-
 # Combine all files
 #if [ ! -f ${resultDir}/${ProjectName}_extendedFrags.fasta ]
 if [ ! -f "$amplicon" ]
@@ -573,7 +649,7 @@ then
     fi
     
     # Greengenes
-    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.txt" ] && [ "$blast_tax" -eq "0" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.txt" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "0" ]
     then
         say "Assign taxonomy against greengenes with vsearch"
         start_time=$(timer)
@@ -590,7 +666,7 @@ then
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
 
-    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.txt" ] && [ "$blast_tax" -eq "1" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.txt" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "0" ]
     then
         say "Assign taxonomy against greengenes with blast"
         start_time=$(timer)
@@ -606,7 +682,38 @@ then
         #check_file ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.txt
         say "Elapsed time with get_taxonomy : $(timer $start_time)"
     fi
-    
+   if [ ! -f "${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.txt" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
+   then
+        say "Assign taxonomy against findley with vsearch"
+        start_time=$(timer)
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $findley --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.txt -strand plus
+        #check_file ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.txt
+        say "Elapsed time with vsearch : $(timer $start_time)"
+    fi
+    if [ -f "${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.txt" ] && [ ! -f "${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.txt" ]
+    then
+        say "Extract vsearch - findley annotation with get_taxonomy"
+        start_time=$(timer)
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.txt -d $findley -o ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.txt -dtype findley
+        #check_file ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.txt
+        say "Elapsed time with vsearch : $(timer $start_time)"
+    fi
+    if [ ! -f "${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.txt" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "1" ]
+    then
+        say "Assign taxonomy against findley with blast"
+        start_time=$(timer)
+        $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $findley -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.txt -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true
+        #check_file ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.txt
+        say "Elapsed time with blast : $(timer $start_time)"
+    fi
+    if [ -f "${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.txt" ] && [ ! -f "${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.txt" ]
+    then
+        say "Extract findley annotation with get_taxonomy"
+        start_time=$(timer)
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.txt -d $findley -o ${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.txt -dtype findley
+        #check_file ${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.txt
+        say "Elapsed time with get_taxonomy : $(timer $start_time)"
+    fi
     # UNITE
     if [ ! -f "${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.txt" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
     then
@@ -624,7 +731,7 @@ then
         #check_file ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.txt
         say "Elapsed time with vsearch : $(timer $start_time)"
      fi
-     if [ ! -f "${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.txt" ] && [ "$blast_tax" -eq "1" ]
+     if [ ! -f "${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.txt" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "1" ]
      then
          say "Assign taxonomy against unite with blast"
          start_time=$(timer)

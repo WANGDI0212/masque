@@ -17,7 +17,7 @@ import argparse
 import csv
 
 __author__ = "Amine Ghozlane"
-__copyright__ = "Copyright 2014, INRA"
+__copyright__ = "Copyright 2015, Institut Pasteur"
 __license__ = "GPL"
 __version__ = "1.0.0"
 __maintainer__ = "Amine Ghozlane"
@@ -65,8 +65,8 @@ def getArguments():
     parser.add_argument('-d', dest='database_file', type=isfile, required=True,
                         help='Path to the database file.')
     parser.add_argument('-dtype', dest='database_type', type=str,
-                        default="silva", choices=["silva", "rdp",
-                                                  "greengenes", "unite"],
+                        default="silva", choices=["findley", "greengenes",
+                                                  "rdp", "silva", "unite"],
                         help='Database format (default = silva).')
     parser.add_argument('-t', dest='taxonomy_file', type=isfile,
                         help='Path to the taxonomy file (Greengenes only).')
@@ -128,6 +128,16 @@ def parse_unite(header, vsearch_dict, annotation_dict):
     return annotation_dict, identified
 
 
+def parse_findley(header, vsearch_dict, annotation_dict):
+    """Parse findley database annotations
+    """
+    identified = 0
+    tax = header.strip().split("\t")
+    if tax[0][1:] in vsearch_dict:
+        annotation_dict[tax[0][1:]] = tax[1].replace("Root;", "")
+        identified = 1
+    return annotation_dict, identified
+
 def parse_silva(header, vsearch_dict, annotation_dict):
     """Parse silva database annotations
     """
@@ -147,8 +157,8 @@ def load_taxonomy_gg(taxonomy_file, vsearch_dict):
         with open(taxonomy_file, "rt") as taxonomy:
             taxonomy_reader = csv.reader(taxonomy, delimiter="\t")
             for line in taxonomy_reader:
-                annotation_dict[line[0]] = "".join([annot[3:]
-                                                    for annot in line[1].split(" ")])
+                annotation_dict[line[0]] = "".join(
+                    [annot[3:] for annot in line[1].split(" ")])
     except IOError:
         sys.exit("Error cannot open {0}".format(taxonomy_file))
     return annotation_dict
@@ -162,6 +172,8 @@ def load_taxonomy(database_file, vsearch_dict, database_type):
         parse_result = parse_rdp
     elif database_type == "unite":
         parse_result = parse_unite
+    elif  database_type == "findley":
+        parse_result = parse_findley
     else:
         parse_result = parse_silva
     nb_id = len(vsearch_dict)
