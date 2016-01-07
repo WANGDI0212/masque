@@ -19,6 +19,7 @@ import os
 import csv
 import glob
 import re
+from itertools import chain
 
 __author__ = "Amine Ghozlane"
 __copyright__ = "Copyright 2015, Institut Pasteur"
@@ -98,8 +99,12 @@ def get_arguments():
                         help='Amplicon directory (if raw reads not available).')
     parser.add_argument('-p', dest='paired_reads', action='store_true',
                         default=False, help='Paired reads (Default:False).')
-    parser.add_argument('-o', dest='output_file', type=str,
-                        default="meta16s_result.txt", help='Output file.')
+    parser.add_argument('-o1', dest='output_file1', type=str,
+                        default="meta16s_otu_build_process.txt",
+                        help='Output file about the OTU building.')
+    parser.add_argument('-o2', dest='output_file2', type=str,
+                        default="meta16s_otu_annotation.txt",
+                        help='Output file about the OTU annotation.')
     return parser.parse_args()
 
 
@@ -137,7 +142,7 @@ def parse_fastq(fastq_file):
 def parse_fasta(fasta_file):
     """
     """
-    regex_name = re.compile(r"barcodelabel=(\S+);")
+    regex_name = re.compile(r"barcodelabel=(\S+);[s\s]")
     header_dict = {}
     header = ""
     sequence = ""
@@ -152,6 +157,7 @@ def parse_fasta(fasta_file):
                     regex_match = regex_name.search(line)
                     if regex_match:
                         header = regex_match.group(1)
+                        #print(header)
                         if header in header_dict:
                             header_dict[header] += 1
                         else:
@@ -166,10 +172,11 @@ def parse_fasta(fasta_file):
 
 
 def get_reads_data(sample_read, list_reads, paired, tag):
-    """
+    """Count simple information on fastq sets
     """
     if paired:
         for i in xrange(len(list_reads[0])):
+            # Get sample name
             name = os.path.splitext(os.path.basename(list_reads[0][i]))[0]
             name = name.replace("-R1","").replace("_R1","")
             name = name.replace("_alien_f","").replace("_alien_r","")
@@ -189,9 +196,11 @@ def get_reads_data(sample_read, list_reads, paired, tag):
                     ]}
     else:
         for sample in list_reads:
-            name = os.path.splitext(sample)[0]
+            name = os.path.splitext(os.path.basename(sample))[0]
+            name = name.replace("_alien","")
             seq_len_tab = parse_fastq(sample)
-            seq_len_tab.append(parse_fastq(sample))
+            ##WHAT ???
+            #seq_len_tab.append(parse_fastq(sample))
             if name in sample_read:
                 sample_read[name].update({tag:[
                     len(seq_len_tab),
@@ -199,6 +208,7 @@ def get_reads_data(sample_read, list_reads, paired, tag):
                     sorted(seq_len_tab)[len(seq_len_tab)//2]
                     ]})
             else:
+                #print(seq_len_tab)
                 sample_read[name] = {tag:[
                     len(seq_len_tab),
                     sum(seq_len_tab)/len(seq_len_tab),
@@ -208,7 +218,7 @@ def get_reads_data(sample_read, list_reads, paired, tag):
 
 
 def parse_log(log_file, regex):
-    """
+    """Parse log data
     """
     data = []
     try:
@@ -216,7 +226,8 @@ def parse_log(log_file, regex):
             for line in log:
                 regex_match = regex.match(line)
                 if regex_match:
-                    data = regex_match.groups()
+                    data += [int(i.replace(",","").replace("%","")) 
+                            for i in regex_match.groups()]
             assert(len(data) > 0)
     except IOError:
         sys.exit("Error cannot open {0}".format(log_file))
@@ -225,16 +236,20 @@ def parse_log(log_file, regex):
     return data
 
 
-def get_log(sample_read, list_file, soft, tag=""):
+def get_log(sample_read, list_file, soft, tag, paired=False):
     """
     """
     if soft == "alientrimmer":
-        regex = re.compile(r".+(\S+)\s+trimmed\s+\(fwd:\s+(\S+)\s+rev:\s+(\S+)\)"
-                           "\s+(\S+)\s+removed\s+\(fwd:\s+(\S+)\s+rev:\s+(\S+)\)")
+        if paired :
+            regex = re.compile(r".+\s+(\S+)\s+trimmed\s+\(fwd:\s+(\S+)\s+rev:\s+(\S+)\)"
+                               "\s+(\S+)\s+removed\s+\(fwd:\s+(\S+)\s+rev:\s+(\S+)\)")
+        else:
+            regex = re.compile(r".+\s+(\S+)\s+trimmed\s+(\S+)\s+removed")
     elif soft == "flash":
-        regex = re.compile(r"\S+\s+Total\s+pairs:\s+(\S+)")
+        regex = re.compile(r"\S+\s+\S+\s+pairs:\s+(\S+)")
     else:
-        regex = re.compile(r"\s+(\S+)\s+\((\S+)\)\s+aligned.+1\s+time")
+        #regex = re.compile(r"\s+(\S+)\s+\((\S+)\)\s+aligned.+1\s+time")
+        regex = re.compile(r"\s+(\S+)\s+.+\s+aligned.+1\s+time")
     for sample in list_file:
         name = os.path.basename(sample).replace("log_{0}_".format(soft),"").replace(tag+".txt", "")
         if name in sample_read:
@@ -280,21 +295,82 @@ def parse_otu_table(sample_read, otu_table_file):
 
 
 
-def write_sample_result(sample_read, output_file):
+def write_sample_result(sample_read, output_file, paired):
+    """Write otu building process data
     """
-    """
+    if paired:
+        header = ["sample", "Raw_reads", "Raw_mean_length", "Raw_median_length",
+                  "mapping_human_1_time", "mapping_human_>1_time",
+                  "mapping_phiX_1_time", "mapping_phiX_>1_time",
+                  "Trimmed", "Trimmed_fwd", "Trimmed_rev", "Removed",
+                  "Removed_fwd", "Removed_rev", "Filtered_reads",
+                  "Filtered_mean_length", "Filtered_median_length"
+                  "Total pairs", "Combined pairs", "Uncombined pairs",
+                  "Selected_dereplication", "Selected_singleton",
+                  "Selected_chimera", "Selected_otu", "Mapped_reads",
+                  "Mapping_percent_raw", "Mapping_percent_filtered"]
+    else:
+        header = ["sample", "Raw_reads", "Raw_mean_length", "Raw_median_length",
+                  "mapping_human_1_time", "mapping_human_>1_time",
+                  "mapping_phiX_1_time", "mapping_phiX_>1_time", "Trimmed",
+                  "Removed", "Filtered_reads", "Filtered_mean_length",
+                  "Filtered_median_length", "Selected_dereplication",
+                  "Selected_singleton", "Selected_chimera", "Selected_otu",
+                  "Mapped_reads", "Mapping_percent_raw",
+                  "Mapping_percent_filtered"]
     try:
         with open(output_file, "wt") as output:
             output_writer = csv.writer(output, delimiter='\t')
-            output_writer.writerow(["sample", "Raw_reads", "Raw_mean_length",
-                                    "Raw_median_length", "Filtered_reads",
-                                    "Filtered_mean_length",
-                                    "Filtered_median_length",
-                                    "alientrimmer"])
+            output_writer.writerow(header)
             for sample in sample_read:
-                output_writer.writerow([sample] + sample_read[sample]['raw'] +
-                                       sample_read[sample]['proc'],
-                                       sample_read[sample]['alientrimmer'])
+                output_writer.writerow(
+                    [sample] + sample_read[sample]['raw'] +
+                    sample_read[sample]['mapping_1'] +
+                    sample_read[sample]['mapping_2'] +
+                    sample_read[sample]['alientrimmer']+
+                    sample_read[sample]['proc'] +
+                    [sample_read[sample]['dereplication'],
+                    sample_read[sample]['singleton'],
+                    sample_read[sample]['chimera'],
+                    sample_read[sample]['otu'],
+                    sample_read[sample]['mapped'],
+                    round(float(sample_read[sample]['mapped'])/
+                    float(sample_read[sample]['raw'][0])*100.0, 2),
+                    round(float(sample_read[sample]['mapped'])/
+                    float(sample_read[sample]['proc'][0])*100.0, 2),])
+    except IOError:
+        sys.exit("Error cannot open {0}".format(output_file))
+
+
+def flatten(listOfLists):
+    "Flatten one level of nesting"
+    return list(chain.from_iterable(listOfLists))
+
+
+def write_otu_annotation(global_data, output_file, tag):
+    """Write global data
+    """
+    list_step = ["extended", "dereplication", "singleton", "chimera", "otu"]
+    header = ["Type", "Count", "Mean_length", "Median_length"]
+    rownames = ["Amplicon", "Dereplication", "Singleton_removed",
+                "Chimera_removed", "OTU"]
+    #header = ["Amplicon", "Amplicon_mean_length", "Amplicon_median_length",
+              #"Dereplication", "Dereplication_mean_length", 
+              #"Dereplication_median_length", "Singleton_removed",
+              #"Singleton_removed_mean_length",
+              #"Singleton_removed_median_length",
+              #"Chimera_removed", "Chimera_removed_mean_length",
+              #"Chimera_removed_median_length",
+              #"OTU", "OTU_mean_length", "OTU_median_length"]
+    tag_names = [step  + "_annotation" for step in tag]
+    try:
+        with open(output_file, "wt") as output:
+            output_writer = csv.writer(output, delimiter='\t')
+            output_writer.writerow(header)
+            for i in xrange(len(list_step)):
+                output_writer.writerow([rownames[i]] + global_data[list_step[i]])
+            for i in xrange(len(tag)):
+                output_writer.writerow([tag_names[i], global_data[tag[i]]])
     except IOError:
         sys.exit("Error cannot open {0}".format(output_file))
 
@@ -310,6 +386,7 @@ def main():
     sample_read = {}
     ## Get raw data
     ## TODO Check if samples are missing here
+    ## OK for none paired data
     if args.raw_reads_dir:
         if args.paired_reads:
             list_r1 = check_file(args.raw_reads_dir + "*R1*.f*q")
@@ -334,23 +411,23 @@ def main():
             list_file = ([list_r1] +
                         [[r.replace("alien_f", "alien_r") for r in list_r1]])
         else:
-            list_file = check_file(args.raw_reads_dir + "*alien.f*q")
+            list_file = check_file(processed_reads_dir + "*alien.f*q")
         sample_read = get_reads_data(sample_read, list_file, args.paired_reads,
                                      "proc")
     else:
         print("Read directory is missing",file=sys.stderr)
     ## Get log data
-    ## TODO A lot more data to extract
     log_dir = args.data_dir + "log" + os.sep
     if os.path.isdir(log_dir):
         # Get log alientrimmer
         sample_read = get_log(sample_read, 
                               check_file(log_dir + "log_alientrimmer*.txt"),
-                              "alientrimmer")
+                              "alientrimmer", "", args.paired_reads)
         # Get log flash
-        sample_read = get_log(sample_read, 
-                              check_file(log_dir + "log_flash*.txt"),
-                              "flash")
+        if args.paired_reads:
+            sample_read = get_log(sample_read, 
+                                check_file(log_dir + "log_flash*.txt"),
+                                "flash", "")
         # Get log mapping
         sample_read = get_log(sample_read,
                               check_file(log_dir + "log_mapping*_1.txt"),
@@ -358,57 +435,70 @@ def main():
         sample_read = get_log(sample_read,
                               check_file(log_dir + "log_mapping*_2.txt"),
                               "mapping", "_2")
-    ## Get dereplication data
+    # Get dereplication data
+    header_dict, seq_len_tab = parse_fasta(check_file(args.data_dir +
+                                                      "*_extendedFrags.fasta")[0])
+    global_data = {"extended":[
+                    len(seq_len_tab), sum(seq_len_tab)/len(seq_len_tab),
+                    sorted(seq_len_tab)[len(seq_len_tab)//2]]}
+    # Get dereplication data
     header_dict, seq_len_tab = parse_fasta(check_file(args.data_dir +
                                                       "*_drep.fasta")[0])
     sample_read = update_step(sample_read, header_dict, "dereplication")
-    global_data = {"dereplication":[
-                    sum(seq_len_tab)/len(seq_len_tab),
-                    sorted(seq_len_tab)[len(seq_len_tab)//2],
-                    len(seq_len_tab)]}
+    global_data.update({"dereplication":[
+                        len(seq_len_tab),
+                        sum(seq_len_tab)/len(seq_len_tab),
+                        sorted(seq_len_tab)[len(seq_len_tab)//2]]})
     ## Get singleton data
     header_dict, seq_len_tab = parse_fasta(check_file(args.data_dir +
                                                      "*_sorted.fasta")[0])
     sample_read = update_step(sample_read, header_dict, "singleton")
     global_data.update({"singleton":[
+                    len(seq_len_tab),
                     sum(seq_len_tab)/len(seq_len_tab),
-                    sorted(seq_len_tab)[len(seq_len_tab)//2],
-                    len(seq_len_tab)]})
+                    sorted(seq_len_tab)[len(seq_len_tab)//2]]})
     ## Get Chimera data
     header_dict, seq_len_tab = parse_fasta(check_file(args.data_dir +
                                                      "*_nochim.fasta")[0])
     sample_read = update_step(sample_read, header_dict, "chimera")
     global_data.update({"chimera":[
+                    len(seq_len_tab),
                     sum(seq_len_tab)/len(seq_len_tab),
-                    sorted(seq_len_tab)[len(seq_len_tab)//2],
-                    len(seq_len_tab)]})
+                    sorted(seq_len_tab)[len(seq_len_tab)//2]]})
     ## Get otu data
     header_dict, seq_len_tab = parse_fasta(check_file(args.data_dir +
-                                                     "*_otu.fasta")[0])
+                                                     "*_otu_compl.fasta")[0])
     sample_read = update_step(sample_read, header_dict, "otu")
     global_data.update({"otu":[
+                    len(seq_len_tab),
                     sum(seq_len_tab)/len(seq_len_tab),
-                    sorted(seq_len_tab)[len(seq_len_tab)//2],
-                    len(seq_len_tab)]})
+                    sorted(seq_len_tab)[len(seq_len_tab)//2]]})
     ## Get otu table
     sample_read = parse_otu_table(sample_read, check_file(args.data_dir +
                                                           "*_otu_table.txt")[0])
     # annotation
-    tag = ["silva", "greengenes", "unite", "rdp"]
+    tag = ["silva", "greengenes", "unite", "findley", "rdp"]
     annotation_files = [check_file(args.data_dir + "*_silva_annotation_eval*.txt")[0],
                         check_file(args.data_dir + "*_greengenes_annotation_*.txt")[0],
                         check_file(args.data_dir + "*_unite_annotation_*.txt")[0],
+                        check_file(args.data_dir + "*_findley_annotation_*.txt")[0],
                         check_file(args.data_dir + "*_rdp.txt")[0]]
+    tag_present = []
     for i in xrange(len(annotation_files)):
         if os.path.isfile(annotation_files[i]):
             try:
                 with open(annotation_files[i], "rt") as annotation:
                     global_data.update({tag[i]:sum(1 for line in annotation) - 1})
+                tag_present += [1]
             except IOError:
                 sys.exit("Error cannot open {0}".format(annotation_files[i]))
+        else:
+            tag_present += [0]
     # write result
-    print(sample_read)
-    write_sample_result(sample_read, args.output_file)
+    write_sample_result(sample_read, args.output_file1, args.paired_reads)
+    print(global_data)
+    write_otu_annotation(global_data, args.output_file2,
+                         [tag[i] for i in xrange(len(tag)) if tag_present[i]])
 
 if __name__ == '__main__':
     main()
