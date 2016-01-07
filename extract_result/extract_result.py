@@ -19,7 +19,6 @@ import os
 import csv
 import glob
 import re
-from itertools import chain
 
 __author__ = "Amine Ghozlane"
 __copyright__ = "Copyright 2015, Institut Pasteur"
@@ -342,11 +341,6 @@ def write_sample_result(sample_read, output_file, paired):
         sys.exit("Error cannot open {0}".format(output_file))
 
 
-def flatten(listOfLists):
-    "Flatten one level of nesting"
-    return list(chain.from_iterable(listOfLists))
-
-
 def write_otu_annotation(global_data, output_file, tag):
     """Write global data
     """
@@ -354,14 +348,6 @@ def write_otu_annotation(global_data, output_file, tag):
     header = ["Type", "Count", "Mean_length", "Median_length"]
     rownames = ["Amplicon", "Dereplication", "Singleton_removed",
                 "Chimera_removed", "OTU"]
-    #header = ["Amplicon", "Amplicon_mean_length", "Amplicon_median_length",
-              #"Dereplication", "Dereplication_mean_length", 
-              #"Dereplication_median_length", "Singleton_removed",
-              #"Singleton_removed_mean_length",
-              #"Singleton_removed_median_length",
-              #"Chimera_removed", "Chimera_removed_mean_length",
-              #"Chimera_removed_median_length",
-              #"OTU", "OTU_mean_length", "OTU_median_length"]
     tag_names = [step  + "_annotation" for step in tag]
     try:
         with open(output_file, "wt") as output:
