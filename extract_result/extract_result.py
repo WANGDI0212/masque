@@ -482,7 +482,6 @@ def main():
             tag_present += [0]
     # write result
     write_sample_result(sample_read, args.output_file1, args.paired_reads)
-    print(global_data)
     write_otu_annotation(global_data, args.output_file2,
                          [tag[i] for i in xrange(len(tag)) if tag_present[i]])
 
