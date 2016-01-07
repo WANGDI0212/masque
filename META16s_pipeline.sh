@@ -193,6 +193,8 @@ flash="flash" #"$SCRIPTPATH/FLASH-1.2.11/flash" #$(which flash)
 mafft="mafft" #"$SCRIPTPATH/maff"
 # get_taxonomy
 get_taxonomy="$SCRIPTPATH/get_taxonomy/get_taxonomy.py"
+# rename_tu
+rename_otu="$SCRIPTPATH/rename_otu/rename_otu.py"
 # rdp classifier
 rdp_classifier="classifier" #"$SCRIPTPATH/rdp_classifier_2.11/dist/classifier.jar"
 # swarm
@@ -326,12 +328,12 @@ all_start_time=$(timer)
 if [ -d "$input_dir" ]
 then
     list_product_fa=""
-    nb_samples=$(ls $input_dir/*R1*.{fastq,fq} -1 |wc -l)
+    nb_samples=$(ls $input_dir/*R1*.{fastq,fq} -1  2>/dev/null |wc -l)
     num_sample=0
     if [ "$nb_samples" -eq "0" ]
     then
-        nb_samples=$(ls $input_dir/*.{fastq,fq} -1 |wc -l)
-        for input in $(ls $input_dir/*.{fastq,fq})
+        nb_samples=$(ls $input_dir/*.{fastq,fq} -1  2>/dev/null |wc -l)
+        for input in $(ls $input_dir/*.{fastq,fq}  2>/dev/null )
         do
             let "num_sample=$num_sample+1"
             # Get the sample name
@@ -346,7 +348,7 @@ then
                 for db in ${filterRef[@]}
                 do
                         let "num=$essai-1";
-                        if [ ! -f "${readsDir}/${SampleName}_${essai}.fastq" ] && [ -f "${readsDir}/${SampleName}_${num}.fastq" ]
+                        if [ ! -f "${readsDir}/${SampleName}_${essai}.fastq" ] && [ -f "${readsDir}/${SampleName}_${num}.fastq" ] && [ ! -f "${readsDir}/${SampleName}_${#filterRef[@]}.fastq" ]
                         then
                                 say "$num_sample/$nb_samples - Filter reads against $db"
                                 start_time=$(timer)
@@ -356,7 +358,7 @@ then
                                 # Remove old file
                                 rm -f ${readsDir}/${SampleName}_${num}.fastq
                                 say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
-                        elif [ -f "$input" ] && [ "$essai" -eq "1" ] && [ ! -f "${readsDir}/${SampleName}_${essai}.fastq" ]
+                        elif [ -f "$input" ] && [ "$essai" -eq "1" ] && [ ! -f "${readsDir}/${SampleName}_${essai}.fastq" ] && [ ! -f "${readsDir}/${SampleName}_${#filterRef[@]}.fastq" ]
                         then
                                 say "$num_sample/$nb_samples - Filter reads against $db"
                                 start_time=$(timer)
@@ -400,7 +402,7 @@ then
             fi
         done
     else
-        for r1_file in $(ls $input_dir/*R1*.{fastq,fq})
+        for r1_file in $(ls $input_dir/*R1*.{fastq,fq}  2>/dev/null )
         do
             let "num_sample=$num_sample+1"
             input1=$r1_file
@@ -489,10 +491,14 @@ then
             fi
         done
     fi
+    echo "What the fuck 1:"
+    echo "$amplicon"
     say "Elapsed time with read processing: $(timer $all_start_time)"
 fi
 # Combine all files
 #if [ ! -f ${resultDir}/${ProjectName}_extendedFrags.fasta ]
+echo "What the fuck 2:"
+echo "$amplicon"
 if [ ! -f "$amplicon" ]
 then
     say "Combine fasta files"
@@ -553,7 +559,9 @@ then
      say "OTU clustering with vsearch"
      start_time=$(timer)
      #$usearch -cluster_otus ${resultDir}/${ProjectName}_sorted.fasta -otus ${resultDir}/${ProjectName}_otu.fasta -uparseout ${resultDir}/${ProjectName}_uparse.txt -relabel OTU_ -sizein #-sizeout 
-     $vsearch --cluster_size ${resultDir}/${ProjectName}_nochim.fasta --id 0.97 --centroids ${resultDir}/${ProjectName}_otu.fasta --relabel OTU_ --sizein #--sizeout
+     # --relabel OTU_
+     $vsearch --cluster_size ${resultDir}/${ProjectName}_nochim.fasta --id 0.97 --centroids ${resultDir}/${ProjectName}_otu_compl.fasta --sizein #--sizeout
+     python $rename_otu -i ${resultDir}/${ProjectName}_otu_compl.fasta -o ${resultDir}/${ProjectName}_otu.fasta
      check_file ${resultDir}/${ProjectName}_otu.fasta
      say "Elapsed time to OTU clustering with vsearch: $(timer $start_time)"
 fi
@@ -611,7 +619,6 @@ then
         #python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva.txt -d $rdp -dtype rdp -o ${resultDir}/${ProjectName}_vs_rdp_annotation.txt
         say "Elapsed time with rdp_classifier: $(timer $start_time)"
     fi
-    
     
     # SILVA
     if [ ! -f "${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.txt" ] && [ "$blast_tax" -eq "0" ]
