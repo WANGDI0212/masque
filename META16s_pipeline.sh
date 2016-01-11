@@ -340,10 +340,20 @@ then
             filename=$(basename "$input")
             SampleName="${filename%.*}"
             check_name $SampleName
-            list_product_fa+="${resultDir}/reads/${SampleName}_alien.fasta "
-            let "essai=1";
+            list_product_fa+="${resultDir}/reads/${SampleName}_alien_filt.fasta "
+            # Triming
+            if [ -f "$input" ] && [ ! -f "${readsDir}/${SampleName}_alien.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien_filt.fastq" ]
+            then
+                say "Triming reads with alientrimmer"
+                start_time=$(timer)
+                $alientrimmer -i $input -o ${readsDir}/${SampleName}_alien.fastq -c $alienseq -l 35 -p 80  > ${logDir}/log_alientrimmer_${SampleName}.txt 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+                check_file ${readsDir}/${SampleName}_alien.fastq
+                check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+                say "Elapsed time to trim with alientrimmer : $(timer $start_time)"
+            fi
             # Filtering reads against contaminant db
-            if [ ! -d "${readsDir}/${SampleName}_${#filterRef[@]}" ]
+            let "essai=1";
+            if [ ! -f "${readsDir}/${SampleName}_alien_filt.fastq" ]
             then
                 for db in ${filterRef[@]}
                 do
@@ -358,45 +368,37 @@ then
                                 # Remove old file
                                 rm -f ${readsDir}/${SampleName}_${num}.fastq
                                 say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
-                        elif [ -f "$input" ] && [ "$essai" -eq "1" ] && [ ! -f "${readsDir}/${SampleName}_${essai}.fastq" ] && [ ! -f "${readsDir}/${SampleName}_${#filterRef[@]}.fastq" ]
+                        elif [ -f "${readsDir}/${SampleName}_alien.fastq" ] && [ "$essai" -eq "1" ] && [ ! -f "${readsDir}/${SampleName}_${essai}.fastq" ] && [ ! -f "${readsDir}/${SampleName}_${#filterRef[@]}.fastq" ]
                         then
                                 say "$num_sample/$nb_samples - Filter reads against $db"
                                 start_time=$(timer)
                                 # First mapping
-                                $bowtie2 -q -N $NbMismatchMapping -p $NbProc -x $db  -U $input -S /dev/null --un ${readsDir}/${SampleName}_${essai}.fastq -t --end-to-end --very-fast  > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
+                                $bowtie2 -q -N $NbMismatchMapping -p $NbProc -x $db  -U ${readsDir}/${SampleName}_alien.fastq  -S /dev/null --un ${readsDir}/${SampleName}_${essai}.fastq -t --end-to-end --very-fast  > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
                                 check_file ${readsDir}/${SampleName}_${essai}.fastq
+                                rm -f ${readsDir}/${SampleName}_alien.fastq
                                 say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
                         fi
                         let "essai=$essai+1";
                 done
-            fi
-            # Triming
-            if [ -f "${readsDir}/${SampleName}_${#filterRef[@]}.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien.fastq" ]
-            then
-                say "Triming reads with alientrimmer"
-                start_time=$(timer)
-                $alientrimmer -i ${readsDir}/${SampleName}_${#filterRef[@]}.fastq -o ${readsDir}/${SampleName}_alien.fastq -c $alienseq -l 35 -p 80  > ${logDir}/log_alientrimmer_${SampleName}.txt 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
-                check_file ${readsDir}/${SampleName}_alien.fastq
-                check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
-                say "Elapsed time to trim with alientrimmer : $(timer $start_time)"
+                mv ${readsDir}/${SampleName}_${#filterRef[@]}.fastq ${readsDir}/${SampleName}_alien_filt.fastq
             fi
             # Quality control
-            if [ -f "${readsDir}/${SampleName}_alien.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien_fastqc.html" ]
+            if [ -f "${readsDir}/${SampleName}_alien_filt.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien_filt_fastqc.html" ]
             then
                 say "$num_sample/$nb_samples - Quality control with Fastqc"
                 start_time=$(timer)
-                $fastqc ${readsDir}/${SampleName}_alien.fastq --nogroup -q -t $NbProc 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
-                check_file ${readsDir}/${SampleName}_alien_fastqc.html
+                $fastqc ${readsDir}/${SampleName}_alien_filt.fastq --nogroup -q -t $NbProc 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
+                check_file ${readsDir}/${SampleName}_alien_filt_fastqc.html
                 check_log ${errorlogDir}/error_log_fastqc_${SampleName}.txt
                 say "$num_sample/$nb_samples - Elapsed time with Fastqc: $(timer $start_time)"
             fi
             # Convert to fasta with the right name
-            if [ -f "${readsDir}/${SampleName}_alien.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien.fasta" ]
+            if [ -f "${readsDir}/${SampleName}_alien_filt.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien_filt.fasta" ]
             then
                 say "$num_sample/$nb_samples - Convert fastq to fasta with fastq2fasta"
                 start_time=$(timer)
-                $fastq2fasta -i ${readsDir}/${SampleName}_alien.fastq -o ${readsDir}/${SampleName}_alien.fasta -s ${SampleName}  2> ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
-                check_file ${readsDir}/${SampleName}_alien.fasta
+                $fastq2fasta -i ${readsDir}/${SampleName}_alien_filt.fastq -o ${readsDir}/${SampleName}_alien_filt.fasta -s ${SampleName}  2> ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
+                check_file ${readsDir}/${SampleName}_alien_filt.fasta
                 check_log ${errorlogDir}/error_log_fastq2fasta_${SampleName}.txt
                 say "$num_sample/$nb_samples - Elapsed time with fastq2fasta : $(timer $start_time)"
             fi
@@ -415,9 +417,21 @@ then
             SampleName=$(echo "${filename%.*}" |sed "s:_R1:@:g"|cut -f 1 -d"@")
             check_name $SampleName
             list_product_fa+="${resultDir}/reads/${SampleName}_extendedFrags.fasta "
-            let "essai=1";
+            # Trimming
+            if [ -f "$input1" ] && [ -f "$input2" ] && [ ! -f "${readsDir}/${SampleName}_alien_f.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien_f_filt.fastq" ]
+            then
+                say "$num_sample/$nb_samples - Triming reads with Alientrimmer"
+                start_time=$(timer)
+                $alientrimmer -if $input1 -ir $input2 -of ${readsDir}/${SampleName}_alien_f.fastq -or ${readsDir}/${SampleName}_alien_r.fastq -os ${readsDir}/${SampleName}_alien_s.fastq -c $alienseq  > ${logDir}/log_alientrimmer_${SampleName}.txt -p 80 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+                check_file ${readsDir}/${SampleName}_alien_f.fastq
+                check_file ${readsDir}/${SampleName}_alien_r.fastq
+                check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+                #rm -rf ${readsDir}/filter_${#filterRef[@]}
+                say "$num_sample/$nb_samples - Elapsed time with Alientrimmer : $(timer $start_time)"
+            fi
             # Filtering reads against contaminant db
-            if [ ! -d "${readsDir}/filter_${#filterRef[@]}" ] && [ ! -f "${readsDir}/${SampleName}_alien_f.fastq" ]
+            let "essai=1";
+            if [ ! -d "${readsDir}/filter_${#filterRef[@]}" ] && [ ! -f "${readsDir}/${SampleName}_alien_f_filt.fastq" ]
             then
                     for db in ${filterRef[@]}
                     do
@@ -433,39 +447,29 @@ then
                                     # Remove old file
                                     rm -rf ${readsDir}/filter_${num}
                                     say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
-                            elif [ -f "$input1" ] && [ -f "$input2" ]  && [ "$essai" -eq "1" ] && [ ! -d "${readsDir}/filter_${essai}" ]
+                            elif [ -f "${readsDir}/${SampleName}_alien_f.fastq" ] && [ -f "${readsDir}/${SampleName}_alien_r.fastq" ]  && [ "$essai" -eq "1" ] && [ ! -d "${readsDir}/filter_${essai}" ]
                             then
                                     say "$num_sample/$nb_samples - Filter reads against $db"
                                     start_time=$(timer)
                                     mkdir  ${readsDir}/filter_${essai}
                                     # First mapping
-                                    $bowtie2 -q -N $NbMismatchMapping -p $NbProc -x $db  -1 $input1 -2 $input2 -S /dev/null --un-conc ${readsDir}/filter_${essai} -t --very-fast > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
+                                    $bowtie2 -q -N $NbMismatchMapping -p $NbProc -x $db  -1 ${readsDir}/${SampleName}_alien_f.fastq -2 ${readsDir}/${SampleName}_alien_r.fastq -S /dev/null --un-conc ${readsDir}/filter_${essai} -t --very-fast > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
                                     check_file ${readsDir}/filter_${essai}/un-conc-mate.1
+                                    rm -f ${readsDir}/${SampleName}_alien_f.fastq ${readsDir}/${SampleName}_alien_r.fastq ${readsDir}/${SampleName}_alien_s.fastq
                                     say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
                             fi
                             let "essai=$essai+1";
                     done
-                    mv ${readsDir}/filter_${#filterRef[@]}/un-conc-mate.1 ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_1.fastq
-                    mv ${readsDir}/filter_${#filterRef[@]}/un-conc-mate.2 ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_2.fastq
-            fi
-            # Trimming
-            if [ -f "${readsDir}/filter_${#filterRef[@]}/un-conc-mate_1.fastq" ] && [ -f "${readsDir}/filter_${#filterRef[@]}/un-conc-mate_2.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien_f.fastq" ]
-            then
-                say "$num_sample/$nb_samples - Triming reads with Alientrimmer"
-                start_time=$(timer)
-                $alientrimmer -if ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_1.fastq -ir ${readsDir}/filter_${#filterRef[@]}/un-conc-mate_2.fastq -of ${readsDir}/${SampleName}_alien_f.fastq -or ${readsDir}/${SampleName}_alien_r.fastq -os ${readsDir}/${SampleName}_alien_s.fastq -c $alienseq  > ${logDir}/log_alientrimmer_${SampleName}.txt -p 80 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
-                check_file ${readsDir}/${SampleName}_alien_f.fastq
-                check_file ${readsDir}/${SampleName}_alien_r.fastq
-                check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
-                rm -rf ${readsDir}/filter_${#filterRef[@]}
-                say "$num_sample/$nb_samples - Elapsed time with Alientrimmer : $(timer $start_time)"
+                    mv ${readsDir}/filter_${#filterRef[@]}/un-conc-mate.1 ${readsDir}/${SampleName}_alien_f_filt.fastq
+                    mv ${readsDir}/filter_${#filterRef[@]}/un-conc-mate.2 ${readsDir}/${SampleName}_alien_r_filt.fastq
+                    rmdir ${readsDir}/filter_${#filterRef[@]}
             fi
             # Merging reads
-            if [ -f "${readsDir}/${SampleName}_alien_f.fastq" ] && [ -f "${readsDir}/${SampleName}_alien_r.fastq" ] && [ ! -f "${readsDir}/${SampleName}.extendedFrags.fastq" ]
+            if [ -f "${readsDir}/${SampleName}_alien_f_filt.fastq" ] && [ -f "${readsDir}/${SampleName}_alien_r_filt.fastq" ] && [ ! -f "${readsDir}/${SampleName}.extendedFrags.fastq" ]
             then
                 say "$num_sample/$nb_samples - Merging paired reads with FLASH"
                 start_time=$(timer)
-                $flash ${readsDir}/${SampleName}_alien_f.fastq ${readsDir}/${SampleName}_alien_r.fastq -M $maxoverlap -m $minoverlap -d $readsDir/ -o $SampleName -t $NbProc  > ${logDir}/log_flash_${SampleName}.txt
+                $flash ${readsDir}/${SampleName}_alien_f_filt.fastq ${readsDir}/${SampleName}_alien_r_filt.fastq -M $maxoverlap -m $minoverlap -d $readsDir/ -o $SampleName -t $NbProc  > ${logDir}/log_flash_${SampleName}.txt
                 check_file ${readsDir}/${SampleName}.extendedFrags.fastq
                 say "$num_sample/$nb_samples - Elapsed time with FLASH : $(timer $start_time)"
             fi
