@@ -138,10 +138,10 @@ def parse_fastq(fastq_file):
     return seq_len_tab
 
 
-def parse_fasta(fasta_file):
+def parse_fasta(fasta_file, tag="size=.+"):
     """
     """
-    regex_name = re.compile(r"barcodelabel=(\S+);[s\s]")
+    regex_name = re.compile(r"barcodelabel=(\S+);" + tag)
     header_dict = {}
     header = ""
     sequence = ""
@@ -178,7 +178,7 @@ def get_reads_data(sample_read, list_reads, paired, tag):
             # Get sample name
             name = os.path.splitext(os.path.basename(list_reads[0][i]))[0]
             name = name.replace("-R1","").replace("_R1","")
-            name = name.replace("_alien_f","").replace("_alien_r","")
+            name = name.replace("_alien_f_filt","").replace("_alien_r_filt","")
             seq_len_tab = parse_fastq(list_reads[0][i])
             seq_len_tab += parse_fastq(list_reads[1][i])
             if name in sample_read:
@@ -196,7 +196,7 @@ def get_reads_data(sample_read, list_reads, paired, tag):
     else:
         for sample in list_reads:
             name = os.path.splitext(os.path.basename(sample))[0]
-            name = name.replace("_alien","")
+            name = name.replace("_alien_filt","")
             seq_len_tab = parse_fastq(sample)
             ##WHAT ???
             #seq_len_tab.append(parse_fastq(sample))
@@ -299,10 +299,10 @@ def write_sample_result(sample_read, output_file, paired):
     """
     if paired:
         header = ["sample", "Raw_reads", "Raw_mean_length", "Raw_median_length",
-                  "mapping_human_1_time", "mapping_human_>1_time",
-                  "mapping_phiX_1_time", "mapping_phiX_>1_time",
                   "Trimmed", "Trimmed_fwd", "Trimmed_rev", "Removed",
-                  "Removed_fwd", "Removed_rev", "Filtered_reads",
+                  "Removed_fwd", "Removed_rev", "mapping_human_1_time",
+                  "mapping_human_>1_time", "mapping_phiX_1_time",
+                  "mapping_phiX_>1_time", "Filtered_reads",
                   "Filtered_mean_length", "Filtered_median_length"
                   "Total pairs", "Combined pairs", "Uncombined pairs",
                   "Selected_dereplication", "Selected_singleton",
@@ -310,11 +310,12 @@ def write_sample_result(sample_read, output_file, paired):
                   "Mapping_percent_raw", "Mapping_percent_filtered"]
     else:
         header = ["sample", "Raw_reads", "Raw_mean_length", "Raw_median_length",
-                  "mapping_human_1_time", "mapping_human_>1_time",
-                  "mapping_phiX_1_time", "mapping_phiX_>1_time", "Trimmed",
-                  "Removed", "Filtered_reads", "Filtered_mean_length",
-                  "Filtered_median_length", "Selected_dereplication",
-                  "Selected_singleton", "Selected_chimera", "Selected_otu",
+                  "Trimmed", "Removed", "mapping_human_1_time",
+                  "mapping_human_>1_time", "mapping_phiX_1_time",
+                  "mapping_phiX_>1_time",  "Filtered_reads",
+                  "Filtered_mean_length", "Filtered_median_length",
+                  "Selected_dereplication", "Selected_singleton",
+                  "Selected_chimera", "Selected_otu",
                   "Mapped_reads", "Mapping_percent_raw",
                   "Mapping_percent_filtered"]
     try:
@@ -324,9 +325,9 @@ def write_sample_result(sample_read, output_file, paired):
             for sample in sample_read:
                 output_writer.writerow(
                     [sample] + sample_read[sample]['raw'] +
+                    sample_read[sample]['alientrimmer']+
                     sample_read[sample]['mapping_1'] +
                     sample_read[sample]['mapping_2'] +
-                    sample_read[sample]['alientrimmer']+
                     sample_read[sample]['proc'] +
                     [sample_read[sample]['dereplication'],
                     sample_read[sample]['singleton'],
@@ -339,6 +340,8 @@ def write_sample_result(sample_read, output_file, paired):
                     float(sample_read[sample]['proc'][0])*100.0, 2),])
     except IOError:
         sys.exit("Error cannot open {0}".format(output_file))
+    except KeyError:
+        sys.exit("Sample {0} failed to be processed".format(sample))
 
 
 def write_otu_annotation(global_data, output_file, tag):
@@ -393,11 +396,12 @@ def main():
     processed_reads_dir = args.data_dir + "reads" + os.sep
     if os.path.isdir(processed_reads_dir):
         if args.paired_reads:
-            list_r1 = check_file(processed_reads_dir + "*alien_f.fastq")
+            list_r1 = check_file(processed_reads_dir + "*alien_f_filt.fastq")
             list_file = ([list_r1] +
-                        [[r.replace("alien_f", "alien_r") for r in list_r1]])
+                        [[r.replace("alien_f_filt", "alien_r_filt")
+                          for r in list_r1]])
         else:
-            list_file = check_file(processed_reads_dir + "*alien.f*q")
+            list_file = check_file(processed_reads_dir + "*alien_filt.f*q")
         sample_read = get_reads_data(sample_read, list_file, args.paired_reads,
                                      "proc")
     else:
@@ -423,7 +427,8 @@ def main():
                               "mapping", "_2")
     # Get dereplication data
     header_dict, seq_len_tab = parse_fasta(check_file(args.data_dir +
-                                                      "*_extendedFrags.fasta")[0])
+                                                      "*_extendedFrags.fasta")[0],
+                                           "")
     global_data = {"extended":[
                     len(seq_len_tab), sum(seq_len_tab)/len(seq_len_tab),
                     sorted(seq_len_tab)[len(seq_len_tab)//2]]}
