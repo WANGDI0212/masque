@@ -214,7 +214,7 @@ vsearch="$SCRIPTPATH/vsearch_bin/bin/vsearch" #"vsearch"
 # Main #
 ########
 # Execute getopt on the arguments passed to this program, identified by the special character $@
-PARSED_OPTIONS=$(getopt -n "$0"  -o hi:o:r:t:a:sbf --long "help,input_dir:,output:,thread:,maxoverlap:,minoverlap:,identity_threshold:,evalueTaxAnnot:,NbMismatchMapping:,amplicon:,swarm,blast:,fungi"  -- "$@")
+PARSED_OPTIONS=$(getopt -n "$0"  -o hi:o:r:t:a:sbfn: --long "help,input_dir:,output:,thread:,maxoverlap:,minoverlap:,identity_threshold:,evalueTaxAnnot:,NbMismatchMapping:,amplicon:,swarm,blast:,fungi,name:"  -- "$@")
 
 #Check arguments
 if [ $# -eq 0 ]
@@ -269,6 +269,9 @@ do
     -f|fungi)
         fungi=1
         shift ;;
+    -n|--name)
+        ProjectName=$2
+        shift 2;;
     --maxoverlap)
         check_integer $2
         maxoverlap=$2
@@ -302,11 +305,17 @@ fi
 
 if [ -d "$input_dir" ]
 then
-    ProjectName=$(basename "$input_dir")
+    if [ "$ProjectName" = "" ]
+    then
+        ProjectName=$(basename "$input_dir")
+    fi
     amplicon="${resultDir}/${ProjectName}_extendedFrags.fasta"
 elif [ -f "$amplicon" ]
 then
-    ProjectName=$(basename $(dirname "$amplicon"))
+    if [ "$ProjectName" = "" ]
+    then
+        ProjectName=$(basename $(dirname "$amplicon"))
+    fi
 else
     error "Error no input dir and no amplicon file given. Please given me one or the other."
     exit 1
@@ -495,14 +504,9 @@ then
             fi
         done
     fi
-    echo "What the fuck 1:"
-    echo "$amplicon"
     say "Elapsed time with read processing: $(timer $all_start_time)"
 fi
 # Combine all files
-#if [ ! -f ${resultDir}/${ProjectName}_extendedFrags.fasta ]
-echo "What the fuck 2:"
-echo "$amplicon"
 if [ ! -f "$amplicon" ]
 then
     say "Combine fasta files"

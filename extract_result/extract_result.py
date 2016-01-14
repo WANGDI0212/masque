@@ -139,7 +139,7 @@ def parse_fastq(fastq_file):
 
 
 def parse_fasta(fasta_file, tag="size=.+"):
-    """
+    """Parse fasta sequence
     """
     regex_name = re.compile(r"barcodelabel=(\S+);" + tag)
     header_dict = {}
@@ -168,7 +168,11 @@ def parse_fasta(fasta_file, tag="size=.+"):
         sys.exit("Error cannot open {0}".format(fasta_file))
     return header_dict, seq_len_tab
 
-
+def get_size_info(seq_len_tab):
+    """Get number, mean length and median_length
+    """
+    return [len(seq_len_tab), sum(seq_len_tab)/len(seq_len_tab),
+            sorted(seq_len_tab)[len(seq_len_tab)//2]]
 
 def get_reads_data(sample_read, list_reads, paired, tag):
     """Count simple information on fastq sets
@@ -178,45 +182,29 @@ def get_reads_data(sample_read, list_reads, paired, tag):
             # Get sample name
             name = os.path.splitext(os.path.basename(list_reads[0][i]))[0]
             name = name.replace("-R1","").replace("_R1","")
-            name = name.replace("_alien_f_filt","").replace("_alien_r_filt","")
-            seq_len_tab = parse_fastq(list_reads[0][i])
-            seq_len_tab += parse_fastq(list_reads[1][i])
+            name = name.replace("_alien_f_filt","")
+            seq_len_tab_fwd = parse_fastq(list_reads[0][i])
+            seq_len_tab_rev = parse_fastq(list_reads[1][i])
             if name in sample_read:
-                sample_read[name].update({tag:[
-                    len(seq_len_tab)/2,
-                    sum(seq_len_tab)/len(seq_len_tab),
-                    sorted(seq_len_tab)[len(seq_len_tab)//2]
-                    ]})
+                sample_read[name].update({tag+"_fwd":get_size_info(seq_len_tab_fwd)})
+                sample_read[name].update({tag+"_rev":get_size_info(seq_len_tab_rev)})
             else:
-                sample_read[name] = {tag:[
-                    len(seq_len_tab)/2,
-                    sum(seq_len_tab)/len(seq_len_tab),
-                    sorted(seq_len_tab)[len(seq_len_tab)//2]
-                    ]}
+                sample_read[name] = {tag+"_fwd":get_size_info(seq_len_tab_fwd)}
+                sample_read[name].update({tag+"_rev":get_size_info(seq_len_tab_rev)})
     else:
         for sample in list_reads:
             name = os.path.splitext(os.path.basename(sample))[0]
             name = name.replace("_alien_filt","")
             seq_len_tab = parse_fastq(sample)
-            ##WHAT ???
-            #seq_len_tab.append(parse_fastq(sample))
             if name in sample_read:
-                sample_read[name].update({tag:[
-                    len(seq_len_tab),
-                    sum(seq_len_tab)/len(seq_len_tab),
-                    sorted(seq_len_tab)[len(seq_len_tab)//2]
-                    ]})
+                sample_read[name].update({tag:get_size_info(seq_len_tab)})
             else:
                 #print(seq_len_tab)
-                sample_read[name] = {tag:[
-                    len(seq_len_tab),
-                    sum(seq_len_tab)/len(seq_len_tab),
-                    sorted(seq_len_tab)[len(seq_len_tab)//2]
-                    ]}
+                sample_read[name] = {tag:get_size_info(seq_len_tab)}
     return sample_read
 
 
-def parse_log(log_file, regex):
+def parse_log(log_file, regex, tag_alien):
     """Parse log data
     """
     data = []
@@ -227,7 +215,10 @@ def parse_log(log_file, regex):
                 if regex_match:
                     data += [int(i.replace(",","").replace("%","")) 
                             for i in regex_match.groups()]
-            assert(len(data) > 0)
+            if tag_alien > 0 and len(data) == 0:
+                data = [0] * tag_alien
+            else:
+                assert(len(data) > 0)
     except IOError:
         sys.exit("Error cannot open {0}".format(log_file))
     except AssertionError:
@@ -238,21 +229,25 @@ def parse_log(log_file, regex):
 def get_log(sample_read, list_file, soft, tag, paired=False):
     """
     """
+    tag_alien = 0
     if soft == "alientrimmer":
         if paired :
             regex = re.compile(r".+\s+(\S+)\s+trimmed\s+\(fwd:\s+(\S+)\s+rev:\s+(\S+)\)"
                                "\s+(\S+)\s+removed\s+\(fwd:\s+(\S+)\s+rev:\s+(\S+)\)")
+            tag_alien = 6
         else:
             regex = re.compile(r".+\s+(\S+)\s+trimmed\s+(\S+)\s+removed")
+            tag_alien = 2
     elif soft == "flash":
         regex = re.compile(r"\S+\s+\S+\s+pairs:\s+(\S+)")
     else:
         #regex = re.compile(r"\s+(\S+)\s+\((\S+)\)\s+aligned.+1\s+time")
-        regex = re.compile(r"\s+(\S+)\s+.+\s+aligned.+1\s+time")
+        regex = re.compile(r"\s+(\S+)\s+.+\s+aligned\s+(?:exactly\s+|\>)1\s+time")
     for sample in list_file:
         name = os.path.basename(sample).replace("log_{0}_".format(soft),"").replace(tag+".txt", "")
         if name in sample_read:
-            sample_read[name].update({soft+tag:parse_log(sample, regex)})
+            sample_read[name].update({soft+tag:parse_log(sample, regex,
+                                                         tag_alien)})
         else:
             print("Sample not identified : {0}".format(name), file=sys.stderr)
             #raise KeyError("Sample not identified : {0}".format(name))
@@ -260,7 +255,7 @@ def get_log(sample_read, list_file, soft, tag, paired=False):
 
 
 def update_step(sample_read, header_dict, step):
-    """
+    """Update sample_read information
     """
     for sample in sample_read:
         if sample in header_dict:
@@ -271,7 +266,7 @@ def update_step(sample_read, header_dict, step):
 
 
 def parse_otu_table(sample_read, otu_table_file):
-    """
+    """Count number and length of OTU
     """
     try:
         with open(otu_table_file, "rt") as otu_table:
@@ -298,50 +293,63 @@ def write_sample_result(sample_read, output_file, paired):
     """Write otu building process data
     """
     if paired:
-        header = ["sample", "Raw_reads", "Raw_mean_length", "Raw_median_length",
+        header = ["sample", "Raw_reads_fwd", "Raw_mean_length_fwd",
+                  "Raw_median_length_fwd", "Raw_reads_rev",
+                  "Raw_mean_length_rev", "Raw_median_length_rev",
                   "Trimmed", "Trimmed_fwd", "Trimmed_rev", "Removed",
                   "Removed_fwd", "Removed_rev", "mapping_human_1_time",
                   "mapping_human_>1_time", "mapping_phiX_1_time",
-                  "mapping_phiX_>1_time", "Filtered_reads",
-                  "Filtered_mean_length", "Filtered_median_length"
-                  "Total pairs", "Combined pairs", "Uncombined pairs",
-                  "Selected_dereplication", "Selected_singleton",
-                  "Selected_chimera", "Selected_otu", "Mapped_reads",
-                  "Mapping_percent_raw", "Mapping_percent_filtered"]
+                  "mapping_phiX_>1_time", "Filtered_reads_fwd",
+                  "Filtered_mean_length_fwd", "Filtered_median_length_fwd",
+                  "Filtered_reads_rev", "Filtered_mean_length_rev",
+                  "Filtered_median_length_rev", "Combined pairs",
+                  "Uncombined pairs", "Selected_dereplication",
+                  "Selected_singleton", "Selected_chimera", "Selected_otu",
+                  "Mapped_reads", "Mapping_percent_combined"]
     else:
         header = ["sample", "Raw_reads", "Raw_mean_length", "Raw_median_length",
                   "Trimmed", "Removed", "mapping_human_1_time",
                   "mapping_human_>1_time", "mapping_phiX_1_time",
-                  "mapping_phiX_>1_time",  "Filtered_reads",
+                  "mapping_phiX_>1_time", "Filtered_reads",
                   "Filtered_mean_length", "Filtered_median_length",
                   "Selected_dereplication", "Selected_singleton",
                   "Selected_chimera", "Selected_otu",
-                  "Mapped_reads", "Mapping_percent_raw",
-                  "Mapping_percent_filtered"]
+                  "Mapped_reads", "Mapping_percent_proc"]
     try:
         with open(output_file, "wt") as output:
             output_writer = csv.writer(output, delimiter='\t')
             output_writer.writerow(header)
             for sample in sample_read:
+                if paired:
+                    flash_data = sample_read[sample]['flash'][1:]
+                    read_data = (sample_read[sample]['raw_fwd'] +
+                                 sample_read[sample]['raw_rev'])
+                    proc_data = (sample_read[sample]['proc_fwd'] +
+                                 sample_read[sample]['proc_rev'])
+                    mapping_perc = round(float(sample_read[sample]['mapped'])/
+                                    float(sample_read[sample]['flash'][1])*100.0, 2)
+                else:
+                    flash_data = []
+                    read_data = sample_read[sample]['raw']
+                    proc_data = sample_read[sample]['proc']
+                    mapping_perc = round(float(sample_read[sample]['mapped'])/
+                                    float(sample_read[sample]['proc'][0])*100.0, 2)
                 output_writer.writerow(
-                    [sample] + sample_read[sample]['raw'] +
+                    [sample] + read_data +
                     sample_read[sample]['alientrimmer']+
                     sample_read[sample]['mapping_1'] +
                     sample_read[sample]['mapping_2'] +
-                    sample_read[sample]['proc'] +
+                    proc_data + flash_data +
                     [sample_read[sample]['dereplication'],
                     sample_read[sample]['singleton'],
                     sample_read[sample]['chimera'],
                     sample_read[sample]['otu'],
                     sample_read[sample]['mapped'],
-                    round(float(sample_read[sample]['mapped'])/
-                    float(sample_read[sample]['raw'][0])*100.0, 2),
-                    round(float(sample_read[sample]['mapped'])/
-                    float(sample_read[sample]['proc'][0])*100.0, 2),])
+                    mapping_perc])
     except IOError:
         sys.exit("Error cannot open {0}".format(output_file))
-    except KeyError:
-        sys.exit("Sample {0} failed to be processed".format(sample))
+    #except KeyError:
+    #    sys.exit("Sample {0} failed to be processed".format(sample))
 
 
 def write_otu_annotation(global_data, output_file, tag):
@@ -374,8 +382,6 @@ def main():
     args = get_arguments()
     sample_read = {}
     ## Get raw data
-    ## TODO Check if samples are missing here
-    ## OK for none paired data
     if args.raw_reads_dir:
         if args.paired_reads:
             list_r1 = check_file(args.raw_reads_dir + "*R1*.f*q")
