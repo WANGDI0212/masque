@@ -108,7 +108,8 @@ def parse_rdp(header, vsearch_dict, annotation_dict):
     lineage = header.strip().split("=")[1]
     if tax in vsearch_dict:
         lineage = lineage.split(";")[2:]
-        lineage = [lineage[i].replace("\"","") for i in xrange(0, len(lineage), 2)]
+        lineage = [lineage[i].replace("\"","")
+                   for i in xrange(0, len(lineage), 2)]
         annotation_dict[tax] = ";".join(lineage)
         identified = 1
     return annotation_dict, identified
@@ -138,12 +139,27 @@ def parse_findley(header, vsearch_dict, annotation_dict):
         identified = 1
     return annotation_dict, identified
 
+
 def parse_silva(header, vsearch_dict, annotation_dict):
     """Parse silva database annotations
     """
     identified = 0
     tax = header.strip().split(" ")
     if tax[0][1:].strip() in vsearch_dict:
+        tax[1] = tax[1].replace(";uncultured", "").replace(";Incertae", "")
+        check_taxo = tax[1].split(";")
+        if check_taxo[0] == "Eukaryota":
+            len_taxo = len(check_taxo)
+            simplified_tax = [check_taxo[0]]
+            if len_taxo >= 4:
+                simplified_tax += [check_taxo[3]]
+            if len_taxo == 8:
+                simplified_tax +=  [check_taxo[7]]
+            elif len_taxo > 8:
+                simplified_tax +=  check_taxo[7:]
+            tax[1] = ";".join(simplified_tax)
+        print(tax[0][1:].strip())
+        print(tax[1])
         annotation_dict[tax[0][1:].strip()] = tax[1]
         identified = 1
     return annotation_dict, identified
@@ -208,6 +224,8 @@ def write_tax_table(vsearch_dict, annotation_dict, output_file):
             for tax in vsearch_dict:
                 for OTU in vsearch_dict[tax]:
                     taxonomy = annotation_dict[tax].split(";")
+                    taxonomy = taxonomy + ['']*(7-len(taxonomy))
+                    print(taxonomy)
                     # Genus and the rest
                     if OTU[1] >= 94.5:
                         pass

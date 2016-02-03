@@ -92,7 +92,7 @@ def get_arguments():
     parser.set_defaults(results=".{0}".format(os.sep))
     parser.add_argument('-d', dest='data_dir', type=isdir, action=FullPaths,
                         required=True, help='Result directory of META16S.')
-    parser.add_argument('-ra', dest='raw_reads_dir', type=isdir,
+    parser.add_argument('-r', dest='raw_reads_dir', type=isdir,
                         action=FullPaths, help='Raw reads directory.')
     parser.add_argument('-a', dest='amplicon_dir', type=isdir, action=FullPaths,
                         help='Amplicon directory (if raw reads not available).')
