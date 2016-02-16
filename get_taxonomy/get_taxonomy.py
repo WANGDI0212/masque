@@ -158,8 +158,6 @@ def parse_silva(header, vsearch_dict, annotation_dict):
             elif len_taxo > 8:
                 simplified_tax +=  check_taxo[7:]
             tax[1] = ";".join(simplified_tax)
-        print(tax[0][1:].strip())
-        print(tax[1])
         annotation_dict[tax[0][1:].strip()] = tax[1]
         identified = 1
     return annotation_dict, identified
@@ -225,7 +223,6 @@ def write_tax_table(vsearch_dict, annotation_dict, output_file):
                 for OTU in vsearch_dict[tax]:
                     taxonomy = annotation_dict[tax].split(";")
                     taxonomy = taxonomy + ['']*(7-len(taxonomy))
-                    print(taxonomy)
                     # Genus and the rest
                     if OTU[1] >= 94.5:
                         pass
