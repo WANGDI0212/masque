@@ -83,15 +83,19 @@ def load_vsearch(input_file):
     """Load assignation provided with vsearch
     """
     vsearch_dict = {}
+    OTU_prev = ""
     try:
         with open(input_file, "rt") as input_data:
             input_reader = csv.reader(input_data, delimiter='\t')
             for line in input_reader:
                 annotation = line[1].strip()
-                if annotation in vsearch_dict:
-                    vsearch_dict[annotation] += [[line[0], float(line[2])]]
-                else:
-                    vsearch_dict[annotation] = [[line[0], float(line[2])]]
+                # Only the best hit
+                if line[0] != OTU_prev:
+                    OTU_prev = line[0]
+                    if annotation in vsearch_dict:
+                        vsearch_dict[annotation] += [[line[0], float(line[2])]]
+                    else:
+                        vsearch_dict[annotation] = [[line[0], float(line[2])]]
         assert(len(vsearch_dict) > 0)
     except IOError:
         sys.exit("Error cannot open {0}".format(input_file))
