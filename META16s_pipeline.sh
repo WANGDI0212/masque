@@ -605,13 +605,22 @@ then
 fi
 
 
-
-if [ -f ${resultDir}/${ProjectName}_map.txt ] && [ ! -f ${resultDir}/${ProjectName}_otu_table.txt ]
+if [ -f "${resultDir}/${ProjectName}_map.txt" ] && [ ! -f "${resultDir}/${ProjectName}_otu_table.txt" ]
 then
     say "Build OTUs table"
     start_time=$(timer)
     python $uc2otutab ${resultDir}/${ProjectName}_map.txt > ${resultDir}/${ProjectName}_otu_table.txt
+    check_file ${resultDir}/${ProjectName}_otu_table.txt
     say "Elapsed time to build OTUs table: $(timer $start_time)"
+fi
+
+if [ -f "${resultDir}/${ProjectName}_otu_table.txt" ] && [ -f "${resultDir}/${ProjectName}_otu.fasta" ]  && [ ! -f "${resultDir}/${ProjectName}_otu_table_wgl.txt" ]
+then
+    say "Build OTUs table for gene length normalization"
+    start_time=$(timer)
+    python $otu_tab_size -i ${resultDir}/${ProjectName}_otu_table.txt -g ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_otu_table_wgl.txt
+    check_file ${resultDir}/${ProjectName}_otu_table_wgl.txt
+    say "Elapsed time to build OTUs table wgl: $(timer $start_time)"
 fi
 
 if [ -f "${resultDir}/${ProjectName}_otu.fasta" ]
