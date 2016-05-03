@@ -147,11 +147,20 @@ def parse_findley(header, vsearch_dict, annotation_dict):
 def parse_silva(header, vsearch_dict, annotation_dict):
     """Parse silva database annotations
     """
+    useless_mention = ["uncultured bacterium", "Incertae", "unidentified",
+                       "uncultured organism", "uncultured soil bacterium",
+                       "unidentified marine bacterioplankton"]
     identified = 0
     tax = header.strip().split(" ")
     if tax[0][1:].strip() in vsearch_dict:
-        tax[1] = tax[1].replace(";uncultured", "").replace(";Incertae", "")
-        check_taxo = tax[1].split(";")
+        #print(header.strip())
+        #print(tax[0][1:].strip())
+        annotation = " ".join(tax[1:])
+        #.replace(";uncultured", "").replace(";Incertae", "")
+        #annotation = annotation.replace(";unidentified ", "")
+        check_taxo = annotation.split(";")
+        annotation = ";".join(["" if annot in useless_mention else annot
+                               for annot in check_taxo ])
         if check_taxo[0] == "Eukaryota":
             len_taxo = len(check_taxo)
             simplified_tax = [check_taxo[0]]
@@ -161,8 +170,9 @@ def parse_silva(header, vsearch_dict, annotation_dict):
                 simplified_tax +=  [check_taxo[7]]
             elif len_taxo > 8:
                 simplified_tax +=  check_taxo[7:]
-            tax[1] = ";".join(simplified_tax)
-        annotation_dict[tax[0][1:].strip()] = tax[1]
+            annotation = ";".join(simplified_tax)
+        #print(annotation)
+        annotation_dict[tax[0][1:].strip()] = annotation
         identified = 1
     return annotation_dict, identified
 
@@ -218,15 +228,18 @@ def write_tax_table(vsearch_dict, annotation_dict, output_file):
     # Uniting the classification of cultured and uncultured bacteria and archaea using 16S rRNA gene sequences
     # Pablo Yarza,       Pelin Yilmaz,   Elmar Pruesse,  Frank Oliver Glöckner,  Wolfgang Ludwig,        Karl-Heinz Schleifer,   William B. Whitman,     Jean Euzéby,    Rudolf Amann    & Ramon Rosselló-Móra
     # Nature Reviews Microbiology 12, 635–645 (2014) doi:10.1038/nrmicro3330
+    #print(vsearch_dict)
+    #print(annotation_dict)
     try:
         with open(output_file, "wt") as output:
             output_writer = csv.writer(output, delimiter='\t')
             output_writer.writerow(["OTU", "Kingdom", "Phylum", "Class",
                                     "Order", "Family", "Genus", "Specie"])
             for tax in vsearch_dict:
+                #print(tax)
                 for OTU in vsearch_dict[tax]:
+                    #print(OTU)
                     taxonomy = annotation_dict[tax].split(";")
-                    taxonomy = taxonomy + ['']*(7-len(taxonomy))
                     # Genus and the rest
                     if OTU[1] >= 94.5:
                         pass
@@ -244,7 +257,9 @@ def write_tax_table(vsearch_dict, annotation_dict, output_file):
                     elif OTU[1] < 78.5 and OTU[1] >= 75.0:
                         taxonomy = taxonomy[:-5]
                     else:
-                        sys.exit("Strange id is to low for {0[0]} : {0[1]} \%".format(OTU))
+                        taxonomy = []
+                    taxonomy = taxonomy + ['']*(7-len(taxonomy))
+                        #sys.exit("Strange id is to low for {0[0]} : {0[1]} \%".format(OTU))
                     output_writer.writerow([OTU[0]] + taxonomy)
     except IOError:
         sys.exit("Error cannot open {0}".format(output_file))

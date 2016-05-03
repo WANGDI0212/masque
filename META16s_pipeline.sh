@@ -193,6 +193,8 @@ flash="flash" #"$SCRIPTPATH/FLASH-1.2.11/flash" #$(which flash)
 mafft="mafft" #"$SCRIPTPATH/maff"
 # get_taxonomy
 get_taxonomy="$SCRIPTPATH/get_taxonomy/get_taxonomy.py"
+# otu_tab_size
+otu_tab_size="$SCRIPTPATH/otu_tab_size/otu_tab_size.py"
 # rename_tu
 rename_otu="$SCRIPTPATH/rename_otu/rename_otu.py"
 # rdp classifier
@@ -690,7 +692,7 @@ then
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
 
-    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.txt" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "0" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.txt" ] && [ "$blast_tax" -eq "1" ]
     then
         say "Assign taxonomy against greengenes with blast"
         start_time=$(timer)
