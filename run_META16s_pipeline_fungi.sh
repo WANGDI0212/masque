@@ -14,7 +14,8 @@ echo """#!/bin/bash
 #$ -S /bin/bash
 #$ -M amine.ghozlane@pasteur.fr
 #$ -m bea
-#$ -q hubbioit
+#$ -q test
+##$ -q hubbioit
 #$ -pe thread $4
 #$ -l mem_total=50G
 #$ -N "META_$3"

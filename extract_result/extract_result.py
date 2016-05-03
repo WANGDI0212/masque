@@ -181,14 +181,17 @@ def get_reads_data(sample_read, list_reads, paired, tag):
         for i in xrange(len(list_reads[0])):
             # Get sample name
             name = os.path.splitext(os.path.basename(list_reads[0][i]))[0]
-            name = name.replace("-R1","").replace("_R1","")
+            name = name.replace("-R1","").replace("_R1_001","")
             name = name.replace("_alien_f_filt","")
             seq_len_tab_fwd = parse_fastq(list_reads[0][i])
             seq_len_tab_rev = parse_fastq(list_reads[1][i])
+            #print(name)
             if name in sample_read:
+                #print("here")
                 sample_read[name].update({tag+"_fwd":get_size_info(seq_len_tab_fwd)})
                 sample_read[name].update({tag+"_rev":get_size_info(seq_len_tab_rev)})
             else:
+                #print("here2")
                 sample_read[name] = {tag+"_fwd":get_size_info(seq_len_tab_fwd)}
                 sample_read[name].update({tag+"_rev":get_size_info(seq_len_tab_rev)})
     else:
@@ -321,6 +324,8 @@ def write_sample_result(sample_read, output_file, paired):
             output_writer.writerow(header)
             for sample in sample_read:
                 if paired:
+                    #print(sample)
+                    #print(sample_read[sample])
                     flash_data = sample_read[sample]['flash'][1:]
                     read_data = (sample_read[sample]['raw_fwd'] +
                                  sample_read[sample]['raw_rev'])
@@ -389,6 +394,7 @@ def main():
                         [[r.replace("R1", "R2") for r in list_r1]])
         else:
             list_file = check_file(args.raw_reads_dir + "*.f*q")
+        #print(list_file)
         sample_read = get_reads_data(sample_read, list_file, args.paired_reads,
                                      "raw")
     elif args.amplicon_dir:
