@@ -99,10 +99,10 @@ def get_arguments():
     parser.add_argument('-p', dest='paired_reads', action='store_true',
                         default=False, help='Paired reads (Default:False).')
     parser.add_argument('-o1', dest='output_file1', type=str,
-                        default="meta16s_otu_build_process.txt",
+                        default="masque_build_process.tsv",
                         help='Output file about the OTU building.')
     parser.add_argument('-o2', dest='output_file2', type=str,
-                        default="meta16s_otu_annotation.txt",
+                        default="masque_annotation_process.tsv",
                         help='Output file about the OTU annotation.')
     return parser.parse_args()
 
@@ -478,14 +478,14 @@ def main():
                     sorted(seq_len_tab)[len(seq_len_tab)//2]]})
     ## Get otu table
     sample_read = parse_otu_table(sample_read, check_file(args.data_dir +
-                                                          "*_otu_table.txt")[0])
+                                                          "*_otu_table.tsv")[0])
     # annotation
     tag = ["silva", "greengenes", "unite", "findley", "rdp"]
-    annotation_files = [check_file(args.data_dir + "*_silva_annotation_eval*.txt")[0],
-                        check_file(args.data_dir + "*_greengenes_annotation_*.txt")[0],
-                        check_file(args.data_dir + "*_unite_annotation_*.txt")[0],
-                        check_file(args.data_dir + "*_findley_annotation_*.txt")[0],
-                        check_file(args.data_dir + "*_rdp.txt")[0]]
+    annotation_files = [check_file(args.data_dir + "*_silva_annotation_eval*.tsv")[0],
+                        check_file(args.data_dir + "*_greengenes_annotation_*.tsv")[0],
+                        check_file(args.data_dir + "*_unite_annotation_*.tsv")[0],
+                        check_file(args.data_dir + "*_findley_annotation_*.tsv")[0],
+                        check_file(args.data_dir + "*_rdp.tsv")[0]]
     tag_present = []
     for i in xrange(len(annotation_files)):
         if os.path.isfile(annotation_files[i]):

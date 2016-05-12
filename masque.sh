@@ -804,10 +804,10 @@ then
     start_time=$(timer)
     if [ "$paired" -eq "1" ]
     then
-        $extract_result -d $input_dir/ -p -o1 ${resultDir}/${ProjectName}_build_process.tsv -o2 ${resultDir}/${ProjectName}_annotation_process.tsv
+        python $extract_result -d ${resultDir}/ -r $input_dir/ -p -o1 ${resultDir}/${ProjectName}_build_process.tsv -o2 ${resultDir}/${ProjectName}_annotation_process.tsv
     elif [ "$paired" -eq "0" ]
     then
-        python $extract_result -d $input_dir/ -o1 ${resultDir}/${ProjectName}_build_process.tsv -o2 ${resultDir}/${ProjectName}_annotation_process.tsv
+        python $extract_result -d ${resultDir}/ -r $input_dir/ -o1 ${resultDir}/${ProjectName}_build_process.tsv -o2 ${resultDir}/${ProjectName}_annotation_process.tsv
 #     elif [ ! -d "$input_dir" ] && [ -f "$amplicon" ]
 #     then
 #         $extract_result -a $input_dir/ -p -o1 ${resultDir}/${ProjectName}_build_process.tsv -o2 ${resultDir}/${ProjectName}_annotation_process.tsv
