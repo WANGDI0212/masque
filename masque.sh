@@ -798,14 +798,14 @@ then
 fi
 
 # Extract result
-if [ -f "" ]
+if [ -d "$input_dir" ] && [ ! -f "${resultDir}/${ProjectName}_build_process.tsv" ]
 then
     say "Extract MASQUE process results with extract_result"
     start_time=$(timer)
-    if [ -d "$input_dir" ] && [ "$paired" -eq "1" ]
+    if [ "$paired" -eq "1" ]
     then
         $extract_result -d $input_dir/ -p -o1 ${resultDir}/${ProjectName}_build_process.tsv -o2 ${resultDir}/${ProjectName}_annotation_process.tsv
-    elif [ -d "$input_dir" ] && [ "$paired" -eq "0" ]
+    elif [ "$paired" -eq "0" ]
     then
         python $extract_result -d $input_dir/ -o1 ${resultDir}/${ProjectName}_build_process.tsv -o2 ${resultDir}/${ProjectName}_annotation_process.tsv
 #     elif [ ! -d "$input_dir" ] && [ -f "$amplicon" ]
