@@ -169,6 +169,7 @@ ProjectName=""
 input_dir=""
 swarm_clust=0
 fungi=0
+paired=0
 
 ############
 # Programs #
@@ -179,6 +180,8 @@ alientrimmer="AlienTrimmer" #"$SCRIPTPATH/AlienTrimmer_0.4.0/src/AlienTrimmer.ja
 blastn="blastn" #"$SCRIPTPATH/ncbi-blast-2.2.31+/bin/blastn"
 # Bowtie2
 bowtie2="bowtie2" #"$SCRIPTPATH/bowtie2-2.2.6/bowtie2"
+# Extract result
+extract_result="$SCRIPTPATH/extract_result/extract_result.py"
 # Fastq2fasta
 fastq2fasta="$SCRIPTPATH/fastq2fasta/fastq2fasta.py"
 # Fastqc
@@ -413,6 +416,7 @@ then
             fi
         done
     else
+        paired=1
         for r1_file in $(ls $input_dir/*R1*.{fastq,fq}  2>/dev/null )
         do
             let "num_sample=$num_sample+1"
@@ -605,170 +609,170 @@ then
 fi
 
 
-if [ -f "${resultDir}/${ProjectName}_map.txt" ] && [ ! -f "${resultDir}/${ProjectName}_otu_table.txt" ]
+if [ -f "${resultDir}/${ProjectName}_map.txt" ] && [ ! -f "${resultDir}/${ProjectName}_otu_table.tsv" ]
 then
     say "Build OTUs table"
     start_time=$(timer)
-    python $uc2otutab ${resultDir}/${ProjectName}_map.txt > ${resultDir}/${ProjectName}_otu_table.txt
-    check_file ${resultDir}/${ProjectName}_otu_table.txt
+    python $uc2otutab ${resultDir}/${ProjectName}_map.txt > ${resultDir}/${ProjectName}_otu_table.tsv
+    check_file ${resultDir}/${ProjectName}_otu_table.tsv
     say "Elapsed time to build OTUs table: $(timer $start_time)"
 fi
 
-if [ -f "${resultDir}/${ProjectName}_otu_table.txt" ] && [ -f "${resultDir}/${ProjectName}_otu.fasta" ]  && [ ! -f "${resultDir}/${ProjectName}_otu_table_wgl.txt" ]
+if [ -f "${resultDir}/${ProjectName}_otu_table.tsv" ] && [ -f "${resultDir}/${ProjectName}_otu.fasta" ]  && [ ! -f "${resultDir}/${ProjectName}_otu_table_wgl.tsv" ]
 then
     say "Build OTUs table for gene length normalization"
     start_time=$(timer)
-    python $otu_tab_size -i ${resultDir}/${ProjectName}_otu_table.txt -g ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_otu_table_wgl.txt
-    check_file ${resultDir}/${ProjectName}_otu_table_wgl.txt
+    python $otu_tab_size -i ${resultDir}/${ProjectName}_otu_table.tsv -g ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_otu_table_wgl.tsv
+    check_file ${resultDir}/${ProjectName}_otu_table_wgl.tsv
     say "Elapsed time to build OTUs table wgl: $(timer $start_time)"
 fi
 
 if [ -f "${resultDir}/${ProjectName}_otu.fasta" ]
 then
-    if [ ! -f "${resultDir}/${ProjectName}_vs_rdp.txt" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_rdp.tsv" ]
     then
         say "Assign taxonomy with rdp_classifier"
         start_time=$(timer)
-        #$usearch -utax ${resultDir}/${ProjectName}_otu.fasta -db $rdp -strand both -taxconfs rdp_16s_short.tc -utaxout ${resultDir}/${ProjectName}_otu_tax_rdp.txt -utax_cutoff 0.8
-        #$vsearch  --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $rdp --id 0.9 --blast6out ${resultDir}/${ProjectName}_vs_rdp.txt
-        $rdp_classifier classify  -q ${resultDir}/${ProjectName}_otu.fasta -o  ${resultDir}/${ProjectName}_vs_rdp.txt
-        check_file ${resultDir}/${ProjectName}_vs_rdp.txt
-        #python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva.txt -d $rdp -dtype rdp -o ${resultDir}/${ProjectName}_vs_rdp_annotation.txt
+        #$usearch -utax ${resultDir}/${ProjectName}_otu.fasta -db $rdp -strand both -taxconfs rdp_16s_short.tc -utaxout ${resultDir}/${ProjectName}_otu_tax_rdp.tsv -utax_cutoff 0.8
+        #$vsearch  --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $rdp --id 0.9 --blast6out ${resultDir}/${ProjectName}_vs_rdp.tsv
+        $rdp_classifier classify  -q ${resultDir}/${ProjectName}_otu.fasta -o  ${resultDir}/${ProjectName}_vs_rdp.tsv
+        check_file ${resultDir}/${ProjectName}_vs_rdp.tsv
+        #python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva.tsv -d $rdp -dtype rdp -o ${resultDir}/${ProjectName}_vs_rdp_annotation.tsv
         say "Elapsed time with rdp_classifier: $(timer $start_time)"
     fi
-    
+
     # SILVA
-    if [ ! -f "${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.txt" ] && [ "$blast_tax" -eq "0" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv" ] && [ "$blast_tax" -eq "0" ]
     then
         say "Assign taxonomy against silva with vsearch"
         start_time=$(timer)
-        #$usearch -utax ${resultDir}/${ProjectName}_otu.fasta -db $silva -strand both -taxconfs silva_16s_short.tc -utaxout ${resultDir}/${ProjectName}_otu_tax_silva.txt -utax_cutoff 0.8
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silva --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.txt --strand plus
-        #check_file ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.txt
+        #$usearch -utax ${resultDir}/${ProjectName}_otu.fasta -db $silva -strand both -taxconfs silva_16s_short.tc -utaxout ${resultDir}/${ProjectName}_otu_tax_silva.tsv -utax_cutoff 0.8
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silva --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv --strand plus
+        #check_file ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.txt" ] && [ ! -f "${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.txt" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.tsv" ]
     then
         say "Extract vsearch - silva annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.txt -d $silva -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.txt
-        #check_file ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.txt
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv -d $silva -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.tsv
+        #check_file ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.tsv
         say "Elapsed time with get_taxonomy : $(timer $start_time)"
     fi
-    if [ ! -f "${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.txt" ] && [ "$blast_tax" -eq "1" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv" ] && [ "$blast_tax" -eq "1" ]
     then
         say "Assign taxonomy against silva with blast"
         start_time=$(timer)
-        $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $silva -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.txt -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true 
-        #check_file ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.txt
+        $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $silva -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true 
+        #check_file ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv
         say "Elapsed time with blast : $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.txt" ] && [ ! -f "${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.txt" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv" ]
     then
         say "Extract silva annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.txt -d $silva -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.txt
-        #check_file ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.txt
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silva -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv
+        #check_file ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv
         say "Elapsed time with get_taxonomy : $(timer $start_time)"
     fi
-    
+
     # Greengenes
-    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.txt" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "0" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "0" ]
     then
         say "Assign taxonomy against greengenes with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $greengenes --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.txt -strand plus
-        #check_file ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.txt 
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $greengenes --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv -strand plus
+        #check_file ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv 
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.txt" ] && [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.txt" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.tsv" ]
     then
         say "Extract vsearch - greengenes annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.txt -d $greengenes -o ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.txt -dtype greengenes -t $greengenes_taxonomy
-        #check_file ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.txt
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv -d $greengenes -o ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.tsv -dtype greengenes -t $greengenes_taxonomy
+        #check_file ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
 
-    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.txt" ] && [ "$blast_tax" -eq "1" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv" ] && [ "$blast_tax" -eq "1" ]
     then
         say "Assign taxonomy against greengenes with blast"
         start_time=$(timer)
-        $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $greengenes -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.txt -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true
-        #check_file ${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.txt
+        $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $greengenes -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true
+        #check_file ${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv
         say "Elapsed time with blast : $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.txt" ] && [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.txt" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.tsv" ]
     then
         say "Extract greengenes annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.txt -d $greengenes -o ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.txt -dtype greengenes -t $greengenes_taxonomy
-        #check_file ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.txt
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv -d $greengenes -o ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.tsv -dtype greengenes -t $greengenes_taxonomy
+        #check_file ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.tsv
         say "Elapsed time with get_taxonomy : $(timer $start_time)"
     fi
-   if [ ! -f "${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.txt" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
+   if [ ! -f "${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
    then
         say "Assign taxonomy against findley with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $findley --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.txt -strand plus
-        #check_file ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.txt
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $findley --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv -strand plus
+        #check_file ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.txt" ] && [ ! -f "${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.txt" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.tsv" ]
     then
         say "Extract vsearch - findley annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.txt -d $findley -o ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.txt -dtype findley
-        #check_file ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.txt
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv -d $findley -o ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.tsv -dtype findley
+        #check_file ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
-    if [ ! -f "${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.txt" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "1" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.tsv" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "1" ]
     then
         say "Assign taxonomy against findley with blast"
         start_time=$(timer)
-        $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $findley -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.txt -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true
-        #check_file ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.txt
+        $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $findley -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.tsv -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true
+        #check_file ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.tsv
         say "Elapsed time with blast : $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.txt" ] && [ ! -f "${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.txt" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.tsv" ]
     then
         say "Extract findley annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.txt -d $findley -o ${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.txt -dtype findley
-        #check_file ${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.txt
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.tsv -d $findley -o ${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.tsv -dtype findley
+        #check_file ${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.tsv
         say "Elapsed time with get_taxonomy : $(timer $start_time)"
     fi
     # UNITE
-    if [ ! -f "${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.txt" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
     then
         say "Assign taxonomy against unite with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $unite --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.txt -strand plus
-        #check_file ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.txt
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $unite --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv -strand plus
+        #check_file ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.txt" ] && [ ! -f "${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.txt" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.tsv" ]
     then
         say "Extract vsearch - unite annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.txt -d $unite -o ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.txt -dtype unite
-        #check_file ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.txt
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv -d $unite -o ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.tsv -dtype unite
+        #check_file ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
      fi
-     if [ ! -f "${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.txt" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "1" ]
+     if [ ! -f "${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "1" ]
      then
          say "Assign taxonomy against unite with blast"
          start_time=$(timer)
-         $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $unite -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.txt -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true
-         #check_file ${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.txt
+         $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $unite -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true
+         #check_file ${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv
          say "Elapsed time with blast : $(timer $start_time)"
      fi
-     if [ -f "${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.txt" ] && [ ! -f "${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.txt" ]
+     if [ -f "${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.tsv" ]
      then
          say "Extract unite annotation with get_taxonomy"
          start_time=$(timer)
-         python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.txt -d $unite -o ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.txt -dtype unite
-         #check_file ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.txt
+         python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv -d $unite -o ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.tsv -dtype unite
+         #check_file ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.tsv
          say "Elapsed time with get_taxonomy : $(timer $start_time)"
      fi
 fi
@@ -787,9 +791,29 @@ fi
 if [ -f "${resultDir}/${ProjectName}_otu.ali" ] && [ ! -f "${resultDir}/${ProjectName}_otu.tree" ]
 then
     say "Compute tree with fasttree"
+    start_time=$(timer)
     $FastTreeMP -nt ${resultDir}/${ProjectName}_otu.ali > ${resultDir}/${ProjectName}_otu.tree
     check_file ${resultDir}/${ProjectName}_otu.tree
     say "Elapsed time with fasttree : $(timer $start_time)"
 fi
 
-say "16S analysis is done. Elapsed time: $(timer $wall_time)"
+# Extract result
+if [ -f "" ]
+then
+    say "Extract MASQUE process results with extract_result"
+    start_time=$(timer)
+    if [ -d "$input_dir" ] && [ "$paired" -eq "1" ]
+    then
+        $extract_result -d $input_dir/ -p -o1 ${resultDir}/${ProjectName}_build_process.tsv -o2 ${resultDir}/${ProjectName}_annotation_process.tsv
+    elif [ -d "$input_dir" ] && [ "$paired" -eq "0" ]
+    then
+        python $extract_result -d $input_dir/ -o1 ${resultDir}/${ProjectName}_build_process.tsv -o2 ${resultDir}/${ProjectName}_annotation_process.tsv
+#     elif [ ! -d "$input_dir" ] && [ -f "$amplicon" ]
+#     then
+#         $extract_result -a $input_dir/ -p -o1 ${resultDir}/${ProjectName}_build_process.tsv -o2 ${resultDir}/${ProjectName}_annotation_process.tsv
+    fi
+    check_file ${resultDir}/${ProjectName}_build_process.tsv
+    say "Elapsed time with extract_result : $(timer $start_time)"
+fi
+
+say "MASQUE analysis is done. Elapsed time: $(timer $wall_time)"
