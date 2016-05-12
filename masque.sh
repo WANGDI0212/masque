@@ -11,8 +11,8 @@
 #    http://www.gnu.org/licenses/gpl-3.0.html
 # ------------------------------------------------------------------
 # Author: Amine Ghozlane (amine.ghozlane@pasteur.fr)
-# Title:  16S pipeline
-# Description : De novo 16S pipeline assignation
+# Title:  16S-18S-ITS pipeline
+# Description : De novo 16S-18S-ITS pipeline assignation
 # ------------------------------------------------------------------
 
 function say_parameters {
@@ -82,9 +82,7 @@ display_help() {
     if [ "$1" -eq "0" ]
     then
         echo """$0 -i </path/to/input/directory/> -o </path/to/result/directory/>
-        - case high sensitive annotation: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -b
-        - case V4-V5 regions of 16S rRNA: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> --minoverlap 50  --maxoverlap 200
-        - case V1-V3 regions of 16S rRNA: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> --minoverlap --maxoverlap
+- case high sensitive annotation: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -b
         """
     else
         display_parameters
