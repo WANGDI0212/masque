@@ -4,7 +4,7 @@ PBS_SCRIPT=$HOME/masque_submission.sh
 #Check arguments
 if [ $# -ne 6  ]
 then
-    echo "$0 <amplicon_file> <output_dir> <project-name> <nb_cpu> <email> <queue>"
+    echo "Usage: $0 <amplicon_file> <output_dir> <project-name> <nb_cpu> <email> <queue>"
     exit
 fi
 
