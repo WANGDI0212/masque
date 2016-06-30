@@ -60,7 +60,7 @@ def convert_fastq_fasta(fastq_file, sample_name, output_file):
                 header = line[1:].split(" ")[0]
                 line = fastq.next()
                 if sample_name:
-                    print(">{0};barcodelabel={2};\n{1}".format(
+                    print(">{0};barcodelabel={2}\n{1}".format(
                             header[1:].replace("\n", ""), line.replace("\n", ""), sample_name),
                             file=output)
                 else:
