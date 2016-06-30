@@ -305,7 +305,7 @@ then
     error "Please indicate the output directory."
     exit 1
 fi
-
+echo "$input_dir"
 if [ -d "$input_dir" ]
 then
     if [ "$ProjectName" = "" ]

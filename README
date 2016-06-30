@@ -1,0 +1,52 @@
+ 
+# Load MASQUE on pasteur
+module use /pasteur/projets/Matrix/modules
+module add masque/0.1
+
+Three programs will then be available with the following options :
+masque_16S-18S <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
+masque_ITS <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
+masque_amplicon <amplicon_file> <output_dir> <project-name> <nb_cpu> <email> <queue>
+
+which correspond to :
+reads_dir : directory with the read files (*.fq or *.fastq, if paired : *_R1.fastq, *_R2.fastq or *_R1.fq, *_R2.fq)
+output_dir : directory where to put the results
+project-name : a name for the project
+nb_cpu : Number of cpu used, max on bic is 12.
+email: your email address (it will send a start|error|success message)
+
+Masque will submit the automatically calculation on the bic cluster. You don't have to write any submission script. Masque must be used on the master node that you reach automatically when you perform:
+
+ssh user@bic.pasteur.fr
+
+The calculation status can be considered with :
+
+qstat
+
+In output_dir, you will find after calculation :
+
+project-name_stat_process.txt : every step progress (during calculation : tail -f project-name_stat_process.txt, at the end : less project-name_stat_process.txt)
+
+project-name_annotation_process.tsv : summary of the annotation process
+
+project-name_build_process.tsv : summary of the otu-build process
+
+project-name_otu.fasta : otu sequence
+
+project-name_otu_table.tsv : count table
+
+project-name_vs_database-name_annotation_eval_1E-5.tsv : OTU annotation performed by blast
+
+project-name_vs_rdp.tsv : OTU annotation performed by rdp
+
+project-name_otu.tree : OTU phylogeny
+
+reads/*_fastqc.html : fastq quality after trimming/clipping
+
+The other files correspond to intermediate results.
+
+If some of theses files are missing, it might be worth to re-run the program with the same command line. masque check each step and can continue after the last step. It happens sometimes that one cluster node fail for no particular reason.
+The project-name_otu_table.tsv  and project-name_vs_database-name_annotation_eval_1E-5.tsv  can be directly analysed with : http://shaman.c3bi.pasteur.fr/
+
+Cite masque or shaman :
+http://www.ncbi.nlm.nih.gov/pubmed/27140611
