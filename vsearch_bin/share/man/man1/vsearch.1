@@ -1,5 +1,5 @@
 .\" ============================================================================
-.TH vsearch 1 "April 13, 2016" "version 1.11.1" "USER COMMANDS"
+.TH vsearch 1 "June 30, 2016" "version 2.0.1" "USER COMMANDS"
 .\" ============================================================================
 .SH NAME
 vsearch \(em chimera detection, clustering, dereplication and
@@ -169,12 +169,15 @@ both of the symbols are ambiguous (RYSWKMDBHVN) in which case the
 score is zero. Alignment of two identical ambiguous symbols (e.g. R vs
 R) also receives a score of zero.
 .PP
-\fBvsearch\fR can be compiled to accepted compressed fasta files as
-input (gz and bzip2 formats). On the other hand, special files like
-pipes, named pipes, or sockets cannot be used as input. To present a
-progress indicator, \fBvsearch\fR needs to seek to the end of
-\fIfilename\fR to find its length. Consequently, \fIfilename\fR must
-be a regular file, not a stream.
+Input files compressed with gzip or bzip2 are automatically
+detected and decompressed if vsearch was compiled with the appropriate
+libraries. Input from pipes is supported, but then compressed input
+must be indicated using the \-\-gzip_decompress or
+\-\-bzip2_decompress options. For input files the name '\-'
+represents standard input (/dev/stdin). Multiple FASTA or FASTQ files
+may be piped into vsearch for dereplication or other operations.  When
+reading from a pipe, the progress indicator is not updated.  For
+output files the name '\-' represents standard output (/dev/stdout).
 .\" ----------------------------------------------------------------------------
 .SS Options
 \fBvsearch\fR recognizes a large number of command-line options. For
@@ -182,15 +185,25 @@ easier navigation, options are grouped below by theme (chimera
 detection, clustering, dereplication and rereplication, FASTA/FASTQ
 file processing, masking, pairwise alignment, searching, shuffling,
 sorting, and subsampling). We start with the general options that
-apply to all themes.
+apply to all themes. Options may start with a single (\-) or double
+dash (\-\-). Option names may be shortened as long as they are not
+ambiguous (e.g. \-\-derep_f).
 .PP
 General options:
 .RS
 .TP 9
+.B \-\-bzip2_decompress
+Decompress input using bzip2. The option is required only when reading
+from a pipe, otherwise compression is automatically detected.
+.TP
 .BI \-\-fasta_width\~ "positive integer"
 Fasta files produced by \fBvsearch\fR are wrapped (sequences are
 written on lines of \fIinteger\fR nucleotides, 80 by default). Set
 that value to 0 to eliminate the wrapping.
+.TP
+.B \-\-gzip_decompress
+Decompress input using gzip. The option is required only when reading
+from a pipe, otherwise compression is automatically detected.
 .TP
 .B \-\-help | \-\-h
 Display help text and exit.
@@ -1163,8 +1176,11 @@ length. Output order may vary when using multiple threads.
 Write search results to \fIfilename\fR using a blast-like
 tab-separated format of twelve fields (listed below), with one line
 per query-target matching (or lack of matching if \-\-output_no_hits
-is used). Output order may vary when using multiple threads. A similar
-output can be obtain with \-\-userout \fIfilename\fR and
+is used). Warning, vsearch uses global pairwise alignments, not
+blast's seed-and-extend algorithm. Therefore, some common blast output
+values (alignment start and end, evalue, bit score) are reported
+differently. Output order may vary when using multiple threads. A
+similar output can be obtain with \-\-userout \fIfilename\fR and
 \-\-userfields
 query+target+id+alnlen+mism+opens+qlo+qhi+tlo+thi+evalue+bits.  A
 complete list and description is available in the section "Userfields"
@@ -1193,18 +1209,20 @@ integer value).
 positive integer value).
 .IP \n+[step].
 \fIqlo\fR: first nucleotide of the query aligned with the
-target. Always equal to 1 if there is an alignment, 0 otherwise.
+target. Always equal to 1 if there is an alignment, 0 otherwise (see
+\fIqilo\fR to ignore initial gaps).
 .IP \n+[step].
 \fIqhi\fR: last nucleotide of the query aligned with the
-target. Always equal to the length of the pairwise alignment. The
-field is set to 0 if there is no alignment.
+target. Always equal to the length of the pairwise alignment, 0
+otherwise (see \fIqihi\fR to ignore terminal gaps).
 .IP \n+[step].
 \fItlo\fR: irst nucleotide of the target aligned with the
-query. Always equal to 1 if there is an alignment, 0 otherwise.
+query. Always equal to 1 if there is an alignment, 0 otherwise (see
+\fItilo\fR to ignore initial gaps).
 .IP \n+[step].
 \fIthi\fR: last nucleotide of the target aligned with the
-query. Always equal to the length of the pairwise alignment. The field
-is set to 0 if there is no alignment.
+query. Always equal to the length of the pairwise alignment, 0
+otherwise (see \fItihi\fR to ignore terminal gaps).
 .IP \n+[step].
 \fIevalue\fR: expectancy-value (not computed for nucleotide
 alignments). Always set to -1.
@@ -1814,8 +1832,8 @@ is not computed by \fBvsearch\fR. Always set to +0.
 .TP
 .B qhi
 Last nucleotide of the query aligned with the target. Always equal to
-the length of the pairwise alignment. The field is set to 0 if there
-is no alignment.
+the length of the pairwise alignment, 0 otherwise (see \fIqihi\fR to
+ignore terminal gaps).
 .TP
 .B qihi
 Last nucleotide of the query aligned with the target (ignoring
@@ -1833,7 +1851,8 @@ if there is no alignment.
 .TP
 .B qlo
 First nucleotide of the query aligned with the target. Always equal to
-1 if there is an alignment, 0 otherwise.
+1 if there is an alignment, 0 otherwise (see \fIqilo\fR to ignore
+initial gaps).
 .TP
 .B qrow
 Print the sequence of the query segment as seen in the pairwise
@@ -1873,8 +1892,8 @@ is not computed by \fBvsearch\fR. Always set to +0.
 .TP
 .B thi
 Last nucleotide of the target aligned with the query. Always equal to
-the length of the pairwise alignment. The field is set to 0 if there
-is no alignment.
+the length of the pairwise alignment, 0 otherwise (see \fItihi\fR to
+ignore terminal gaps).
 .TP
 .B tihi
 Last nucleotide of the target aligned with the query (ignoring
@@ -1892,7 +1911,8 @@ if there is no alignment.
 .TP
 .B tlo
 First nucleotide of the target aligned with the query. Always equal to
-1 if there is an alignment, 0 otherwise.
+1 if there is an alignment, 0 otherwise (see \fItilo\fR to ignore
+initial gaps).
 .TP
 .B trow
 Print the sequence of the target segment as seen in the pairwise
@@ -2452,6 +2472,32 @@ specified with \-\-fastaout and \-\-fastaout_discarded when \-\-eeout
 or \-\-fastq_eeout option is in effect for fastq_filter and
 fastq_mergepairs. The options \-\-eeout and \-\-fastq_eeout are now
 equivalent.
+.TP
+.BR v1.11.2\~ "released June 21, 2016"
+Two bugs were fixed. The first issue was related to the \-\-query_cov
+option that used a different coverage definition than the qcov
+userfield. The coverage is now defined as the fraction of the whole
+query sequence length that is aligned with matching or mismatching
+residues in the target. All gaps are ignored. The other issue was
+related to the consensus sequences produced during clustering when
+only N's were present in some positions. Previously these would be
+converted to A's in the consensus. The behaviour is changed so that
+N's are produced in the consensus, and it should now be more
+compatible with usearch.
+.TP
+.BR v2.0.0\~ "released June 24, 2016"
+This major new version supports reading from pipes. Two new options
+are added: \-\-gzip_decompress and \-\-bzip2_decompress. One of these
+options must be specified if reading compressed input from a pipe, but
+are not required when reading from ordinary files. The vsearch header
+that was previously written to stdout is now written to stderr. This
+enables piping of results for further processing. The file name '\-'
+now represent standard input (/dev/stdin) or standard outout
+(/dev/stdout) when reading or writing files, respectively. Code for
+reading FASTA and FASTQ files have been refactored.
+.TP
+.BR v2.0.1\~ "released June 30, 2016"
+Avoid segmentation fault when masking very long sequences.
 .RE
 .LP
 .\" ============================================================================

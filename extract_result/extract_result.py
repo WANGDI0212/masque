@@ -471,7 +471,9 @@ def main():
     ## Get otu data
     header_dict, seq_len_tab = parse_fasta(check_file(args.data_dir +
                                                      "*_otu_compl.fasta")[0])
+    #print(header_dict)
     sample_read = update_step(sample_read, header_dict, "otu")
+    #print(sample_read)
     global_data.update({"otu":[
                     len(seq_len_tab),
                     sum(seq_len_tab)/len(seq_len_tab),

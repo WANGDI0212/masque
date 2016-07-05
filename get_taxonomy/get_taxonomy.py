@@ -70,11 +70,14 @@ def getArguments():
                         help='Database format (default = silva).')
     parser.add_argument('-t', dest='taxonomy_file', type=isfile,
                         help='Path to the taxonomy file (Greengenes only).')
-    parser.add_argument('-o', dest='output_file', type=str, default=None,
+    parser.add_argument('-u', dest='otu_file', type=isfile,
+                        help='Path to the otu fasta file (biom output only).')
+    parser.add_argument('-o', dest='output_file', type=str,
+                        default=os.curdir + os.sep + "annotation.txt",
                         help='Output file.')
-    parser.add_argument('-r', dest='results', type=isdir,
-                        default=os.curdir + os.sep,
-                        help='Path to result directory.')
+    parser.add_argument('-ob', dest='output_file_biom',
+                        type=str, default=None,
+                        help='Output file for biom input.')
     args = parser.parse_args()
     return args
 
@@ -221,7 +224,8 @@ def load_taxonomy(database_file, vsearch_dict, database_type):
     return annotation_dict
 
 
-def write_tax_table(vsearch_dict, annotation_dict, output_file):
+def write_tax_table(vsearch_dict, annotation_dict, output_file, otu_tab,
+                    biom=False):
     """
     """
     # Identity threshold :
@@ -230,15 +234,19 @@ def write_tax_table(vsearch_dict, annotation_dict, output_file):
     # Nature Reviews Microbiology 12, 635–645 (2014) doi:10.1038/nrmicro3330
     #print(vsearch_dict)
     #print(annotation_dict)
+    prefix = ["k__", "p__", "c__", "o__", "f__", "g__", "s__"]
     try:
         with open(output_file, "wt") as output:
             output_writer = csv.writer(output, delimiter='\t')
-            output_writer.writerow(["OTU", "Kingdom", "Phylum", "Class",
-                                    "Order", "Family", "Genus", "Specie"])
+            if not biom:
+                output_writer.writerow(["OTU", "Kingdom", "Phylum", "Class",
+                                        "Order", "Family", "Genus", "Specie"])
             for tax in vsearch_dict:
                 #print(tax)
                 for OTU in vsearch_dict[tax]:
                     #print(OTU)
+                    if OTU[0] in otu_tab:
+                        otu_tab.remove(OTU[0])
                     taxonomy = annotation_dict[tax].split(";")
                     # Genus and the rest
                     if OTU[1] >= 94.5:
@@ -259,10 +267,35 @@ def write_tax_table(vsearch_dict, annotation_dict, output_file):
                     else:
                         taxonomy = []
                     taxonomy = taxonomy + ['']*(7-len(taxonomy))
+                    if biom:
+                        taxonomy = [prefix[level] + taxonomy[level]
+                                    for level in xrange(0, 7)]
+                        taxonomy = [";".join(taxonomy)]
                         #sys.exit("Strange id is to low for {0[0]} : {0[1]} \%".format(OTU))
                     output_writer.writerow([OTU[0]] + taxonomy)
+            if len(otu_tab) > 0:
+                empty_prefix = [";".join(prefix)]
+                for otu in otu_tab:
+                    output_writer.writerow([otu] + empty_prefix)
     except IOError:
         sys.exit("Error cannot open {0}".format(output_file))
+
+
+def get_id(otu_file):
+    """Get OTU ID
+    """
+    otu_tab = []
+    try:
+        with open(otu_file, "rt") as otu_f:
+            for line in otu_f:
+                if line.startswith(">"):
+                    otu_tab.append(line[1:].rstrip('\r\n'))
+            assert(len(otu_tab) > 0)
+    except IOError:
+        sys.exit("Error cannot open {0}".format(otu_file))
+    except AssertionError:
+        sys.exit("Error nothing read from {0}".format(otu_file))
+    return otu_tab
 
 
 def main():
@@ -277,7 +310,14 @@ def main():
     else:
         annotation_dict = load_taxonomy(args.database_file, vsearch_dict,
                                         args.database_type)
-    write_tax_table(vsearch_dict, annotation_dict, args.output_file)
+    write_tax_table(vsearch_dict, annotation_dict, args.output_file, [])
+    if args.output_file_biom:
+        if args.otu_file:
+            otu_tab = get_id(args.otu_file)
+        else:
+            sys.exit("Please provide OTU fasta file")
+        write_tax_table(vsearch_dict, annotation_dict, args.output_file_biom,
+                        otu_tab, True)
 
 
 if __name__ == '__main__':
