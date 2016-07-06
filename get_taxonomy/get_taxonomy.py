@@ -66,7 +66,8 @@ def getArguments():
                         help='Path to the database file.')
     parser.add_argument('-dtype', dest='database_type', type=str,
                         default="silva", choices=["findley", "greengenes",
-                                                  "rdp", "silva", "unite"],
+                                                  "rdp", "silva", "underhill",
+                                                  "unite"],
                         help='Database format (default = silva).')
     parser.add_argument('-t', dest='taxonomy_file', type=isfile,
                         help='Path to the taxonomy file (Greengenes only).')
@@ -178,6 +179,20 @@ def parse_silva(header, vsearch_dict, annotation_dict):
         annotation_dict[tax[0][1:].strip()] = annotation
         identified = 1
     return annotation_dict, identified
+
+
+def load_taxonomy_uh(taxonomy_file, vsearch_dict):
+    """Load greengenes taxonomy file
+    """
+    annotation_dict = {}
+    try:
+        with open(taxonomy_file, "rt") as taxonomy:
+            taxonomy_reader = csv.reader(taxonomy, delimiter="\t")
+            for line in taxonomy_reader:
+                annotation_dict[line[0]] = "".join(line[1:])
+    except IOError:
+        sys.exit("Error cannot open {0}".format(taxonomy_file))
+    return annotation_dict
 
 
 def load_taxonomy_gg(taxonomy_file, vsearch_dict):
@@ -305,8 +320,12 @@ def main():
     vsearch_dict = load_vsearch(args.input_file)
     if args.database_type == "greengenes" and args.taxonomy_file:
         annotation_dict = load_taxonomy_gg(args.taxonomy_file, vsearch_dict)
+    if args.database_type == "underhill" and args.taxonomy_file:
+        annotation_dict = load_taxonomy_uh(args.taxonomy_file, vsearch_dict)
     elif args.database_type == "greengenes" and not args.taxonomy_file:
-        sys.exit("Please indicate the greengenes taxonomy file")
+        sys.exit("Please provide the greengenes taxonomy file")
+    elif args.database_type == "underhill" and not args.taxonomy_file:
+        sys.exit("Please provide the underhill taxonomy file")
     else:
         annotation_dict = load_taxonomy(args.database_file, vsearch_dict,
                                         args.database_type)
