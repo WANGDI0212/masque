@@ -153,7 +153,7 @@ def parse_silva(header, vsearch_dict, annotation_dict):
     """
     useless_mention = ["uncultured bacterium", "Incertae", "unidentified",
                        "uncultured organism", "uncultured soil bacterium",
-                       "unidentified marine bacterioplankton"]
+                       "unidentified marine bacterioplankton", "uncultured"]
     identified = 0
     tax = header.strip().split(" ")
     if tax[0][1:].strip() in vsearch_dict:
@@ -189,7 +189,7 @@ def load_taxonomy_uh(taxonomy_file, vsearch_dict):
         with open(taxonomy_file, "rt") as taxonomy:
             taxonomy_reader = csv.reader(taxonomy, delimiter="\t")
             for line in taxonomy_reader:
-                annotation_dict[line[0]] = "".join(line[1:])
+                annotation_dict[line[0]] = ";".join(line[1:])
     except IOError:
         sys.exit("Error cannot open {0}".format(taxonomy_file))
     return annotation_dict

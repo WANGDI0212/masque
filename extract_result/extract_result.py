@@ -138,10 +138,10 @@ def parse_fastq(fastq_file):
     return seq_len_tab
 
 
-def parse_fasta(fasta_file, tag="size=.+"):
+def parse_fasta(fasta_file, tag=";size=.+"):
     """Parse fasta sequence
     """
-    regex_name = re.compile(r"barcodelabel=(\S+);" + tag)
+    regex_name = re.compile(r"barcodelabel=(\S+)" + tag)
     header_dict = {}
     header = ""
     sequence = ""
@@ -438,9 +438,9 @@ def main():
                               check_file(log_dir + "log_mapping*_2.txt"),
                               "mapping", "_2")
     # Get dereplication data
-    header_dict, seq_len_tab = parse_fasta(check_file(args.data_dir +
-                                                      "*_extendedFrags.fasta")[0],
-                                           "")
+    header_dict, seq_len_tab = parse_fasta(
+                                check_file(args.data_dir +
+                                "*_extendedFrags.fasta")[0], "")
     global_data = {"extended":[
                     len(seq_len_tab), sum(seq_len_tab)/len(seq_len_tab),
                     sorted(seq_len_tab)[len(seq_len_tab)//2]]}
@@ -482,11 +482,12 @@ def main():
     sample_read = parse_otu_table(sample_read, check_file(args.data_dir +
                                                           "*_otu_table.tsv")[0])
     # annotation
-    tag = ["silva", "greengenes", "unite", "findley", "rdp"]
-    annotation_files = [check_file(args.data_dir + "*_silva_annotation_eval*.tsv")[0],
+    tag = ["silva", "greengenes", "unite", "findley", "underhill", "rdp"]
+    annotation_files = [check_file(args.data_dir + "*_silva_annotation_*.tsv")[0],
                         check_file(args.data_dir + "*_greengenes_annotation_*.tsv")[0],
                         check_file(args.data_dir + "*_unite_annotation_*.tsv")[0],
                         check_file(args.data_dir + "*_findley_annotation_*.tsv")[0],
+                        check_file(args.data_dir + "*_underhill_annotation_*.tsv")[0],
                         check_file(args.data_dir + "*_rdp.tsv")[0]]
     tag_present = []
     for i in xrange(len(annotation_files)):
