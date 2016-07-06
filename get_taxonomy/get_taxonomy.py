@@ -182,7 +182,7 @@ def parse_silva(header, vsearch_dict, annotation_dict):
 
 
 def load_taxonomy_uh(taxonomy_file, vsearch_dict):
-    """Load greengenes taxonomy file
+    """Load underhill taxonomy file
     """
     annotation_dict = {}
     try:
