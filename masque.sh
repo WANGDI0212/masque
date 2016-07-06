@@ -81,14 +81,33 @@ function check_name {
 display_help() {
     if [ "$1" -eq "0" ]
     then
-        echo """$0 -i </path/to/input/directory/> -o </path/to/result/directory/>
+        echo -e """$0 -i </path/to/input/directory/> -o </path/to/result/directory/>
 - case high sensitive annotation: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -b
 - case its: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -f
 - case amplicon: $0 -a <amplicon file> -o </path/to/result/directory/>
 - All parameters:
-$0 -i </path/to/input/directory/> -o </path/to/result/directory/> -n <project-name> -t <thread> --minoverlap <value> --maxoverlap <value> --minphred <value> --minphredperc <value> --minampliconlength <value> --minreadlength <value> --minotusize <value>  --NbMismatchMapping <value>  --evalueTaxAnnot <value>
-or (vsearch annotation)
-$0 -i </path/to/input/directory/> -o </path/to/result/directory/> -n <project-name> -t <thread> --minoverlap <value> --maxoverlap <value> --minphred <value> --minphredperc <value> --minampliconlength <value> --minreadlength <value> --minotusize <value>  --NbMismatchMapping <value>  --identity_threshold <value>"""
+-i\tProvide </path/to/input/directory/>
+-a\tProvide <amplicon file>
+-o\tProvide </path/to/result/directory/>
+-n\tIndicate <project-name> (default: use the name of the input directory)
+-t\tNumber of <thread> (default all cpu will be used)
+-s\tPerform OTU clustering with swarm
+-b\tPerform taxonomical annotation with blast (Default vsearch)
+-f\tPerform taxonomical annotation against ITS databases: Unite/findley/RDP (Default Silva/Greengenes/RDP)
+--minphred\tQvalue must lie between [0-40] (Default minimum qvalue 20 )
+--minphredperc\tMinimum allowed percentage of correctly called nucleotides [0-100] (Default 80)
+--minreadlength\tMinimum read length take in accound in the study (Default 35nt)
+--NbMismatchMapping\tMaximum number of mismatch when mapping end-to-end against Human genome and Phi174 genome (Default 1 mismatch is accepted)
+--maxoverlap\tMinimum overlap when paired reads are considered (Default 200 nt)
+--minoverlap\tMaximum overlap when paired reads are considered (Default 50 nt)
+--minampliconlength\tMinimum amplicon length (Default 64nt)
+--minotusize\tIndicate minimum OTU size (Default 4)
+--prefixdrep\tPerform prefix dereplication (Default full length dereplication)
+--chimeraslayerfiltering\tUse ChimeraSlayer database for chimera filtering (Default : Perform a de novo chimera filtering)
+--otudiffswarm\tNumber of difference accepted in an OTU with swarm (Default 1)
+--evalueTaxAnnot\tevalue threshold for taxonomical annotation with blast (Default evalue=1E-5)
+--maxTargetSeqs\tNumber of hit per OTU with blast (Default 1)
+--identity_threshold\tIdentity threshold for taxonomical annotation with vsearch (Default 0.75)"""
     else
         display_parameters
     fi
@@ -105,8 +124,8 @@ display_parameters() {
    say_parameters "Read filtering:" >&2
    echo "Minimum read length [--minreadlength]= $minreadlength" >&2
    echo "Minimum phred quality [--minphred]= $minphred" >&2
-   echo "Minimum number of mistach for the filtering [--NbMismatchMapping]= $NbMismatchMapping" >&2
    echo "Minimum allowed percentage of correctly called nucleotides [--minphredperc]= $minphredperc" >&2
+   echo "Minimum number of mistach for the filtering [--NbMismatchMapping]= $NbMismatchMapping" >&2   
    if [ "$paired" -eq "1" ]
    then
     say_parameters "Merge reads parameters:"
@@ -191,7 +210,7 @@ unite="$SCRIPTPATH/databases/sh_general_release_dynamic_s_01.08.2015.fasta"
 #######################
 amplicon=""
 blast_tax=0
-denovochimera=1
+chimeraslayerfiltering=0
 evalueTaxAnnot="1E-5"
 fungi=0
 identity_threshold=0.75
@@ -260,7 +279,7 @@ vsearch="$SCRIPTPATH/vsearch_bin/bin/vsearch" #"vsearch"
 # Main #
 ########
 # Execute getopt on the arguments passed to this program, identified by the special character $@
-PARSED_OPTIONS=$(getopt -n "$0"  -o hi:o:r:t:a:sbfn: --long "help,input_dir:,output:,thread:,minampliconlength:,maxoverlap:,maxTargetSeqs:,minotusize:,minoverlap:,minphred:,minphredperc:,minreadlength:,identity_threshold:,evalueTaxAnnot:,NbMismatchMapping:,amplicon:,swarm,blast,fungi,name:,prefixdrep"  -- "$@")
+PARSED_OPTIONS=$(getopt -n "$0"  -o hi:o:r:t:a:sbfn: --long "help,input_dir:,output:,thread:,minampliconlength:,maxoverlap:,maxTargetSeqs:,minotusize:,minoverlap:,minphred:,minphredperc:,minreadlength:,identity_threshold:,evalueTaxAnnot:,NbMismatchMapping:,amplicon:,swarm,blast,fungi,name:,prefixdrep,chimeraslayerfiltering"  -- "$@")
 
 #Check arguments
 if [ $# -eq 0 ]
@@ -318,6 +337,9 @@ do
     -n|--name)
         ProjectName=$2
         shift 2;;
+    --chimeraslayerfiltering)
+        chimeraslayerfiltering=1
+        shift ;;
     --minampliconlength)
         check_integer $2
         minampliconlength=$2
@@ -638,7 +660,7 @@ then
      say "Chimera filtering using reference database"
      start_time=$(timer)
      #$usearch -uchime_ref ${resultDir}/${ProjectName}_otu.fasta -db $gold -strand plus -nonchimeras ${resultDir}/${ProjectName}_otu_nochim.fasta
-     if [ "$denovochimera" -eq "1" ]
+     if [ "$chimeraslayerfiltering" -eq "0" ]
      then
          $vsearch --uchime_denovo ${resultDir}/${ProjectName}_sorted.fasta --strand plus --nonchimeras ${resultDir}/${ProjectName}_nochim.fasta --chimeras ${resultDir}/${ProjectName}_chim.fasta
      else
