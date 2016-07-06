@@ -33,7 +33,7 @@ source /local/gensoft2/adm/etc/profile.d/modules.sh
 module purge
 module add Python/2.7.8 FastTree/2.1.8 FLASH/1.2.11 fasta mafft/7.149 bowtie2/2.2.6 blast+/2.2.31 AlienTrimmer/0.4.0 fastqc/0.11.5 rdp_classifier/2.11
 
-/bin/bash $SCRIPTPATH/masque.sh -i $readdir/ -o $outdir/ -n $3 -t $4 -b &> $outdir/${3}_stat_process.txt || exit 1
+/bin/bash $SCRIPTPATH/masque.sh -i $readdir/ -o $outdir/ -n $3 -t $4 -b -l &> $outdir/${3}_stat_process.txt || exit 1
 
 exit 0
 """>$SLURM_SCRIPT
