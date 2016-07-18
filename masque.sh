@@ -97,7 +97,7 @@ display_help() {
 -l\tPerform taxonomical annotation against LSU databases: Silva/RDP
 -f\tPerform taxonomical annotation against ITS databases: Unite/Findley/Underhill/RDP
 --minreadlength\tMinimum read length take in accound in the study (Default 35nt)
---minphred\tQvalue must lie between [0-40] (Default minimum qvalue 20 )
+--minphred\tQvalue must lie between [0-40] (Default minimum qvalue 20)
 --minphredperc\tMinimum allowed percentage of correctly called nucleotides [0-100] (Default 80)
 --NbMismatchMapping\tMaximum number of mismatch when mapping end-to-end against Human genome and Phi174 genome (Default 1 mismatch is accepted)
 --maxoverlap\tMinimum overlap when paired reads are considered (Default 200 nt)
@@ -287,7 +287,7 @@ rename_otu="$SCRIPTPATH/rename_otu/rename_otu.py"
 # rdp classifier
 rdp_classifier="classifier" #"$SCRIPTPATH/rdp_classifier_2.11/dist/classifier.jar"
 # swarm
-swarm="$SCRIPTPATH/swarm/bin/swarm" #"swarm"
+swarm="$SCRIPTPATH/swarm_bin/bin/swarm" #"swarm"
 # swarm2vsearch
 swarm2vsearch="$SCRIPTPATH/swarm2vsearch/swarm2vsearch.py"
 # uc2otutab
