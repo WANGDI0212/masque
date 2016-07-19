@@ -1,7 +1,7 @@
- # Masque
- [Amine Ghozlane](https://research.pasteur.fr/fr/member/amine-ghozlane/) (amine.ghozlane@pasteur.fr)
+# MASQUE : Metagenomic Analysis with a Quantitative pipeline 
+[Amine Ghozlane](https://research.pasteur.fr/fr/member/amine-ghozlane/) (amine.ghozlane@pasteur.fr)
  
- ## Introduction
+## Introduction
 
 The aim of this project is to provide an easy cluster interface to perform targeted metagenomic analysis.
 Masque allows :
