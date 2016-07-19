@@ -1,4 +1,5 @@
-# Masque
+# MASQUE
+[Amine Ghozlane](https://research.pasteur.fr/fr/member/amine-ghozlane/) (amine.ghozlane@pasteur.fr)
 
 ## Introduction
 
@@ -11,10 +12,10 @@ Masque allows :
 
 ## Load MASQUE on Institut Pasteur cluster's
 
-'''
+```
 module use /pasteur/projets/Matrix/modules
 module add masque/bic or masque/tars or masque/standalone
-'''
+```
 
 * masque/bic is supposed to be used on bic cluster
 * masque/tars is supposed to be used on tars cluster
@@ -49,15 +50,10 @@ ssh user@tars.pasteur.fr
 '''
 
 The calculation status can be considered with :
-- bic:
-'''
-qstat
-'''
-or
-- tars:
-'''
-squeue -u username
-'''
+- bic: `qstat`
+- tars:`squeue -u username`
+
+## Results
 
 ## Results
 
@@ -69,7 +65,7 @@ In output_dir, you will find after calculation :
 - project-name_otu.fasta : otu centroid sequence 
 - project-name_otu_table.tsv : count table including the raw count obtained for each OTU and each sample
 - project-name_vs_database-name_annotation_eval_1E-5.tsv : OTU annotation performed by blast against the several databank
-- project-name_vs_rdp.tsv : OTU annotation performed by [rdp]
+- project-name_vs_rdp.tsv : OTU annotation performed by rdp.
 - project-name_otu.tree : OTU phylogeny
 - reads/*_fastqc.html : fastq quality after trimming/clipping
 
@@ -81,7 +77,7 @@ The project-name_otu_table.tsv and project-name_vs_database-name_annotation_eval
 ## Citation
 
 No papers about MASQUE alone will be published, but you can cite the first publication that use this program :
-- A bacteriocin from epidemic Listeria strains alters the host intestinal microbiota to favor infection. Quereda JJ, Dussurget O, Nahori MA, Ghozlane A, Volant S, Dillies MA, Regnault B, Kennedy S, Mondot S, Villoing B, Cossart P, Pizarro-Cerda J.; PNAS 2016. [link](http://www.ncbi.nlm.nih.gov/pubmed/27140611).
+- A bacteriocin from epidemic Listeria strains alters the host intestinal microbiota to favor infection. Quereda JJ, Dussurget O, Nahori MA, Ghozlane A, Volant S, Dillies MA, Regnault B, Kennedy S, Mondot S, Villoing B, Cossart P, Pizarro-Cerda J.; PNAS 2016. [paper](http://www.ncbi.nlm.nih.gov/pubmed/27140611).
 
 ## Acknowledgements
 
