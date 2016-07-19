@@ -12,7 +12,7 @@ Masque allows :
 
 ## Installation
 
-
+MASQUE comes with many binaries for Linux. It will always use your existing installed versions if they exist, but will use the included ones if that fails. You can consult the list of dependencies later in this document.
 
 ## Command line options
 
@@ -50,18 +50,18 @@ Masque allows :
 
 ## Results
 
-In the \<output_dir>, you will find after calculation :
+In the output_dir, you will find after calculation :
 
 File | Description
 ---|---
-**project-name_stat_process.txt** | every step progress (during calculation : tail -f project-name_stat_process.txt, at the end : less project-name_stat_process.txt)
-**project-name_annotation_process.tsv** | summary of the annotation process (Numbers of amplicon after dereplication, )
-**project-name_build_process.tsv** | summary of the otu-build process (Number reads, contaminants and OTU identified per samples...)
-**project-name_otu.fasta** | OTU centroid sequence 
-**project-name_otu_table.tsv** | count table including the raw count obtained for each OTU and each sample
-**project-name_vs_database-name_annotation_eval_1E-5.tsv** | OTU annotation performed by blast against the several databank
-**project-name_vs_rdp.tsv** | OTU annotation performed by rdp.
-**project-name_otu.tree** | OTU phylogeny
+**project_stat_process.txt** | every step progress (during calculation : tail -f project-name_stat_process.txt, at the end : less project-name_stat_process.txt)
+**project_annotation_process.tsv** | summary of the annotation process (Numbers of amplicon after dereplication, )
+**project_build_process.tsv** | summary of the otu-build process (Number reads, contaminants and OTU identified per samples...)
+**project_otu.fasta** | OTU centroid sequence 
+**project_otu_table.tsv** | count table including the raw count obtained for each OTU and each sample
+**project_vs_database_annotation_eval_val.tsv** | OTU annotation performed by blast against the several databank
+**project_vs_rdp.tsv** | OTU annotation performed by rdp.
+**project_otu.tree** | OTU phylogeny
 **reads/*_fastqc.html** | fastq quality after trimming/clipping
 
 The other files correspond to intermediate results.
