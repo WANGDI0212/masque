@@ -28,7 +28,7 @@ Three programs will then be available with the following options :
 - masque_23S-28S <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
 - masque_ITS <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
 - masque_amplicon <amplicon_file> <output_dir> <project-name> <nb_cpu> <email> <queue>
-With masque/standalone, you access to masque main program. Please consider the [README file](README.md) to use it properly. 
+With masque/standalone, you access to masque main program. Please consider the [README file](https://github.com/aghozlane/masque) to use it properly. 
 
 which correspond to :
 - <reads_dir>: directory with the read files (*.fq or *.fastq, if paired : *_R1.fastq, *_R2.fastq or *_R1.fq, *_R2.fq)
