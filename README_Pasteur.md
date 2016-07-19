@@ -16,7 +16,7 @@ module add masque/bic or masque/tars or masque/standalone
 
 * masque/bic is supposed to be used on bic cluster
 * masque/tars is supposed to be used on tars cluster
-* masque/standalone is available on both bic and tars cluster and provide an access to every masque parameters. You need to write your own submission script or use interactive access to use it.
+* masque/standalone is available on both bic and tars cluster. With masque/standalone, you access to masque main program and access to every masque parameters. You need to write your own submission script or use interactive access to use it. Please consider the [README file](https://github.com/aghozlane/masque) to use it properly. 
 
 ## Use MASQUE
 
@@ -27,7 +27,6 @@ masque_23S-28S <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
 masque_ITS <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
 masque_amplicon <amplicon_file> <output_dir> <project-name> <nb_cpu> <email> <queue>
 ```
-With masque/standalone, you access to masque main program. Please consider the [README file](https://github.com/aghozlane/masque) to use it properly. 
 
 which correspond to :
 - reads_dir: directory with the read files (*.fq or *.fastq, if paired : *_R1.fastq, *_R2.fastq or *_R1.fq, *_R2.fq)
@@ -36,6 +35,7 @@ which correspond to :
 - nb_cpu: Number of cpu used, max on bic is 12.
 - email: your email address (it will send a start|error|success message). You have to provide a pasteur mail.
 - queue: On bic, it corresponds to your team group on the cluster. On tars, you should indicated if it is a short job : "fast" (less than 2 hours, high priority), "normal" (less than 24 hours, normal priority) or unlimited (no time limit, 5 job per user)  
+
 
 Masque will submit the automatically calculation on the cluster. You don't have to write any submission script. Masque must be used on the master node that you reach automatically when you perform:
 
