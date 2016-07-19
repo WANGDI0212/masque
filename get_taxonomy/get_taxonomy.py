@@ -320,7 +320,7 @@ def main():
     vsearch_dict = load_vsearch(args.input_file)
     if args.database_type == "greengenes" and args.taxonomy_file:
         annotation_dict = load_taxonomy_gg(args.taxonomy_file, vsearch_dict)
-    if args.database_type == "underhill" and args.taxonomy_file:
+    elif args.database_type == "underhill" and args.taxonomy_file:
         annotation_dict = load_taxonomy_uh(args.taxonomy_file, vsearch_dict)
     elif args.database_type == "greengenes" and not args.taxonomy_file:
         sys.exit("Please provide the greengenes taxonomy file")
