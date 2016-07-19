@@ -21,19 +21,21 @@ module add masque/bic or masque/tars or masque/standalone
 ## Use MASQUE
 
 Three programs will then be available with the following options :
-- masque_16S-18S <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
-- masque_23S-28S <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
-- masque_ITS <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
-- masque_amplicon <amplicon_file> <output_dir> <project-name> <nb_cpu> <email> <queue>
+```
+masque_16S-18S <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
+masque_23S-28S <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
+masque_ITS <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
+masque_amplicon <amplicon_file> <output_dir> <project-name> <nb_cpu> <email> <queue>
+```
 With masque/standalone, you access to masque main program. Please consider the [README file](https://github.com/aghozlane/masque) to use it properly. 
 
 which correspond to :
-- <reads_dir>: directory with the read files (*.fq or *.fastq, if paired : *_R1.fastq, *_R2.fastq or *_R1.fq, *_R2.fq)
-- <output_dir>: directory where to put the results
-- <project-name>: a name for the project
-- <nb_cpu>: Number of cpu used, max on bic is 12.
-- <email>: your email address (it will send a start|error|success message). You have to provide a pasteur mail.
-- <queue>: On bic, it corresponds to your team group on the cluster. On tars, you should indicated if it is a short job : "fast" (less than 2 hours, high priority), "normal" (less than 24 hours, normal priority) or unlimited (no time limit, 5 job per user)  
+- reads_dir: directory with the read files (*.fq or *.fastq, if paired : *_R1.fastq, *_R2.fastq or *_R1.fq, *_R2.fq)
+- output_dir: directory where to put the results
+- project-name: a name for the project
+- nb_cpu: Number of cpu used, max on bic is 12.
+- email: your email address (it will send a start|error|success message). You have to provide a pasteur mail.
+- queue: On bic, it corresponds to your team group on the cluster. On tars, you should indicated if it is a short job : "fast" (less than 2 hours, high priority), "normal" (less than 24 hours, normal priority) or unlimited (no time limit, 5 job per user)  
 
 Masque will submit the automatically calculation on the cluster. You don't have to write any submission script. Masque must be used on the master node that you reach automatically when you perform:
 
