@@ -50,7 +50,7 @@ Masque allows :
 
 ## Results
 
-In <output_dir>, you will find after calculation :
+In the \<output_dir>, you will find after calculation :
 
 File | Description
 ---|---
