@@ -1,52 +1,44 @@
- 
-# Load MASQUE on pasteur
-module use /pasteur/projets/Matrix/modules
-module add masque/0.1
-
-Three programs will then be available with the following options :
-masque_16S-18S <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
-masque_ITS <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
-masque_amplicon <amplicon_file> <output_dir> <project-name> <nb_cpu> <email> <queue>
-
-which correspond to :
-reads_dir : directory with the read files (*.fq or *.fastq, if paired : *_R1.fastq, *_R2.fastq or *_R1.fq, *_R2.fq)
-output_dir : directory where to put the results
-project-name : a name for the project
-nb_cpu : Number of cpu used, max on bic is 12.
-email: your email address (it will send a start|error|success message)
-
-Masque will submit the automatically calculation on the bic cluster. You don't have to write any submission script. Masque must be used on the master node that you reach automatically when you perform:
-
-ssh user@bic.pasteur.fr
-
-The calculation status can be considered with :
-
-qstat
+ masque.sh -i </path/to/input/directory/> -o </path/to/result/directory/>
+- case high sensitive annotation: /pasteur/projets/policy01/Matrix/metagenomics/masque/masque.sh -i </path/to/input/directory/> -o </path/to/result/directory/> -b
+- case 23S/28S: /pasteur/projets/policy01/Matrix/metagenomics/masque/masque.sh -i </path/to/input/directory/> -o </path/to/result/directory/> -l
+- case its: /pasteur/projets/policy01/Matrix/metagenomics/masque/masque.sh -i </path/to/input/directory/> -o </path/to/result/directory/> -f
+- case amplicon: /pasteur/projets/policy01/Matrix/metagenomics/masque/masque.sh -a <amplicon file> -o </path/to/result/directory/>
+- All parameters:
+-i      Provide </path/to/input/directory/>
+-a      Provide <amplicon file>
+-o      Provide </path/to/result/directory/>
+-n      Indicate <project-name> (default: use the name of the input directory)
+-t      Number of <thread> (default all cpu will be used)
+-s      Perform OTU clustering with swarm
+-b      Perform taxonomical annotation with blast (Default vsearch)
+-l      Perform taxonomical annotation against LSU databases: Silva/RDP
+-f      Perform taxonomical annotation against ITS databases: Unite/Findley/Underhill/RDP
+--minreadlength Minimum read length take in accound in the study (Default 35nt)
+--minphred      Qvalue must lie between [0-40] (Default minimum qvalue 20)
+--minphredperc  Minimum allowed percentage of correctly called nucleotides [0-100] (Default 80)
+--NbMismatchMapping     Maximum number of mismatch when mapping end-to-end against Human genome and Phi174 genome (Default 1 mismatch is accepted)
+--maxoverlap    Minimum overlap when paired reads are considered (Default 200 nt)
+--minoverlap    Maximum overlap when paired reads are considered (Default 50 nt)
+--minampliconlength     Minimum amplicon length (Default 64nt)
+--minotusize    Indicate minimum OTU size (Default 4)
+--prefixdrep    Perform prefix dereplication (Default full length dereplication)
+--chimeraslayerfiltering        Use ChimeraSlayer database for chimera filtering (Default : Perform a de novo chimera filtering)
+--otudiffswarm  Number of difference accepted in an OTU with swarm (Default 1)
+--evalueTaxAnnot        evalue threshold for taxonomical annotation with blast (Default evalue=1E-5)
+--maxTargetSeqs Number of hit per OTU with blast (Default 1)
+--identity_threshold    Identity threshold for taxonomical annotation with vsearch (Default 0.75)
 
 In output_dir, you will find after calculation :
-
 project-name_stat_process.txt : every step progress (during calculation : tail -f project-name_stat_process.txt, at the end : less project-name_stat_process.txt)
-
 project-name_annotation_process.tsv : summary of the annotation process
-
 project-name_build_process.tsv : summary of the otu-build process
-
 project-name_otu.fasta : otu sequence
-
 project-name_otu_table.tsv : count table
-
 project-name_vs_database-name_annotation_eval_1E-5.tsv : OTU annotation performed by blast
-
 project-name_vs_rdp.tsv : OTU annotation performed by rdp
-
 project-name_otu.tree : OTU phylogeny
-
 reads/*_fastqc.html : fastq quality after trimming/clipping
-
-The other files correspond to intermediate results.
-
-If some of theses files are missing, it might be worth to re-run the program with the same command line. masque check each step and can continue after the last step. It happens sometimes that one cluster node fail for no particular reason.
-The project-name_otu_table.tsv  and project-name_vs_database-name_annotation_eval_1E-5.tsv  can be directly analysed with : http://shaman.c3bi.pasteur.fr/
+The other files correspond to intermediate results. The project-name_otu_table.tsv  and project-name_vs_database-name_annotation_eval_1E-5.tsv  can be directly analysed with : http://shaman.c3bi.pasteur.fr/
 
 Cite masque or shaman :
 http://www.ncbi.nlm.nih.gov/pubmed/27140611
