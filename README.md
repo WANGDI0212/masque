@@ -51,6 +51,7 @@ Masque allows :
 ## Results
 
 In <output_dir>, you will find after calculation :
+
 File | Description
 ---|---
 **project-name_stat_process.txt** | every step progress (during calculation : tail -f project-name_stat_process.txt, at the end : less project-name_stat_process.txt)
