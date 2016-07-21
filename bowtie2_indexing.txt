@@ -1,0 +1,2 @@
+homo_sapiens.fna
+NC_001422.fna

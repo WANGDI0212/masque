@@ -1,0 +1,6 @@
+gg_13_5.fasta
+ITSdb.findley.fasta
+sh_general_release_31.01.2016.fasta
+SILVA_123.1_LSURef_tax_silva.fasta
+SILVA_123.1_SSURef_Nr99_tax_silva.fasta
+THFv1.2.sequence.fasta

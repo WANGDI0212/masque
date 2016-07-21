@@ -11,8 +11,8 @@
 #    http://www.gnu.org/licenses/gpl-3.0.html
 # ------------------------------------------------------------------
 # Author: Amine Ghozlane (amine.ghozlane@pasteur.fr)
-# Title:  16S-18S-ITS pipeline
-# Description : De novo 16S-18S-ITS pipeline assignation
+# Title:  16S-18S-23S-28S-ITS pipeline
+# Description : De novo 16S-18S-23S-28S-ITS pipeline assignation
 # ------------------------------------------------------------------
 
 function say_parameters {
@@ -76,6 +76,15 @@ function check_name {
         echo "sample name=$1"
         exit 1
     fi
+}
+
+function check_soft {
+ if type $1 > /dev/null  2>&1;
+ then
+    echo $1
+ else
+    echo $2
+ fi
 }
 
 display_help() {
@@ -208,11 +217,12 @@ gold="$SCRIPTPATH/databases/gold.fa"
 # Alien sequences
 alienseq="$SCRIPTPATH/databases/alienTrimmerPF8contaminants.fasta"
 # Filtering database
-filterRef=("$SCRIPTPATH/databases/homo_sapiens.fna" "$SCRIPTPATH/databases/phi.fa")
+filterRef=("$SCRIPTPATH/databases/homo_sapiens.fna" "$SCRIPTPATH/databases/NC_001422.fna")
 # Findley
+# http://www.mothur.org/w/images/2/20/Findley_ITS_database.zip
 findley="$SCRIPTPATH/databases/ITSdb.findley.fasta"
 # Greengenes
-#ftp://greengenes.microbio.me/greengenes_release/gg_13_5/
+# ftp://greengenes.microbio.me/greengenes_release/gg_13_5/
 greengenes="$SCRIPTPATH/databases/gg_13_5.fasta"
 #greengenes="/local/databases/fasta/greengenes.fa"
 greengenes_taxonomy="$SCRIPTPATH/databases/gg_13_5_taxonomy.txt"
@@ -259,45 +269,45 @@ swarm_clust=0
 # Programs #
 ############
 # AlienTrimmer
-alientrimmer="AlienTrimmer" #"$SCRIPTPATH/AlienTrimmer_0.4.0/src/AlienTrimmer.jar"
+alientrimmer=$(check_soft "AlienTrimmer" "$SCRIPTPATH/AlienTrimmer_0.4.0/src/AlienTrimmer")
 # Biom
 biom="biom"
 # Blastn
-blastn="blastn" #"$SCRIPTPATH/ncbi-blast-2.2.31+/bin/blastn"
+blastn=$(check_soft "blastn" "$SCRIPTPATH/ncbi-blast-2.4.0+/bin/blastn")
 # Bowtie2
-bowtie2="bowtie2" #"$SCRIPTPATH/bowtie2-2.2.6/bowtie2"
+bowtie2=$(check_soft "bowtie2" "$SCRIPTPATH/bowtie2-2.2.9/bowtie2")
 # Extract result
 extract_result="$SCRIPTPATH/extract_result/extract_result.py"
 # Fastq2fasta
 fastq2fasta="$SCRIPTPATH/fastq2fasta/fastq2fasta.py"
 # Fastqc
-fastqc="fastqc" #"$SCRIPTPATH/FastQC/fastqc"
+fastqc=$(check_soft "fastqc" "$SCRIPTPATH/FastQC/fastqc")
 # Fasttree
-FastTreeMP="FastTree" #"$SCRIPTPATH/FastTreeMP"
+FastTreeMP=$(check_soft "FastTree" "$SCRIPTPATH/FastTree-2.1.9/FastTree")
 # FLASH
-flash="flash" #"$SCRIPTPATH/FLASH-1.2.11/flash" #$(which flash)
+flash=$(check_soft "flash" "$SCRIPTPATH/FLASH-1.2.11/flash")
 # mafft
-mafft="mafft" #"$SCRIPTPATH/maff"
+mafft=$(check_soft "mafft" "$SCRIPTPATH/mafft-linux64/mafft.bat")
 # get_taxonomy
 get_taxonomy="$SCRIPTPATH/get_taxonomy/get_taxonomy.py"
 # otu_tab_size
 otu_tab_size="$SCRIPTPATH/otu_tab_size/otu_tab_size.py"
-# rename_tu
+# rename_otu
 rename_otu="$SCRIPTPATH/rename_otu/rename_otu.py"
 # rdp classifier
-rdp_classifier="classifier" #"$SCRIPTPATH/rdp_classifier_2.11/dist/classifier.jar"
+rdp_classifier=$(check_soft "classifier" "java -jar $SCRIPTPATH/rdp_classifier_2.12/dist/classifier.jar")
 # swarm
-swarm="$SCRIPTPATH/swarm_bin/bin/swarm" #"swarm"
+swarm=$(check_soft "swarm" "$SCRIPTPATH/swarm_bin/bin/swarm")
 # swarm2vsearch
 swarm2vsearch="$SCRIPTPATH/swarm2vsearch/swarm2vsearch.py"
 # uc2otutab
 uc2otutab="$SCRIPTPATH/usearch_python_scripts/uc2otutab.py"
 # usearch
-usearch="$SCRIPTPATH/usearch8.1.1756_i86linux32"
+#usearch="$SCRIPTPATH/usearch8.1.1756_i86linux32"
 #usearch -makeudb_utax 16s_ref.fa -output 16s_ref.udb -report 16s_report.txt
 # vsearch
 #vsearch="$SCRIPTPATH/vsearch-1.4.1-linux-x86_64/bin/vsearch"
-vsearch="$SCRIPTPATH/vsearch_bin/bin/vsearch" #"vsearch"
+vsearch=$(check_soft "vsearch" "$SCRIPTPATH/vsearch_bin/bin/vsearch")
 
 ########
 # Main #
@@ -673,7 +683,7 @@ fi
 if [ -f "${resultDir}/${ProjectName}_drep.fasta" ] && [ ! -f "${resultDir}/${ProjectName}_sorted.fasta" ]
 then
      say "Abundance sort and discard singletons"
-     tart_time=$(timer)
+     start_time=$(timer)
      #$usearch -sortbysize ${resultDir}/${ProjectName}_drep.fasta -fastaout ${resultDir}/${ProjectName}_sorted.fasta -minsize 4
      $vsearch -sortbysize ${resultDir}/${ProjectName}_drep.fasta -output ${resultDir}/${ProjectName}_sorted.fasta  -minsize $minotusize
  > ${logDir}/log_search_sort_${ProjectName}.txt 2>&1
