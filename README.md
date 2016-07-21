@@ -167,8 +167,8 @@ MASQUE use several databases for taxonomical annotation and data filtering as fo
    _Pruesse, E., et al., SILVA: a comprehensive online resource for quality checked and aligned ribosomal RNA sequence data compatible with ARB. Nucleic acids research, 2007, 35(21), 7188-7196._
    https://www.arb-silva.de/
 *  __UNDERHILL__
-   Used for the taxonomical annotation of ITS sequences.
-   _Tang J, Iliev I, Brown J, Underhill D and Funari V. Mycobiome: Approaches to Analysis of Intestinal Fungi. Journal of Immunological Methods, 2015, 421:112-21._
+Used for the taxonomical annotation of ITS sequences.
+_Tang J, Iliev I, Brown J, Underhill D and Funari V. Mycobiome: Approaches to Analysis of Intestinal Fungi. Journal of Immunological Methods, 2015, 421:112-21._
    https://risccweb.csmc.edu/microbiome/thf/
 *  __UNITE__
    Used for the taxonomical annotation of ITS sequences.
