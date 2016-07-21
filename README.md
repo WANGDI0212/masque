@@ -156,7 +156,7 @@ MASQUE use several databases for taxonomical annotation and data filtering as fo
 
 *  __FINDLEY__
    Used for the taxonomical annotation of ITS sequences.
-   __Findley, K., et al., Topographic diversity of fungal and bacterial communities in human skin. Nature, 2013, 498(7454), 367-370._
+   _Findley, K., et al., Topographic diversity of fungal and bacterial communities in human skin. Nature, 2013, 498(7454), 367-370._
    http://www.mothur.org/wiki/Findley_ITS_Database
 *  __GREENGENES__
     Used for the taxonomical annotation of 16S, 18S sequences.
