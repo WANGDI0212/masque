@@ -26,8 +26,16 @@ MASQUE allows :
 
 MASQUE comes with many binaries for Linux 64 bits. It will always use your existing installed versions if they exist, but will use the included ones if that fails. 
 You can consult the list of dependencies later in this document. Only biom program need to be installed by the user :
+
+
+
+```
+cd masque
+wget http://downloads.sourceforge.net/project/rdp-classifier/rdp-classifier/rdp_classifier_2.12.zip
+unzip rdp_classifier_2.12.zip
 ```
 As root :
+```
 pip install biom
 ```
 Then, install the databases as follow :
