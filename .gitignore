@@ -2,7 +2,6 @@
 *.pyc
 *.o
 *~
-test/
 swarm/
 vsearch/
 16s_pipeline_one_sample.sh
