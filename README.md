@@ -116,8 +116,8 @@ masque_amplicon_tars.sh
 Performs the trimming and clipping of the reads  
 _Criscuolo, A., Brisse, S., AlienTrimmer: a tool to quickly and accurately trim off multiple short contaminant sequences from high-throughput sequencing reads., Genomics, 2013, 102(5), 500-506._  
 *  __Biom__  
-⋅⋅⋅Combine count matrix and taxonomical annotation table  
-⋅⋅⋅_Daniel McDonald, et al., The Biological Observation Matrix (BIOM) format or: how I learned to stop worrying and love the ome-ome. GigaScience, 2012, 1:7. doi:10.1186/2047-217X-1-7_  
+Combine count matrix and taxonomical annotation table  
+_Daniel McDonald, et al., The Biological Observation Matrix (BIOM) format or: how I learned to stop worrying and love the ome-ome. GigaScience, 2012, 1:7. doi:10.1186/2047-217X-1-7_  
 *  __Blastn__  
 Performs the taxonomical annotation  
 _Altschul, S.F., Gish, W., Miller, W., Myers, E.W. & Lipman, D.J. "Basic local alignment search tool." J. Mol. Biol., 1990, 215:403-410._  
@@ -181,8 +181,8 @@ Adapters sequences provided by Illumina and Life technologies.
 *  __GOLD__  
 ChimeraSlayer reference database used for chimera filtering (default mode use de novo filtering instead).  
 http://drive5.com/uchime/uchime_download.html  
-*  __NCBI Homo Sapiens, PhiX174_  
-Used to search Human and PhiX174 contaminants (manipulators and Phi phage used for the sequencing).  
+*  __NCBI Homo Sapiens, PhiX174__
+Used to search Human (hs_ref_GRCh38.p7) and PhiX174 (NC_001422) contaminants (manipulators and Phi phage used for the sequencing).  
 
 
 ## Citation
