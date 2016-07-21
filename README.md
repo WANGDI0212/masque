@@ -100,22 +100,22 @@ The other files correspond to intermediate results.
 
 Template scripts are provided for SGE and SLURM deployments :
 
-masque_16S-18S.sh
-masque_16S-18S_tars.sh
-masque_23S-28S.sh
-masque_23S-28S_tars.sh
-masque_ITS.sh
-masque_ITS_tars.sh
-masque_amplicon.sh
-masque_amplicon_tars.sh
+masque_16S-18S.sh  
+masque_16S-18S_tars.sh  
+masque_23S-28S.sh  
+masque_23S-28S_tars.sh  
+masque_ITS.sh  
+masque_ITS_tars.sh  
+masque_amplicon.sh  
+masque_amplicon_tars.sh  
 
 
 ## Dependencies
 
 
 *  __AlienTrimmer__
-⋅⋅⋅Performs the trimming and clipping of the reads
-⋅⋅⋅_Criscuolo, A., Brisse, S., AlienTrimmer: a tool to quickly and accurately trim off multiple short contaminant sequences from high-throughput sequencing reads., Genomics, 2013, 102(5), 500-506._
+Performs the trimming and clipping of the reads  
+_Criscuolo, A., Brisse, S., AlienTrimmer: a tool to quickly and accurately trim off multiple short contaminant sequences from high-throughput sequencing reads., Genomics, 2013, 102(5), 500-506._  
 *  __Biom__
 ⋅⋅⋅Combine count matrix and taxonomical annotation table
 ⋅⋅⋅_Daniel McDonald, et al., The Biological Observation Matrix (BIOM) format or: how I learned to stop worrying and love the ome-ome. GigaScience, 2012, 1:7. doi:10.1186/2047-217X-1-7_
