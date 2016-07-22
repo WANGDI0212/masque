@@ -5,7 +5,7 @@
 
 Targeted metagenomics are for the moment hard to be performed on a simple laptop when we have hundreds of samples with a million of reads. These constraints lead us to supercomputers to perform the calculation in a short amount of time and without memory considerations.
 We describe here the use of MASQUE on the clusters of the Institut Pasteur. The Institut Pasteur possess two clusters in production bic and tars. tars is the new cluster and bic will be closed in the futur month.
-Please referer to the [README file](https://github.com/aghozlane/masque) for more information on what perform MASQUE.
+Please referer to the [README file](README.md) for more information on what perform MASQUE.
 
 ## Load MASQUE
 
