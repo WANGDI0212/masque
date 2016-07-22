@@ -149,7 +149,7 @@ MASQUE use several databases for taxonomical annotation and data filtering as fo
 
 *  __FINDLEY__  
    Used for the taxonomical annotation of ITS sequences.  
-   __Findley, K., et al., Topographic diversity of fungal and bacterial communities in human skin. Nature, 2013, 498(7454), 367-370._  
+   _Findley, K., et al., Topographic diversity of fungal and bacterial communities in human skin. Nature, 2013, 498(7454), 367-370._  
    http://www.mothur.org/wiki/Findley_ITS_Database  
 *  __GREENGENES__  
     Used for the taxonomical annotation of 16S, 18S sequences.  
@@ -205,7 +205,7 @@ The results can be visualized with [SHAMAN](http://shaman.c3bi.pasteur.fr/) and 
 ## Citation
 
 No papers about MASQUE alone is published for the moment, but you can cite the first publication that use this program:  
-- A bacteriocin from epidemic Listeria strains alters the host intestinal microbiota to favor infection. Quereda JJ, Dussurget O, Nahori MA, Ghozlane A, Volant S, Dillies MA, Regnault B, Kennedy S, Mondot S, Villoing B, Cossart P, Pizarro-Cerda J.; PNAS 2016. [paper](http://www.ncbi.nlm.nih.gov/pubmed/27140611).
+- A bacteriocin from epidemic Listeria strains alters the host intestinal microbiota to favor infection. Quereda JJ, Dussurget O, Nahori MA, Ghozlane A, Volant S, Dillies MA, Regnault B, Kennedy S, Mondot S, Villoing B, Cossart P, Pizarro-Cerda J.; PNAS 2016. [PUBMED](http://www.ncbi.nlm.nih.gov/pubmed/27140611).
 
 ## Acknowledgements
 
