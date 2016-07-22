@@ -125,6 +125,9 @@ done < $bowtie2_databases
 say "Elapsed time to index for bowtie2 : $(timer $start_time)"
 
 # Cleanup
+say "Cleanup the installation"
+start_time=$(timer)
 rm -f $databases_dir/*.zip $databases_dir/sh_general_release_dynamic_31.01.2016_dev.fasta $databases_dir/README.txt  $databases_dir/._README.txt $databases_dir/ITSdb.findley.taxonomy $databases_dir/._ITSdb.findley.fasta $databases_dir/._ITSdb.findley.taxonomy $databases_dir/._ITSdb_v1 $databases_dir/hs_ref_GRCh38.p7_*.fa 
+say "Elapsed time to clean : $(timer $start_time)"
 
 say "Databases preparation is done. Elapsed time: $(timer $wall_time)"
