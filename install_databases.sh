@@ -47,7 +47,7 @@ function timer()
 #############
 # Variables #
 #############
-SCRIPTPATH=$(dirname "${BASH_SOURCE[0]}")
+SCRIPTPATH=$(readlink -e $(dirname "${BASH_SOURCE[0]}"))
 databases_dir="$SCRIPTPATH/databases/"
 
 #############
@@ -90,7 +90,10 @@ say "Elapsed time to check md5 : $(timer $start_time)"
 say "Decompress databases"
 start_time=$(timer)
 gunzip $databases_dir/*.gz
-unzip -f -j '$databases_dir/*.zip' -d $databases_dir 
+for zipfiles in $(ls $databases_dir/*.zip)
+do
+    unzip -f -j $zipfiles -d $databases_dir 
+done
 say "Elapsed time to decompress databases : $(timer $start_time)"
 
 # Homo sapiens one file
@@ -114,6 +117,7 @@ say "Indexing databases for bowtie2"
 start_time=$(timer)
 while read fasta_file
 do
+    echo $fasta_file
     version=$($bowtie2_build --version |grep "bowtie2-build version"|cut -f 3 -d ' ')
     if [ "$version"  == "2.2.9" ]
     then
