@@ -82,6 +82,7 @@ say "Elapsed time to download : $(timer $start_time)"
 say "Check md5sum"
 start_time=$(timer)
 cd $SCRIPTPATH/databases/ && md5sum -c $md5_check
+cd $SCRIPTPATH/
 say "Elapsed time to check md5 : $(timer $start_time)"
 
 # Decompress database
