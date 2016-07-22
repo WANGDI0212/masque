@@ -35,6 +35,7 @@ Then, install the databases as follow :
 ```
 /bin/bash install_databases.sh
 ```
+__Warning__ : all cpus available will be used to build bowtie2 index.
 
 ## Command line options
 

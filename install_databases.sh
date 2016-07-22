@@ -53,17 +53,18 @@ databases_dir="$SCRIPTPATH/databases/"
 #############
 # Databases #
 #############
-url_list="$SCRIPTPATH/url_list.txt"
-md5_check="$SCRIPTPATH/md5_check.txt"
 blast_databases="$SCRIPTPATH/blast_indexing.txt"
 bowtie2_databases="$SCRIPTPATH/bowtie2_indexing.txt"
+md5_check="$SCRIPTPATH/md5_check.txt"
+NbProc=$(grep -c ^processor /proc/cpuinfo)
+url_list="$SCRIPTPATH/url_list.txt"
 
 ############
 # Programs #
 ############
-makeblastdb=$(check_soft "makeblastdb" "$SCRIPTPATH/ncbi-blast-2.2.31+/bin/makeblastdb")
-makembindex=$(check_soft "makembindex" "$SCRIPTPATH/ncbi-blast-2.2.31+/bin/makembindex")
-bowtie2_build=$(check_soft "bowtie2-build" "$SCRIPTPATH/bowtie2-2.2.6/bowtie2-build")
+bowtie2_build=$(check_soft "bowtie2-build" "$SCRIPTPATH/bowtie2-2.2.9/bowtie2-build")
+makeblastdb=$(check_soft "makeblastdb" "$SCRIPTPATH/ncbi-blast-2.4.0+/bin/makeblastdb")
+makembindex=$(check_soft "makembindex" "$SCRIPTPATH/ncbi-blast-2.4.0+/bin/makembindex")
 
 ########
 # Main #
@@ -89,7 +90,7 @@ say "Elapsed time to check md5 : $(timer $start_time)"
 say "Decompress databases"
 start_time=$(timer)
 gunzip $databases_dir/*.gz
-unzip -f -j \'$databases_dir/*.zip\' -d $databases_dir 
+unzip -f -j '$databases_dir/*.zip' -d $databases_dir 
 say "Elapsed time to decompress databases : $(timer $start_time)"
 
 # Homo sapiens one file
@@ -104,7 +105,7 @@ start_time=$(timer)
 while read fasta_file
 do
     $makeblastdb -in $databases_dir/$fasta_file -dbtype nucl
-    $makembindex -input $databases_dir/$fasta_file -dbtype blast
+    $makembindex -input $databases_dir/$fasta_file -iformat blastdb
 done < $blast_databases
 say "Elapsed time to index for blast : $(timer $start_time)"
 
@@ -113,7 +114,13 @@ say "Indexing databases for bowtie2"
 start_time=$(timer)
 while read fasta_file
 do
-    $bowtie2_build $databases_dir/$fasta_file $databases_dir/$fasta_file
+    version=$($bowtie2_build --version |grep "bowtie2-build version"|cut -f 3 -d ' ')
+    if [ "$version"  == "2.2.9" ]
+    then
+        $bowtie2_build --threads $NbProc $databases_dir/$fasta_file $databases_dir/$fasta_file
+    else
+        $bowtie2_build $NbProc $databases_dir/$fasta_file $databases_dir/$fasta_file
+    fi
 done < $bowtie2_databases
 say "Elapsed time to index for bowtie2 : $(timer $start_time)"
 
