@@ -102,6 +102,7 @@ masque_ITS_tars.sh
 masque_amplicon.sh  
 masque_amplicon_tars.sh  
 
+For users from Institut Pasteur, please consider the [README_PASTEUR](README_Pasteur.md).
 
 ## Dependencies
 
