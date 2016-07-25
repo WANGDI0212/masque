@@ -40,10 +40,14 @@ which correspond to :
 Masque will submit the automatically calculation on the cluster. You don't have to write any submission script. Masque must be used on the master node that you reach automatically when you perform:
 
 - bic: access by sending an email to informatique at pasteur.fr
-`ssh user@bic.pasteur.fr`
+```
+ssh user@bic.pasteur.fr
+```
 
 - tars: access by sending an email to informatique at pasteur.fr, plus perform every exercise [here](https://moocs.pasteur.fr/courses/Institut_Pasteur/DSI_01/1/info)
-`ssh user@tars.pasteur.fr`
+```
+ssh user@tars.pasteur.fr
+```
 
 The calculation status can be considered with :
 - bic: `qstat`
