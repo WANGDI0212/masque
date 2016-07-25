@@ -8,6 +8,7 @@
 - [Command line options](#command-line-options)
 - [SGE and SLURM deployments](#sge-and-slurm-deployments)
 - [Results](#results)
+- [Dependencies](#dependencies)
 - [Databases](#databases)
 - [Test](#test)
 - [Citation](#citation)
@@ -78,6 +79,22 @@ Then, install the databases as follow :
 --identity_threshold    Identity threshold for taxonomical annotation with vsearch (Default 0.75)
 ```
 
+## SGE and SLURM deployments
+
+Template scripts are provided for SGE and SLURM deployments :  
+
+masque_16S-18S.sh  
+masque_16S-18S_tars.sh  
+masque_23S-28S.sh  
+masque_23S-28S_tars.sh  
+masque_ITS.sh  
+masque_ITS_tars.sh  
+masque_amplicon.sh  
+masque_amplicon_tars.sh  
+
+For users from Institut Pasteur, please consider the [README_PASTEUR](README_Pasteur.md).
+
+
 ## Results
 
 In the output_dir, you will find after calculation :
@@ -95,22 +112,6 @@ File | Description
 **reads/*_fastqc.html** | fastq quality after trimming/clipping
 
 The other files correspond to intermediate results.
-
-
-## SGE and SLURM deployments
-
-Template scripts are provided for SGE and SLURM deployments :  
-
-masque_16S-18S.sh  
-masque_16S-18S_tars.sh  
-masque_23S-28S.sh  
-masque_23S-28S_tars.sh  
-masque_ITS.sh  
-masque_ITS_tars.sh  
-masque_amplicon.sh  
-masque_amplicon_tars.sh  
-
-For users from Institut Pasteur, please consider the [README_PASTEUR](README_Pasteur.md).
 
 ## Dependencies
 
