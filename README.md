@@ -6,7 +6,7 @@
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Command line options](#command-line-options)
-- [SGE and SLURM deployments](#SGE-and-SLURM-deployments)
+- [SGE and SLURM deployments](#sge-and-slurm-deployments)
 - [Results](#results)
 - [Databases](#databases)
 - [Test](#test)
@@ -26,8 +26,16 @@ MASQUE allows :
 ## Installation
 
 MASQUE comes with many binaries for Linux 64 bits. It will always use your existing installed versions if they exist, but will use the included ones if that fails. 
-You can consult the list of dependencies later in this document. Only biom program need to be installed by the user :  
-
+You can consult the list of dependencies later in this document. For the correct deployment by git, install first [git-lfs](https://git-lfs.github.com/). 
+```
+sudo ./git-lfs-1.2.1/install.sh
+git lfs install
+```
+Then, you can clone masque :
+```
+git clone https://github.com/aghozlane/masque.git
+```
+Only biom program need to be installed by the user :  
 ```
 pip install biom
 ```
