@@ -101,12 +101,13 @@ In the output_dir, you will find after calculation :
 
 File | Description
 ---|---
-**project_stat_process.txt** | every step progress (during calculation : tail -f project-name_stat_process.txt, at the end : less project-name_stat_process.txt)
-**project_annotation_process.tsv** | summary of the annotation process (Numbers of amplicon after dereplication)
-**project_build_process.tsv** | summary of the otu-build process (Number reads, contaminants and OTU identified per samples...)
-**project_otu.fasta** | OTU centroid sequence 
-**project_otu_table.tsv** | count table including the raw count obtained for each OTU and each sample
+**project_stat_process.txt** | Every step progress (during calculation : tail -f project-name_stat_process.txt, at the end : less project-name_stat_process.txt)
+**project_annotation_process.tsv** | Summary of the annotation process
+**project_build_process.tsv** | Summary of the otu-build process (Number reads, contaminants and OTU identified per samples...)
+**project_otu.fasta** | OTU centroid sequence in fasta format 
+**project_otu_table.tsv** | Count table including the raw count obtained for each OTU and each sample
 **project_vs_database_annotation_eval_val.tsv** | OTU annotation performed by blast against the several databank
+**project_database_eval_val.biom** | Biom file including the count and the annotation
 **project_vs_rdp.tsv** | OTU annotation performed by rdp.
 **project_otu.tree** | OTU phylogeny
 **reads/*_fastqc.html** | fastq quality after trimming/clipping
