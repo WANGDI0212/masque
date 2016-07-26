@@ -38,7 +38,7 @@ Shortly, the clustring process is performed in 4 main steps in MASQUE :
 6.  Taxonomical annotation of the OTU  
 7.  Quality check of every step  
 
-You can find more information in the presentation [here](Targeted_metagenomics.pdf). We try to describe the idea behind each step and a complete TP to do it on your own.
+You can find more information in the presentation [here](tp/Targeted_metagenomics.pdf). We try to describe the idea behind each step and a complete TP to do it on your own.
 
 ## Installation
 
