@@ -70,9 +70,11 @@ def getArguments():
                                                   "unite"],
                         help='Database format (default = silva).')
     parser.add_argument('-t', dest='taxonomy_file', type=isfile,
-                        help='Path to the taxonomy file (Greengenes only).')
+                        help='Path to the taxonomy file (Greengenes and '
+                        'Underhill only).')
     parser.add_argument('-u', dest='otu_file', type=isfile,
-                        help='Path to the otu fasta file (biom output only).')
+                        help='Path to the otu fasta file (for biom output '
+                        'only).')
     parser.add_argument('-o', dest='output_file', type=str,
                         default=os.curdir + os.sep + "annotation.txt",
                         help='Output file.')
