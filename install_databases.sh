@@ -117,9 +117,7 @@ say "Indexing databases for blast"
 start_time=$(timer)
 while read fasta_file
 do
-    echo "$makeblastdb -in $databases_dir/$fasta_file -dbtype nucl"
     $makeblastdb -in $databases_dir/$fasta_file -dbtype nucl
-    echo "$makembindex -input $databases_dir/$fasta_file -iformat blastdb"
     $makembindex -input $databases_dir/$fasta_file -iformat blastdb
 done < $blast_databases
 say "Elapsed time to index for blast: $(timer $start_time)"
@@ -133,10 +131,8 @@ do
     echo $version
     if [ "$version"  == "2.2.9" ]
     then
-        echo "$bowtie2_build --threads $NbProc $databases_dir/$fasta_file $databases_dir/$fasta_file"
         $bowtie2_build --threads $NbProc $databases_dir/$fasta_file $databases_dir/$fasta_file
     else
-        echo "$bowtie2_build $databases_dir/$fasta_file $databases_dir/$fasta_file"
         $bowtie2_build $databases_dir/$fasta_file $databases_dir/$fasta_file
     fi
 done < $bowtie2_databases
