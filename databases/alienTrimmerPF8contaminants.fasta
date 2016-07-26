@@ -853,7 +853,7 @@ CCACTACGCCTCCGCTTTCCTCTCTATGGGCAGTCGGTGAT
 GGTGATGCGGAGGCGAAAGGAGAGATACCCGTCAGCCACTA
 
 ###################################################################################################
-### 17. 16S primer V1V3############################################################################
+### 17. 16S primer V1V3  MiSeq ####################################################################
 ###################################################################################################
 >PCR1_V1_V3F
 CTCTTTCCCTACACGACGCTCTTCCGATCTAGAGTTTGATCCTGGCTCAG
@@ -861,7 +861,7 @@ CTCTTTCCCTACACGACGCTCTTCCGATCTAGAGTTTGATCCTGGCTCAG
 CTGGAGTTCAGACGTGTGCTCTTCCGATCTGTATTACCGCGGCTGCTGG
 
 ###################################################################################################
-### 18. 16S primer V4V5############################################################################
+### 18. 16S primer V4V5 MiSeq #####################################################################
 ###################################################################################################
 >PCR1_515F
 CTTTCCCTACACGACGCTCTTCCGATCTGTGYCAGCMGCCGCGGTA
@@ -869,7 +869,7 @@ CTTTCCCTACACGACGCTCTTCCGATCTGTGYCAGCMGCCGCGGTA
 GGAGTTCAGACGTGTGCTCTTCCGATCTCCCCGYCAATTCMTTTRAGT
 
 ###################################################################################################
-#### 19. 16S Adapter + primer V5V6#################################################################
+#### 19. 16S Adapter + primer V5V6  MiSeq #########################################################
 ###################################################################################################
 AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCTAACGTGATAGGATTAGATACCCTGGTA
 AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCTAAACATCGAGGATTAGATACCCTGGTA
@@ -932,14 +932,25 @@ AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCTGTCTGTCAAGGATTAGATACCC
 AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCTGTGTTCTAAGGATTAGATACCCTGGTA
 CAAGCAGAAGACGGCATACGAGATGTGACTGGAGTTCAGACGTGTGCTCTTCCGATCTCRRCACGAGCTGACGAC
 
+###################################################################################################
+#### 20. 16S Adapter + primer V3V4 MiSeq ##########################################################
+###################################################################################################
+# Forward primer
+TCGTCGGCAGCGTCAGATGTGTATAAGAGACAGCCTACGGGNGGCWGCAG
+# Reverse primer
+GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAGGACTACHVGGGTATCTAATCC
 
-# Primer 18S
+###################################################################################################
+#### 18S Adapter + Primer MiSeq ###################################################################
+###################################################################################################
 #Forward primer 574
 TCGTCGGCAGCGTCAGATGTGTATAAGAGACAGCGGTAAYTCCAGCTCYV
 # Reverse primer 1132
 GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAGCCGTCAATTHCTTYAART
 
-# Primer ITS
+###################################################################################################
+##### ITS Adapter + Primer MiSeq ##################################################################
+###################################################################################################
 # Reverse primer ITS1
 TCGTCGGCAGCGTCAGATGTGTATAAGAGACAGCTTGGTCATTTAGAGGAAGTAA
 # Reverse primer ITS2
