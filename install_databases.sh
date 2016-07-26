@@ -94,13 +94,23 @@ for zipfiles in $(ls $databases_dir/*.zip)
 do
     unzip -j $zipfiles -d $databases_dir 
 done
-say "Elapsed time to decompress databases : $(timer $start_time)"
+say "Elapsed time to decompress databases: $(timer $start_time)"
 
 # Homo sapiens one file
 say "Prepare Homo sapiens database"
 start_time=$(timer)
 cat $databases_dir/hs_ref_GRCh38.p7_*.fa > $databases_dir/homo_sapiens.fna
-say "Elapsed time for Homo sapiens databases : $(timer $start_time)"
+say "Elapsed time for Homo sapiens database: $(timer $start_time)"
+
+# Homo sapiens one file
+say "Prepare Unite database"
+start_time=$(timer)
+sed "s:|reps|: :g" $databases_dir/sh_general_release_31.01.2016.fasta -i
+sed "s:|refs|: :g" $databases_dir/sh_general_release_31.01.2016.fasta -i
+sed "s:|refs_singleton|: :g" $databases_dir/sh_general_release_31.01.2016.fasta -i
+sed "s:\xeb:e:g" $databases_dir/sh_general_release_31.01.2016.fasta -i
+sed "s:\xd7:x:g" $databases_dir/sh_general_release_31.01.2016.fasta -i
+say "Elapsed time for Unite database: $(timer $start_time)"
 
 # Blast indexing
 say "Indexing databases for blast"
@@ -112,7 +122,7 @@ do
     echo "$makembindex -input $databases_dir/$fasta_file -iformat blastdb"
     $makembindex -input $databases_dir/$fasta_file -iformat blastdb
 done < $blast_databases
-say "Elapsed time to index for blast : $(timer $start_time)"
+say "Elapsed time to index for blast: $(timer $start_time)"
 
 # Bowtie2 indexing
 say "Indexing databases for bowtie2"
@@ -130,12 +140,12 @@ do
         $bowtie2_build $databases_dir/$fasta_file $databases_dir/$fasta_file
     fi
 done < $bowtie2_databases
-say "Elapsed time to index for bowtie2 : $(timer $start_time)"
+say "Elapsed time to index for bowtie2: $(timer $start_time)"
 
 # Cleanup
-# say "Cleanup the installation"
-# start_time=$(timer)
-# rm -f $databases_dir/*.zip $databases_dir/sh_general_release_dynamic_31.01.2016_dev.fasta $databases_dir/README.txt  $databases_dir/._README.txt $databases_dir/ITSdb.findley.taxonomy $databases_dir/._ITSdb.findley.fasta $databases_dir/._ITSdb.findley.taxonomy $databases_dir/._ITSdb_v1 $databases_dir/hs_ref_GRCh38.p7_*.fa 
-# say "Elapsed time to clean : $(timer $start_time)"
+say "Cleanup the installation"
+start_time=$(timer)
+rm -f $databases_dir/*.zip $databases_dir/sh_general_release_dynamic_31.01.2016_dev.fasta $databases_dir/README.txt  $databases_dir/._README.txt $databases_dir/ITSdb.findley.taxonomy $databases_dir/._ITSdb.findley.fasta $databases_dir/._ITSdb.findley.taxonomy $databases_dir/._ITSdb_v1 $databases_dir/hs_ref_GRCh38.p7_*.fa 
+say "Elapsed time to clean : $(timer $start_time)"
 
 say "Databases preparation is done. Elapsed time: $(timer $wall_time)"
