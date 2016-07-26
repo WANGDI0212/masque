@@ -30,13 +30,13 @@ MASQUE allows :
 
 We follow the recommandation described by Robert C. Edgar in [Uparse](http://www.nature.com/nmeth/journal/v10/n10/full/nmeth.2604.html) supplementary paper.  
 Shortly, the clustring process is performed in 4 main steps in MASQUE :  
-1.  Read quality control
-2.  Dereplication
-3.  Chimera filtering
-4.  Clustering
-5.  Realignment/mapping
-6.  Taxonomical annotation of the OTU
-7.  Quality check of every step
+1.  Read quality control  
+2.  Dereplication  
+3.  Chimera filtering  
+4.  Clustering  
+5.  Realignment/mapping  
+6.  Taxonomical annotation of the OTU  
+7.  Quality check of every step  
 
 You can find more information in the presentation [here](Targeted_metagenomics.pdf). We try to describe the idea behind each step and a complete TP to do it on your own.
 
