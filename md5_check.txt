@@ -1,4 +1,4 @@
-4a92cbab9c432ae11b8cffdcfae2f12c  alienTrimmerPF8contaminants.fasta
+2a9021e6149b08b55bc9fe2a0293e27d  alienTrimmerPF8contaminants.fasta
 f305fd9e402e6c527fb943d2ae7963f5  Findley_ITS_database.zip
 3a832c3f486ab5f311acccdddd2cb54b  gg_13_5.fasta.gz
 b6d5d28336af73ab46f3cfe89e26f654  gg_13_5_taxonomy.txt.gz
