@@ -4,6 +4,7 @@
 ## Contents
 
 - [Introduction](#introduction)
+- [Process](#process)
 - [Installation](#installation)
 - [Command line options](#command-line-options)
 - [SGE and SLURM deployments](#sge-and-slurm-deployments)
@@ -11,6 +12,7 @@
 - [Dependencies](#dependencies)
 - [Databases](#databases)
 - [Test](#test)
+ -[Bugs](#bugs)
 - [Citation](#citation)
 - [Acknowledgements](#acknowledgements)
 
@@ -23,6 +25,19 @@ MASQUE allows :
 * to analyse 16S/18S/23S/28S/ITS data. It builds a count matrix, an annotation table and a phylogeny of the OTU.
 * to perform to use a set of parameters already tested on serveral projects for the numerous software used to perform the clustering and the annotation.
 * to perform an "uptodate" analysis considering the scientific litterature.
+
+## Process
+
+Shortly, the clustring process is performed in 4 main steps in MASQUE following Robert C. Edgar recommandation in [Uparse](http://www.nature.com/nmeth/journal/v10/n10/full/nmeth.2604.html):
+1. Read quality control
+2. Dereplication
+3. Chimera filtering
+4. Clustering
+5. Realignment/mapping
+6. Taxonomical annotation of the OTU
+7. Quality of every step
+
+You can find more information in the presentation [here](Targeted_metagenomics.pdf). We try to describre the idea behind each step and a complete TP to do it on your own.
 
 ## Installation
 
@@ -113,6 +128,7 @@ File | Description
 **reads/*_fastqc.html** | fastq quality after trimming/clipping
 
 The other files correspond to intermediate results.
+
 
 ## Dependencies
 
@@ -212,6 +228,10 @@ gunzip test/result/*.gz
 ```
 
 The results can be visualized with [SHAMAN](http://shaman.c3bi.pasteur.fr/) and compared with the results obtained with the MOCK reference genome available in test/mock/.
+
+## Bugs
+
+All bug reports are highly appreciated. You may submit a bug report here on GitHub as an issue or send an email to amine.ghozlane@pasteur.fr.
 
 
 ## Citation
