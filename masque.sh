@@ -844,7 +844,12 @@ then
     then
         say "Extract silva annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silva -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.biomtsv
+        if [ "$lsu" -eq "1" ]
+        then
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silvalsu -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.biomtsv
+        else
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silva -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.biomtsv
+        fi
         #check_file ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv
         say "Elapsed time with get_taxonomy : $(timer $start_time)"
     fi
