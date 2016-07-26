@@ -236,7 +236,7 @@ silvalsu="$SCRIPTPATH/databases/SILVA_123.1_LSURef_tax_silva.fasta"
 #silva="/local/databases/fasta/silva_ssu.fa"
 underhill="$SCRIPTPATH/databases/THFv1.2.sequence.fasta"
 underhill_taxonomy="$SCRIPTPATH/databases/THFv1.2.tsv"
-unite="$SCRIPTPATH/databases/sh_general_release_dynamic_s_01.08.2015.fasta"
+unite="$SCRIPTPATH/databases/sh_general_release_31.01.2016.fasta"
 
 #######################
 # Assembly Parameters #
