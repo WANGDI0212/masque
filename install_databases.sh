@@ -128,7 +128,6 @@ start_time=$(timer)
 while read fasta_file
 do
     version=$($bowtie2_build --version |grep "bowtie2-build version"|cut -f 3 -d ' ')
-    echo $version
     if [ "$version"  == "2.2.9" ]
     then
         $bowtie2_build --threads $NbProc $databases_dir/$fasta_file $databases_dir/$fasta_file
