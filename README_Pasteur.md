@@ -12,12 +12,12 @@ Please referer to the [README file](README.md) for more information on what perf
 On bic :
 ```
 module use /pasteur/projets/Matrix/modules
-module add masque/bic or masque/tars or masque/standalone
+module add masque/bic or masque/standalone
 ```
 On tars
 ```
 module use /pasteur/projets/policy01/Matrix/modules
-module add masque/bic or masque/tars or masque/standalone
+module add masque/tars or masque/standalone
 ```
 * masque/bic is supposed to be used on bic cluster
 * masque/tars is supposed to be used on tars cluster
