@@ -9,11 +9,16 @@ Please referer to the [README file](README.md) for more information on what perf
 
 ## Load MASQUE
 
+On bic :
 ```
 module use /pasteur/projets/Matrix/modules
 module add masque/bic or masque/tars or masque/standalone
 ```
-
+On tars
+```
+module use /pasteur/projets/policy01/Matrix/modules
+module add masque/bic or masque/tars or masque/standalone
+```
 * masque/bic is supposed to be used on bic cluster
 * masque/tars is supposed to be used on tars cluster
 * masque/standalone is available on both bic and tars cluster. With masque/standalone, you access to masque main program and access to every masque parameters. You need to write your own submission script or use interactive access to use it. Please consider the [README file](https://github.com/aghozlane/masque) to use it properly. 
