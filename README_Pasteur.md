@@ -9,12 +9,12 @@ Please referer to the [README file](README.md) for more information on what perf
 
 ## Load MASQUE
 
-On bic :
+On bic:
 ```
 module use /pasteur/projets/Matrix/modules
 module add masque/bic or masque/standalone
 ```
-On tars
+On tars:
 ```
 module use /pasteur/projets/policy01/Matrix/modules
 module add masque/tars or masque/standalone
