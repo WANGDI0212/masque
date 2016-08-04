@@ -940,6 +940,14 @@ TCGTCGGCAGCGTCAGATGTGTATAAGAGACAGCCTACGGGNGGCWGCAG
 # Reverse primer
 GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAGGACTACHVGGGTATCTAATCC
 
+# 16S Adapter Milieu interieur
+#16Sf (V3F)
+TATGGTAATTGGCCTACGGRAGGCAGCAG
+#16Sr (V4R)
+AGTCAGTCAGCCGGACTACHVGGGTWTCTAAT
+#rc16r
+ATTAGAWACCCBDGTAGTCCGGCTGACTGACT
+
 ###################################################################################################
 #### 18S Adapter + Primer MiSeq ###################################################################
 ###################################################################################################
