@@ -224,7 +224,7 @@ Mock communities are composed of 21 species mixed in even or staggered proportio
 
 You can run:
 ```
-gunzip test/result/*.gz
+gunzip test/data/*.gz
 /bin/bash ./masque.sh -i test/data -o test/result
 ```
 
