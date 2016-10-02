@@ -54,7 +54,7 @@ git clone https://github.com/aghozlane/masque.git
 ```
 Only biom program need to be installed by the user :  
 ```
-pip install biom
+pip install biom-format
 ```
 Then, install the databases as follow :  
 ```
