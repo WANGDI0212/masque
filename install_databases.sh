@@ -63,8 +63,8 @@ url_list="$SCRIPTPATH/url_list.txt"
 # Programs #
 ############
 bowtie2_build=$(check_soft "bowtie2-build" "$SCRIPTPATH/bowtie2-2.2.9/bowtie2-build")
-makeblastdb=$(check_soft "makeblastdb" "$SCRIPTPATH/ncbi-blast-2.4.0+/bin/makeblastdb")
-makembindex=$(check_soft "makembindex" "$SCRIPTPATH/ncbi-blast-2.4.0+/bin/makembindex")
+makeblastdb=$(check_soft "makeblastdb" "$SCRIPTPATH/ncbi-blast-2.5.0+/bin/makeblastdb")
+makembindex=$(check_soft "makembindex" "$SCRIPTPATH/ncbi-blast-2.5.0+/bin/makembindex")
 
 ########
 # Main #

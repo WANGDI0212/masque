@@ -90,11 +90,10 @@ function check_soft {
 display_help() {
     if [ "$1" -eq "0" ]
     then
-        echo -e """$0 -i </path/to/input/directory/> -o </path/to/result/directory/>
-- case high sensitive annotation: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -b
-- case 23S/28S: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -l
-- case its: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -f
-- case amplicon: $0 -a <amplicon file> -o </path/to/result/directory/>
+        echo -e """- 16S/18S: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -b
+- 23S/28S: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -l -b
+- ITS: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -f -b   
+- Amplicon: $0 -a <amplicon file> -o </path/to/result/directory/> -b 
 - All parameters:
 -i\tProvide </path/to/input/directory/>
 -a\tProvide <amplicon file>
@@ -273,7 +272,7 @@ alientrimmer=$(check_soft "AlienTrimmer" "java -jar $SCRIPTPATH/AlienTrimmer_0.4
 # Biom
 biom="biom"
 # Blastn
-blastn=$(check_soft "blastn" "$SCRIPTPATH/ncbi-blast-2.4.0+/bin/blastn")
+blastn=$(check_soft "blastn" "$SCRIPTPATH/ncbi-blast-2.5.0+/bin/blastn")
 # Bowtie2
 bowtie2=$(check_soft "bowtie2" "$SCRIPTPATH/bowtie2-2.2.9/bowtie2")
 # Extract result
