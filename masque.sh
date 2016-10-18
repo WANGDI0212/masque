@@ -269,7 +269,7 @@ swarm_clust=0
 # Programs #
 ############
 # AlienTrimmer
-alientrimmer=$(check_soft "AlienTrimmer" "$SCRIPTPATH/AlienTrimmer_0.4.0/src/AlienTrimmer")
+alientrimmer=$(check_soft "AlienTrimmer" "java -jar $SCRIPTPATH/AlienTrimmer_0.4.0/src/AlienTrimmer.jar")
 # Biom
 biom="biom"
 # Blastn
