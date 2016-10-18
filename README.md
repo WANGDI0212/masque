@@ -42,6 +42,19 @@ You can find more information in the presentation [here](tp/Targeted_metagenomic
 
 ## Installation
 
+### Docker install
+
+The easiest way to use masque is the docker. First, dowload the databases [here](
+http://dl.pasteur.fr/fop/HXRC0yhb/databases.zip), then unzip this dataset in a directory.
+Run docker as following:
+```
+docker run -i -t -v /path/to/fastq-data:/mydata -v /path/to/databases:/usr/local/bin/databases/ aghozlane/masque
+```
+Finally, data are stored in /mydata. masque program is directly accessible.
+
+
+### Git install (not recommanded)
+
 MASQUE comes with many binaries for Linux 64 bits. It will always use your existing installed versions if they exist, but will use the included ones if that fails. 
 You can consult the list of dependencies later in this document. For the correct deployment by git, install first [git-lfs](https://git-lfs.github.com/). 
 ```
@@ -54,7 +67,7 @@ git clone https://github.com/aghozlane/masque.git
 ```
 Only biom program need to be installed by the user :  
 ```
-pip install biom
+pip install biom-format
 ```
 Then, install the databases as follow :  
 ```
@@ -224,7 +237,7 @@ Mock communities are composed of 21 species mixed in even or staggered proportio
 
 You can run:
 ```
-gunzip test/result/*.gz
+gunzip test/data/*.gz
 /bin/bash ./masque.sh -i test/data -o test/result
 ```
 

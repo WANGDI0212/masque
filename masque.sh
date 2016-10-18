@@ -624,7 +624,7 @@ then
             then
                 say "$num_sample/$nb_samples - Quality control with Fastqc"
                 start_time=$(timer)
-                $fastqc ${readsDir}/${SampleName}.extendedFrags.fastq --nogroup -q -t $NbProc 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
+                $fastqc ${readsDir}/${SampleName}.extendedFrags.fastq --nogroup -q 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
                 check_file ${readsDir}/${SampleName}.extendedFrags_fastqc.html
                 check_log ${errorlogDir}/error_log_fastqc_${SampleName}.txt
                 say "$num_sample/$nb_samples - Elapsed time with Fastqc: $(timer $start_time)"
