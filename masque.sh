@@ -532,7 +532,7 @@ then
             then
                 say "$num_sample/$nb_samples - Quality control with Fastqc"
                 start_time=$(timer)
-                $fastqc ${readsDir}/${SampleName}_alien_filt.fastq --nogroup -q -t $NbProc 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
+                $fastqc ${readsDir}/${SampleName}_alien_filt.fastq --nogroup -q 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
                 check_file ${readsDir}/${SampleName}_alien_filt_fastqc.html
                 check_log ${errorlogDir}/error_log_fastqc_${SampleName}.txt
                 say "$num_sample/$nb_samples - Elapsed time with Fastqc: $(timer $start_time)"
@@ -672,9 +672,9 @@ then
      #${resultDir}/${ProjectName}_extendedFrags.fasta
      if [ "$prefixdrep" -eq "1" ]
      then
-        $vsearch --derep_prefix $amplicon -output ${resultDir}/${ProjectName}_drep.fasta -sizeout -minseqlength $minampliconlength
+        $vsearch --derep_prefix $amplicon -output ${resultDir}/${ProjectName}_drep.fasta -sizeout -minseqlength $minampliconlength --strand both
      else
-        $vsearch --derep_fulllength $amplicon -output ${resultDir}/${ProjectName}_drep.fasta -sizeout -minseqlength $minampliconlength
+        $vsearch --derep_fulllength $amplicon -output ${resultDir}/${ProjectName}_drep.fasta -sizeout -minseqlength $minampliconlength --strand both
      fi
      check_file ${resultDir}/${ProjectName}_drep.fasta
      say "Elapsed time to dereplicate : $(timer $start_time)"
@@ -698,9 +698,9 @@ then
      #$usearch -uchime_ref ${resultDir}/${ProjectName}_otu.fasta -db $gold -strand plus -nonchimeras ${resultDir}/${ProjectName}_otu_nochim.fasta
      if [ "$chimeraslayerfiltering" -eq "0" ]
      then
-         $vsearch --uchime_denovo ${resultDir}/${ProjectName}_sorted.fasta --strand plus --nonchimeras ${resultDir}/${ProjectName}_nochim.fasta --chimeras ${resultDir}/${ProjectName}_chim.fasta
+         $vsearch --uchime_denovo ${resultDir}/${ProjectName}_sorted.fasta --strand both --nonchimeras ${resultDir}/${ProjectName}_nochim.fasta --chimeras ${resultDir}/${ProjectName}_chim.fasta
      else
-        $vsearch --uchime_ref ${resultDir}/${ProjectName}_sorted.fasta --db $gold --strand plus --nonchimeras ${resultDir}/${ProjectName}_nochim.fasta --chimeras ${resultDir}/${ProjectName}_chim.fasta
+        $vsearch --uchime_ref ${resultDir}/${ProjectName}_sorted.fasta --db $gold --strand both --nonchimeras ${resultDir}/${ProjectName}_nochim.fasta --chimeras ${resultDir}/${ProjectName}_chim.fasta
      fi
      check_file ${resultDir}/${ProjectName}_nochim.fasta 
      say "Elapsed time to filter chimera: $(timer $start_time)"
@@ -713,7 +713,7 @@ then
      start_time=$(timer)
      #$usearch -cluster_otus ${resultDir}/${ProjectName}_sorted.fasta -otus ${resultDir}/${ProjectName}_otu.fasta -uparseout ${resultDir}/${ProjectName}_uparse.txt -relabel OTU_ -sizein #-sizeout 
      # --relabel OTU_
-     $vsearch --cluster_size ${resultDir}/${ProjectName}_nochim.fasta --id 0.97 --centroids ${resultDir}/${ProjectName}_otu_compl.fasta --sizein #--sizeout
+     $vsearch --cluster_size ${resultDir}/${ProjectName}_nochim.fasta --id 0.97 --centroids ${resultDir}/${ProjectName}_otu_compl.fasta --sizein --strand both #--sizeout
      python $rename_otu -i ${resultDir}/${ProjectName}_otu_compl.fasta -o ${resultDir}/${ProjectName}_otu.fasta
      check_file ${resultDir}/${ProjectName}_otu.fasta
      say "Elapsed time to OTU clustering with vsearch: $(timer $start_time)"
@@ -744,7 +744,7 @@ then
     start_time=$(timer)
     #$usearch -usearch_global ${resultDir}/${SampleName}_extendedFrags.fasta -db ${resultDir}/${SampleName}_otu_nochim.fasta -strand plus -id 0.97 -uc ${resultDir}/${SampleName}_map.txt
     #${resultDir}/${ProjectName}_extendedFrags.fasta
-    $vsearch -usearch_global $amplicon -db ${resultDir}/${ProjectName}_otu.fasta --strand plus --id 0.97 -uc ${resultDir}/${ProjectName}_map.txt
+    $vsearch -usearch_global $amplicon -db ${resultDir}/${ProjectName}_otu.fasta --strand both --id 0.97 -uc ${resultDir}/${ProjectName}_map.txt --strand both
     check_file ${resultDir}/${ProjectName}_map.txt
     say "Elapsed time to map reads: $(timer $start_time)"
 fi
@@ -799,9 +799,9 @@ then
         #$usearch -utax ${resultDir}/${ProjectName}_otu.fasta -db $silva -strand both -taxconfs silva_16s_short.tc -utaxout ${resultDir}/${ProjectName}_otu_tax_silva.tsv -utax_cutoff 0.8
         if [ "$lsu" -eq "1" ]
         then
-            $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silvalsu --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv --strand plus
+            $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silvalsu --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv --strand both
         else
-            $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silva --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv --strand plus
+            $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silva --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv --strand both
         fi
         #check_file ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
@@ -866,7 +866,7 @@ then
     then
         say "Assign taxonomy against greengenes with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $greengenes --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv -strand plus
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $greengenes --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv -strand both
         #check_file ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv 
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
@@ -914,7 +914,7 @@ then
     then
         say "Assign taxonomy against findley with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $findley --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv -strand plus
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $findley --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv -strand both
         #check_file ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
@@ -963,7 +963,7 @@ then
     then
         say "Assign taxonomy against unite with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $unite --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv -strand plus
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $unite --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv -strand both
         #check_file ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
@@ -1012,7 +1012,7 @@ then
     then
         say "Assign taxonomy against underhill with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $underhill --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv -strand plus
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $underhill --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv -strand both
         #check_file ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
