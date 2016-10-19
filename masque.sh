@@ -490,9 +490,17 @@ then
             then
                 say "Triming reads with alientrimmer"
                 start_time=$(timer)
+                filename=$(basename "$input")                                    
+                extension=".${filename##*.}"                                     
+                if [ "$extension" == ".gz" ]                                     
+                then                                                             
+                    gunzip -c $input > ${readsDir}/${SampleName}_tmp.fastq &     
+                    input="${readsDir}/${SampleName}_tmp.fastq"                  
+                fi 
                 $alientrimmer -i $input -o ${readsDir}/${SampleName}_alien.fastq -c $alienseq -l $minreadlength -p $minphredperc -q $minphred > ${logDir}/log_alientrimmer_${SampleName}.txt 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
                 check_file ${readsDir}/${SampleName}_alien.fastq
                 check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+                rm -f ${readsDir}/${SampleName}_tmp.fastq
                 say "Elapsed time to trim with alientrimmer : $(timer $start_time)"
             fi
             # Filtering reads against contaminant db
@@ -567,11 +575,20 @@ then
             then
                 say "$num_sample/$nb_samples - Triming reads with Alientrimmer"
                 start_time=$(timer)
+                filename=$(basename "$input1")                                   
+                extension=".${filename##*.}"                                     
+                if [ "$extension" == ".gz" ]                                     
+                then                                                             
+                    gunzip -c $input1 > ${readsDir}/${SampleName}_R1_tmp.fastq   
+                    gunzip -c $input2 > ${readsDir}/${SampleName}_R2_tmp.fastq   
+                    input1="${readsDir}/${SampleName}_R1_tmp.fastq"              
+                    input2="${readsDir}/${SampleName}_R2_tmp.fastq"              
+                fi  
                 $alientrimmer -if $input1 -ir $input2 -of ${readsDir}/${SampleName}_alien_f.fastq -or ${readsDir}/${SampleName}_alien_r.fastq -os ${readsDir}/${SampleName}_alien_s.fastq -c $alienseq  > ${logDir}/log_alientrimmer_${SampleName}.txt -p 80 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
                 check_file ${readsDir}/${SampleName}_alien_f.fastq
                 check_file ${readsDir}/${SampleName}_alien_r.fastq
                 check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
-                #rm -rf ${readsDir}/filter_${#filterRef[@]}
+                rm -f  ${readsDir}/${SampleName}_R1_tmp.fastq ${readsDir}/${SampleName}_R2_tmp.fastq 
                 say "$num_sample/$nb_samples - Elapsed time with Alientrimmer : $(timer $start_time)"
             fi
             # Filtering reads against contaminant db
