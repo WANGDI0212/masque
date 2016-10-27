@@ -489,7 +489,7 @@ then
             # Triming
             if [ -f "$input" ] && [ ! -f "${readsDir}/${SampleName}_alien.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien_filt.fastq" ]
             then
-                say "Triming reads with alientrimmer"
+                say "$num_sample/$nb_samples - Triming reads with alientrimmer"
                 start_time=$(timer)
                 filename=$(basename "$input")
                 extension=".${filename##*.}"
@@ -502,7 +502,7 @@ then
                 check_file ${readsDir}/${SampleName}_alien.fastq
                 check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
                 rm -f ${readsDir}/${SampleName}_tmp.fastq
-                say "Elapsed time to trim with alientrimmer : $(timer $start_time)"
+                say "$num_sample/$nb_samples - Elapsed time to trim with alientrimmer : $(timer $start_time)"
             fi
             # Filtering reads against contaminant db
             let "essai=1";
