@@ -475,11 +475,9 @@ then
 
     nb_samples=$(ls $input_dir/*R1*.{fastq,fq,fastq.gz,fq.gz} -1  2>/dev/null |wc -l)
     num_sample=0
-    echo $nb_samples
     if [ "$nb_samples" -eq "0" ]
     then
         nb_samples=$(ls $input_dir/*.{fastq,fq,fastq.gz,fq.gz} -1  2>/dev/null |wc -l)
-        echo $nb_samples
         for input in $(ls $input_dir/*.{fastq,fq,fastq.gz,fq.gz}  2>/dev/null )
         do
             let "num_sample=$num_sample+1"
