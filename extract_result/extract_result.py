@@ -19,6 +19,7 @@ import os
 import csv
 import glob
 import re
+import gzip
 
 __author__ = "Amine Ghozlane"
 __copyright__ = "Copyright 2015, Institut Pasteur"
@@ -124,15 +125,20 @@ def parse_fastq(fastq_file):
     """Get length of each read
     """
     seq_len_tab = []
+    ext = os.path.splitext(fastq_file)[1]
     try:
-        with open(fastq_file, "rt") as fastq:
-            for line in fastq:
-                # Get the sequence
-                seq_len_tab.append(len(fastq.next()))
-                # Pass separator
-                fastq.next()
-                # Pass quality
-                fastq.next()
+        if ext == ".gz":
+            fastq = gzip.open(fastq_file, "rt")
+        else:
+            fastq = open(fastq_file, "rt")
+        for line in fastq:
+            # Get the sequence
+            seq_len_tab.append(len(fastq.next()))
+            # Pass separator
+            fastq.next()
+            # Pass quality
+            fastq.next()
+        fastq.close()     
     except IOError:
         sys.exit("Error cannot open fastq file : {0}".format(fastq_file))
     return seq_len_tab
@@ -180,7 +186,10 @@ def get_reads_data(sample_read, list_reads, paired, tag):
     if paired:
         for i in xrange(len(list_reads[0])):
             # Get sample name
-            name = os.path.splitext(os.path.basename(list_reads[0][i]))[0]
+            name,ext = os.path.splitext(os.path.basename(list_reads[0][i]))
+            # second round with gz files
+            if ext == ".gz":
+                name = os.path.splitext(name)[0]
             name = name.replace("-R1","").replace("_R1_001","")
             name = name.replace("_alien_f_filt","")
             seq_len_tab_fwd = parse_fastq(list_reads[0][i])
@@ -196,7 +205,10 @@ def get_reads_data(sample_read, list_reads, paired, tag):
                 sample_read[name].update({tag+"_rev":get_size_info(seq_len_tab_rev)})
     else:
         for sample in list_reads:
-            name = os.path.splitext(os.path.basename(sample))[0]
+            name,ext = os.path.splitext(os.path.basename(sample))
+            # second round with gz files
+            if ext == ".gz":
+                name = os.path.splitext(name)[0]
             name = name.replace("_alien_filt","")
             seq_len_tab = parse_fastq(sample)
             if name in sample_read:
@@ -389,11 +401,11 @@ def main():
     ## Get raw data
     if args.raw_reads_dir:
         if args.paired_reads:
-            list_r1 = check_file(args.raw_reads_dir + "*R1*.f*q")
+            list_r1 = check_file(args.raw_reads_dir + "*R1*.f*q*")
             list_file = ([list_r1] +
                         [[r.replace("R1", "R2") for r in list_r1]])
         else:
-            list_file = check_file(args.raw_reads_dir + "*.f*q")
+            list_file = check_file(args.raw_reads_dir + "*.f*q*")
         #print(list_file)
         sample_read = get_reads_data(sample_read, list_file, args.paired_reads,
                                      "raw")
