@@ -90,18 +90,10 @@ function check_soft {
 display_help() {
     if [ "$1" -eq "0" ]
     then
-<<<<<<< HEAD
-        echo -e """$0 -i </path/to/input/directory/> -o </path/to/result/directory/>
-- case high sensitive annotation: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -b
-- case 23S/28S: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -l
-- case its: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -f
-- case amplicon: $0 -a <amplicon file> -o </path/to/result/directory/>
-=======
         echo -e """- 16S/18S: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -b
 - 23S/28S: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -l -b
 - ITS: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -f -b   
 - Amplicon: $0 -a <amplicon file> -o </path/to/result/directory/> -b 
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
 - All parameters:
 -i\tProvide </path/to/input/directory/>
 -a\tProvide <amplicon file>
@@ -276,19 +268,11 @@ swarm_clust=0
 # Programs #
 ############
 # AlienTrimmer
-<<<<<<< HEAD
-alientrimmer=$(check_soft "AlienTrimmer" "$SCRIPTPATH/AlienTrimmer_0.4.0/src/AlienTrimmer")
-# Biom
-biom="biom"
-# Blastn
-blastn=$(check_soft "blastn" "$SCRIPTPATH/ncbi-blast-2.4.0+/bin/blastn")
-=======
 alientrimmer=$(check_soft "AlienTrimmer" "java -jar $SCRIPTPATH/AlienTrimmer_0.4.0/src/AlienTrimmer.jar")
 # Biom
 biom="biom"
 # Blastn
 blastn=$(check_soft "blastn" "$SCRIPTPATH/ncbi-blast-2.5.0+/bin/blastn")
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
 # Bowtie2
 bowtie2=$(check_soft "bowtie2" "$SCRIPTPATH/bowtie2-2.2.9/bowtie2")
 # Extract result
@@ -488,31 +472,17 @@ all_start_time=$(timer)
 if [ -d "$input_dir" ]
 then
     list_product_fa=""
-<<<<<<< HEAD
+
     nb_samples=$(ls $input_dir/*R1*.{fastq,fq,fastq.gz,fq.gz} -1  2>/dev/null |wc -l)
     num_sample=0
-    echo $nb_samples
     if [ "$nb_samples" -eq "0" ]
     then
         nb_samples=$(ls $input_dir/*.{fastq,fq,fastq.gz,fq.gz} -1  2>/dev/null |wc -l)
-        echo $nb_samples
         for input in $(ls $input_dir/*.{fastq,fq,fastq.gz,fq.gz}  2>/dev/null )
         do
             let "num_sample=$num_sample+1"
             # Get the sample name
             filename=$(basename "$input"|sed "s:.gz::g")
-=======
-    nb_samples=$(ls $input_dir/*R1*.{fastq,fq} -1  2>/dev/null |wc -l)
-    num_sample=0
-    if [ "$nb_samples" -eq "0" ]
-    then
-        nb_samples=$(ls $input_dir/*.{fastq,fq} -1  2>/dev/null |wc -l)
-        for input in $(ls $input_dir/*.{fastq,fq}  2>/dev/null )
-        do
-            let "num_sample=$num_sample+1"
-            # Get the sample name
-            filename=$(basename "$input")
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
             SampleName="${filename%.*}"
             check_name $SampleName
             list_product_fa+="${resultDir}/reads/${SampleName}_alien_filt.fasta "
@@ -521,7 +491,6 @@ then
             then
                 say "Triming reads with alientrimmer"
                 start_time=$(timer)
-<<<<<<< HEAD
                 filename=$(basename "$input")
                 extension=".${filename##*.}"
                 if [ "$extension" == ".gz" ]
@@ -529,15 +498,6 @@ then
                     gunzip -c $input > ${readsDir}/${SampleName}_tmp.fastq
                     input="${readsDir}/${SampleName}_tmp.fastq"
                 fi
-=======
-                filename=$(basename "$input")                                    
-                extension=".${filename##*.}"                                     
-                if [ "$extension" == ".gz" ]                                     
-                then                                                             
-                    gunzip -c $input > ${readsDir}/${SampleName}_tmp.fastq &     
-                    input="${readsDir}/${SampleName}_tmp.fastq"                  
-                fi 
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
                 $alientrimmer -i $input -o ${readsDir}/${SampleName}_alien.fastq -c $alienseq -l $minreadlength -p $minphredperc -q $minphred > ${logDir}/log_alientrimmer_${SampleName}.txt 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
                 check_file ${readsDir}/${SampleName}_alien.fastq
                 check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
@@ -580,11 +540,7 @@ then
             then
                 say "$num_sample/$nb_samples - Quality control with Fastqc"
                 start_time=$(timer)
-<<<<<<< HEAD
-                $fastqc ${readsDir}/${SampleName}_alien_filt.fastq --nogroup -q -t $NbProc 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
-=======
                 $fastqc ${readsDir}/${SampleName}_alien_filt.fastq --nogroup -q 2> ${errorlogDir}/error_log_fastqc_${SampleName}.txt
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
                 check_file ${readsDir}/${SampleName}_alien_filt_fastqc.html
                 check_log ${errorlogDir}/error_log_fastqc_${SampleName}.txt
                 say "$num_sample/$nb_samples - Elapsed time with Fastqc: $(timer $start_time)"
@@ -602,11 +558,7 @@ then
         done
     else
         paired=1
-<<<<<<< HEAD
         for r1_file in $(ls $input_dir/*R1*.{fastq,fq,fastq.gz,fq.gz}  2>/dev/null )
-=======
-        for r1_file in $(ls $input_dir/*R1*.{fastq,fq}  2>/dev/null )
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
         do
             let "num_sample=$num_sample+1"
             input1=$r1_file
@@ -624,7 +576,6 @@ then
             then
                 say "$num_sample/$nb_samples - Triming reads with Alientrimmer"
                 start_time=$(timer)
-<<<<<<< HEAD
                 filename=$(basename "$input1")                                    
                 extension=".${filename##*.}"                                     
                 if [ "$extension" == ".gz" ]                                     
@@ -634,26 +585,11 @@ then
                     input1="${readsDir}/${SampleName}_R1_tmp.fastq"
                     input2="${readsDir}/${SampleName}_R2_tmp.fastq"
                 fi
-=======
-                filename=$(basename "$input1")                                   
-                extension=".${filename##*.}"                                     
-                if [ "$extension" == ".gz" ]                                     
-                then                                                             
-                    gunzip -c $input1 > ${readsDir}/${SampleName}_R1_tmp.fastq   
-                    gunzip -c $input2 > ${readsDir}/${SampleName}_R2_tmp.fastq   
-                    input1="${readsDir}/${SampleName}_R1_tmp.fastq"              
-                    input2="${readsDir}/${SampleName}_R2_tmp.fastq"              
-                fi  
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
                 $alientrimmer -if $input1 -ir $input2 -of ${readsDir}/${SampleName}_alien_f.fastq -or ${readsDir}/${SampleName}_alien_r.fastq -os ${readsDir}/${SampleName}_alien_s.fastq -c $alienseq  > ${logDir}/log_alientrimmer_${SampleName}.txt -p 80 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
                 check_file ${readsDir}/${SampleName}_alien_f.fastq
                 check_file ${readsDir}/${SampleName}_alien_r.fastq
                 check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
-<<<<<<< HEAD
                 rm -f ${readsDir}/${SampleName}_R1_tmp.fastq ${readsDir}/${SampleName}_R2_tmp.fastq
-=======
-                rm -f  ${readsDir}/${SampleName}_R1_tmp.fastq ${readsDir}/${SampleName}_R2_tmp.fastq 
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
                 say "$num_sample/$nb_samples - Elapsed time with Alientrimmer : $(timer $start_time)"
             fi
             # Filtering reads against contaminant db
@@ -753,15 +689,9 @@ then
      #${resultDir}/${ProjectName}_extendedFrags.fasta
      if [ "$prefixdrep" -eq "1" ]
      then
-<<<<<<< HEAD
-        $vsearch --derep_prefix $amplicon -output ${resultDir}/${ProjectName}_drep.fasta -sizeout -minseqlength $minampliconlength
-     else
-        $vsearch --derep_fulllength $amplicon -output ${resultDir}/${ProjectName}_drep.fasta -sizeout -minseqlength $minampliconlength
-=======
         $vsearch --derep_prefix $amplicon -output ${resultDir}/${ProjectName}_drep.fasta -sizeout -minseqlength $minampliconlength --strand both
      else
         $vsearch --derep_fulllength $amplicon -output ${resultDir}/${ProjectName}_drep.fasta -sizeout -minseqlength $minampliconlength --strand both
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
      fi
      check_file ${resultDir}/${ProjectName}_drep.fasta
      say "Elapsed time to dereplicate : $(timer $start_time)"
@@ -785,15 +715,9 @@ then
      #$usearch -uchime_ref ${resultDir}/${ProjectName}_otu.fasta -db $gold -strand plus -nonchimeras ${resultDir}/${ProjectName}_otu_nochim.fasta
      if [ "$chimeraslayerfiltering" -eq "0" ]
      then
-<<<<<<< HEAD
-         $vsearch --uchime_denovo ${resultDir}/${ProjectName}_sorted.fasta --strand plus --nonchimeras ${resultDir}/${ProjectName}_nochim.fasta --chimeras ${resultDir}/${ProjectName}_chim.fasta
-     else
-        $vsearch --uchime_ref ${resultDir}/${ProjectName}_sorted.fasta --db $gold --strand plus --nonchimeras ${resultDir}/${ProjectName}_nochim.fasta --chimeras ${resultDir}/${ProjectName}_chim.fasta
-=======
          $vsearch --uchime_denovo ${resultDir}/${ProjectName}_sorted.fasta --strand both --nonchimeras ${resultDir}/${ProjectName}_nochim.fasta --chimeras ${resultDir}/${ProjectName}_chim.fasta
      else
         $vsearch --uchime_ref ${resultDir}/${ProjectName}_sorted.fasta --db $gold --strand both --nonchimeras ${resultDir}/${ProjectName}_nochim.fasta --chimeras ${resultDir}/${ProjectName}_chim.fasta
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
      fi
      check_file ${resultDir}/${ProjectName}_nochim.fasta 
      say "Elapsed time to filter chimera: $(timer $start_time)"
@@ -806,11 +730,7 @@ then
      start_time=$(timer)
      #$usearch -cluster_otus ${resultDir}/${ProjectName}_sorted.fasta -otus ${resultDir}/${ProjectName}_otu.fasta -uparseout ${resultDir}/${ProjectName}_uparse.txt -relabel OTU_ -sizein #-sizeout 
      # --relabel OTU_
-<<<<<<< HEAD
-     $vsearch --cluster_size ${resultDir}/${ProjectName}_nochim.fasta --id 0.97 --centroids ${resultDir}/${ProjectName}_otu_compl.fasta --sizein #--sizeout
-=======
      $vsearch --cluster_size ${resultDir}/${ProjectName}_nochim.fasta --id 0.97 --centroids ${resultDir}/${ProjectName}_otu_compl.fasta --sizein --strand both #--sizeout
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
      python $rename_otu -i ${resultDir}/${ProjectName}_otu_compl.fasta -o ${resultDir}/${ProjectName}_otu.fasta
      check_file ${resultDir}/${ProjectName}_otu.fasta
      say "Elapsed time to OTU clustering with vsearch: $(timer $start_time)"
@@ -841,11 +761,7 @@ then
     start_time=$(timer)
     #$usearch -usearch_global ${resultDir}/${SampleName}_extendedFrags.fasta -db ${resultDir}/${SampleName}_otu_nochim.fasta -strand plus -id 0.97 -uc ${resultDir}/${SampleName}_map.txt
     #${resultDir}/${ProjectName}_extendedFrags.fasta
-<<<<<<< HEAD
-    $vsearch -usearch_global $amplicon -db ${resultDir}/${ProjectName}_otu.fasta --strand plus --id 0.97 -uc ${resultDir}/${ProjectName}_map.txt
-=======
     $vsearch -usearch_global $amplicon -db ${resultDir}/${ProjectName}_otu.fasta --strand both --id 0.97 -uc ${resultDir}/${ProjectName}_map.txt --strand both
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
     check_file ${resultDir}/${ProjectName}_map.txt
     say "Elapsed time to map reads: $(timer $start_time)"
 fi
@@ -900,15 +816,9 @@ then
         #$usearch -utax ${resultDir}/${ProjectName}_otu.fasta -db $silva -strand both -taxconfs silva_16s_short.tc -utaxout ${resultDir}/${ProjectName}_otu_tax_silva.tsv -utax_cutoff 0.8
         if [ "$lsu" -eq "1" ]
         then
-<<<<<<< HEAD
-            $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silvalsu --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv --strand plus
-        else
-            $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silva --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv --strand plus
-=======
             $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silvalsu --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv --strand both
         else
             $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silva --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv --strand both
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
         fi
         #check_file ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
@@ -973,11 +883,7 @@ then
     then
         say "Assign taxonomy against greengenes with vsearch"
         start_time=$(timer)
-<<<<<<< HEAD
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $greengenes --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv -strand plus
-=======
         $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $greengenes --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv -strand both
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
         #check_file ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv 
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
@@ -1025,11 +931,7 @@ then
     then
         say "Assign taxonomy against findley with vsearch"
         start_time=$(timer)
-<<<<<<< HEAD
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $findley --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv -strand plus
-=======
         $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $findley --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv -strand both
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
         #check_file ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
@@ -1078,11 +980,7 @@ then
     then
         say "Assign taxonomy against unite with vsearch"
         start_time=$(timer)
-<<<<<<< HEAD
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $unite --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv -strand plus
-=======
         $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $unite --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv -strand both
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
         #check_file ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
@@ -1131,11 +1029,7 @@ then
     then
         say "Assign taxonomy against underhill with vsearch"
         start_time=$(timer)
-<<<<<<< HEAD
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $underhill --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv -strand plus
-=======
         $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $underhill --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv -strand both
->>>>>>> a4089e7b2adc2510175f215be0e9750283ed9397
         #check_file ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
