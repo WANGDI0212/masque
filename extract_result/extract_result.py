@@ -227,9 +227,12 @@ def parse_log(log_file, regex, tag_alien):
         with open(log_file, "rt") as log:
             for line in log:
                 regex_match = regex.match(line)
-                if regex_match:
-                    data += [int(i.replace(",","").replace("%","")) 
+                if regex_match and tag_alien > 0:
+                    data = [int(i.replace(",","").replace("%","")) 
                             for i in regex_match.groups()]
+                elif regex_match:
+                    data += [int(i.replace(",","").replace("%","")) 
+                             for i in regex_match.groups()]
             if tag_alien > 0 and len(data) == 0:
                 data = [0] * tag_alien
             else:
