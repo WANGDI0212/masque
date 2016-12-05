@@ -1,2 +1,3 @@
 homo_sapiens.fna
+mus_musculus.fna
 NC_001422.fna

@@ -106,6 +106,7 @@ Then, install the databases as follow :
 --evalueTaxAnnot        evalue threshold for taxonomical annotation with blast (Default evalue=1E-5)
 --maxTargetSeqs Number of hit per OTU with blast (Default 1)
 --identity_threshold    Identity threshold for taxonomical annotation with vsearch (Default 0.75)
+--conservedPosition Percentage of conserved position in the multiple alignment considered for phylogenetic tree (Default 0.8)
 ```
 
 ## SGE and SLURM deployments

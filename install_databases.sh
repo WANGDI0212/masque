@@ -74,7 +74,7 @@ say "Start databases preparation for MASQUE"
 wall_time=$(timer)
 
 # Download databases
-say "Download databases: 1.6GB will be download."
+say "Download databases: 2.4GB will be download."
 start_time=$(timer)
 wget -i $url_list -P $databases_dir
 say "Elapsed time to download : $(timer $start_time)"
@@ -102,6 +102,12 @@ start_time=$(timer)
 cat $databases_dir/hs_ref_GRCh38.p7_*.fa > $databases_dir/homo_sapiens.fna
 say "Elapsed time for Homo sapiens database: $(timer $start_time)"
 
+# Mus musculus one file
+say "Prepare Mus musculus database"
+start_time=$(timer)
+cat mm_ref_GRCm38.p4_*.fa  > $databases_dir/mus_musculus.fna
+say "Elapsed time for Mus musculus database: $(timer $start_time)"
+
 # Homo sapiens one file
 say "Prepare Unite database"
 start_time=$(timer)
@@ -123,7 +129,7 @@ done < $blast_databases
 say "Elapsed time to index for blast: $(timer $start_time)"
 
 # Bowtie2 indexing
-say "Indexing databases for bowtie2"
+say "Indexing databases for bowtie2 require at least 50Gb of memory"
 start_time=$(timer)
 while read fasta_file
 do
