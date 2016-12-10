@@ -160,15 +160,21 @@ The other files correspond to intermediate results.
 *  __Bowtie2__  
    Finds contaminants  
    _Langmead B, Salzberg S0,. Fast gapped-read alignment with Bowtie 2. Nature Methods. 2012, 9:357-359._  
+*  __BMGE__  
+   Select informative regions in multiple sequence alignments  
+   _Criscuolo, A., Gribaldo, S., BMGE (Block Mapping and Gathering with Entropy): a new software for selection of phylogenetic informative regions from multiple sequence alignments. BMC evolutionary biology, 2010, 10(1), 1._  
 *  __Fastqc__  
    Checks read quality.  
    _Andrews S. (2010). FastQC: a quality control tool for high throughput sequence data._  
 *  __Fasttree__  
-   Computes the phylogeny of OTU sequences.  
+   Computes the phylogeny of OTU sequences (Default selection).  
    _Price, M.N., Dehal, P.S., and Arkin, A.P., FastTree 2 -- Approximately Maximum-Likelihood Trees for Large Alignments. PLoS ONE, 2010, 5(3):e9490._  
 *  __FLASH__  
    Merges paired reads to get amplicons.  
    _Magoc T. and Salzberg S.., FLASH: Fast length adjustment of short reads to improve genome assemblies. Bioinformatics 27:21, 2011, 2957-63._  
+*  __IQTREE__  
+   Computes the phylogeny of OTU sequences.
+   _Nguyen, L. T., Schmidt, H. A., von Haeseler, A., & Minh, B. Q., Iq-tree: A fast and effective stochastic algorithm for estimating maximum-likelihood phylogenies. Molecular biology and evolution, 2015, 32(1), 268-274._  
 *  __Mafft__  
    Performs a multiple alignment of OTU sequences.  
    _Katoh, Misawa, Kuma, Miyata, MAFFT: a novel method for rapid multiple sequence alignment based on fast Fourier transform. Nucleic Acids Res., 2002, 30:3059-3066._  
@@ -180,7 +186,7 @@ The other files correspond to intermediate results.
    _Mahé F, Rognes T, Quince C, de Vargas C, Dunthorn M., Swarm v2: highly-scalable and high-resolution amplicon clustering. PeerJ, 2015._  
 *  __vsearch__  
    Performs OTU clustering (Default selection).  
-   _Torbjørn Rognes https://github.com/torognes/vsearch_  
+   _Rognes, T., Flouri, T., Nichols, B., Quince, C., & Mahé, F., VSEARCH: a versatile open source tool for metagenomics. PeerJ, 2016, 4, e2584._
 
 
 ## Databases
@@ -217,8 +223,8 @@ MASQUE use several databases for taxonomical annotation and data filtering as fo
 *  __GOLD__  
    ChimeraSlayer reference database used for chimera filtering (default mode use de novo filtering instead)  
    http://drive5.com/uchime/uchime_download.html  
-*  __NCBI Homo Sapiens, PhiX174__  
-   Used to search Human and PhiX174 contaminants (manipulators and Phi phage used for the sequencing)  
+*  __NCBI Homo Sapiens, Mus Musculus, PhiX174__  
+   Used to search Human, Mus Musculus and PhiX174 contaminants (manipulators and Phi phage used for the sequencing)  
 
 ## Test
 

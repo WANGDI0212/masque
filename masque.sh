@@ -331,7 +331,7 @@ get_taxonomy="$SCRIPTPATH/get_taxonomy/get_taxonomy.py"
 # IQ-TREE
 iqtree=$(check_soft "iqtree-omp" "$SCRIPTPATH/iqtree-omp-1.5.1-Linux/bin/iqtree-omp") 
 # otu_tab_size
-otu_tab_size="$SCRIPTPATH/otu_tab_size/otu_tab_size.py"
+#otu_tab_size="$SCRIPTPATH/otu_tab_size/otu_tab_size.py"
 # rename_otu
 rename_otu="$SCRIPTPATH/rename_otu/rename_otu.py"
 # rdp classifier
@@ -943,7 +943,7 @@ then
     then
         say "Assign taxonomy against greengenes with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $greengenes --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv -strand both
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $greengenes --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv --strand both
         #check_file ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv 
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
