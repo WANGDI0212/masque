@@ -45,7 +45,7 @@ You can find more information in the presentation [here](tp/Targeted_metagenomic
 ### Docker install
 
 The easiest way to use masque is the docker. First, dowload the databases [here](
-http://dl.pasteur.fr/fop/HXRC0yhb/databases.zip), then unzip this dataset in a directory.
+http://dl.pasteur.fr/fop/dzLDah1F/databases.zip), then unzip this dataset in a directory.
 Run docker as following:
 ```
 docker run -i -t -v /path/to/fastq-data:/mydata -v /path/to/databases:/usr/local/bin/databases/ aghozlane/masque
@@ -139,7 +139,7 @@ File | Description
 **project_vs_database_annotation_eval_val.tsv** | OTU annotation performed by blast against the several databank
 **project_database_eval_val.biom** | Biom file including the count and the annotation
 **project_vs_rdp.tsv** | OTU annotation performed by rdp.
-**project_otu.tree** | OTU phylogeny
+**project_otu_*_bmge.ali.treefile** | OTU phylogeny generated for sequence annotated by the databases
 **reads/*_fastqc.html** | fastq quality after trimming/clipping
 
 The other files correspond to intermediate results.
