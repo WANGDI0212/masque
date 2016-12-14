@@ -69,3 +69,11 @@ databases/stressman.fasta.nhr
 databases/stressman.fasta.nin
 databases/stressman.fasta.nsq
 databases/stressman.fasta.shd
+databases/mus_musculus.fna
+databases/mus_musculus.fna.1.bt2
+databases/mus_musculus.fna.2.bt2
+databases/mus_musculus.fna.3.bt2
+databases/mus_musculus.fna.4.bt2
+databases/mus_musculus.fna.rev.1.bt2
+databases/mus_musculus.fna.rev.2.bt2
+usearch_python_scripts/
