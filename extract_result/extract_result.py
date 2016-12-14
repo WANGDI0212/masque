@@ -316,7 +316,8 @@ def write_sample_result(sample_read, output_file, paired):
                   "Raw_mean_length_rev", "Raw_median_length_rev",
                   "Trimmed", "Trimmed_fwd", "Trimmed_rev", "Removed",
                   "Removed_fwd", "Removed_rev", "mapping_human_1_time",
-                  "mapping_human_>1_time", "mapping_phiX_1_time",
+                  "mapping_human_>1_time", "mapping_mouse_1_time",
+                  "mapping_mouse_>1_time", "mapping_phiX_1_time",
                   "mapping_phiX_>1_time", "Filtered_reads_fwd",
                   "Filtered_mean_length_fwd", "Filtered_median_length_fwd",
                   "Filtered_reads_rev", "Filtered_mean_length_rev",
@@ -327,7 +328,8 @@ def write_sample_result(sample_read, output_file, paired):
     else:
         header = ["sample", "Raw_reads", "Raw_mean_length", "Raw_median_length",
                   "Trimmed", "Removed", "mapping_human_1_time",
-                  "mapping_human_>1_time", "mapping_phiX_1_time",
+                  "mapping_human_>1_time", "mapping_mouse_1_time",
+                  "mapping_mouse_>1_time","mapping_phiX_1_time",
                   "mapping_phiX_>1_time", "Filtered_reads",
                   "Filtered_mean_length", "Filtered_median_length",
                   "Selected_dereplication", "Selected_singleton",
@@ -359,6 +361,7 @@ def write_sample_result(sample_read, output_file, paired):
                     sample_read[sample]['alientrimmer']+
                     sample_read[sample]['mapping_1'] +
                     sample_read[sample]['mapping_2'] +
+					sample_read[sample]['mapping_3'] +
                     proc_data + flash_data +
                     [sample_read[sample]['dereplication'],
                     sample_read[sample]['singleton'],
@@ -452,6 +455,9 @@ def main():
         sample_read = get_log(sample_read,
                               check_file(log_dir + "log_mapping*_2.txt"),
                               "mapping", "_2")
+        sample_read = get_log(sample_read,
+                              check_file(log_dir + "log_mapping*_3.txt"),
+                              "mapping", "_3")
     # Get dereplication data
     header_dict, seq_len_tab = parse_fasta(
                                 check_file(args.data_dir +
