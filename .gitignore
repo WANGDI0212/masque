@@ -77,3 +77,6 @@ databases/mus_musculus.fna.4.bt2
 databases/mus_musculus.fna.rev.1.bt2
 databases/mus_musculus.fna.rev.2.bt2
 usearch_python_scripts/
+fastalabel/
+merge_annotation/
+otu_tab_size/

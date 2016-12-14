@@ -991,7 +991,7 @@ then
     then
         say "Assign taxonomy against findley with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $findley --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv -strand both
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $findley --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv --strand both
         #check_file ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
@@ -1040,7 +1040,7 @@ then
     then
         say "Assign taxonomy against unite with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $unite --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv -strand both
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $unite --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv --strand both
         #check_file ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
@@ -1089,7 +1089,7 @@ then
     then
         say "Assign taxonomy against underhill with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $underhill --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv -strand both
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $underhill --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv --strand both
         #check_file ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv
         say "Elapsed time with vsearch : $(timer $start_time)"
     fi
