@@ -40,6 +40,6 @@ module add Python/2.7.8 FastTree/2.1.8 FLASH/1.2.11 fasta mafft/7.149 bowtie2/2.
 exit 0
 """>$SLURM_SCRIPT
 
-SLURMID=`sbatch $SLURM_SCRIPT`
+SLURMID=`sbatch -p dedicated $SLURM_SCRIPT`
 
 echo "Submission SLURM :> JOBID = $SLURMID"
