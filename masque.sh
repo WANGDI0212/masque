@@ -267,12 +267,11 @@ greengenes_taxonomy="$SCRIPTPATH/databases/gg_13_5_taxonomy.txt"
 # rdp="$SCRIPTPATH/databases/rdp_11_4.fa"
 # Silva
 #http://www.arb-silva.de/no_cache/download/archive/release_123/Exports/
-silva="$SCRIPTPATH/databases/SILVA_123.1_SSURef_Nr99_tax_silva.fasta"
-silvalsu="$SCRIPTPATH/databases/SILVA_123.1_LSURef_tax_silva.fasta"
-#silva="/local/databases/fasta/silva_ssu.fa"
-underhill="$SCRIPTPATH/databases/THFv1.2.sequence.fasta"
-underhill_taxonomy="$SCRIPTPATH/databases/THFv1.2.tsv"
-unite="$SCRIPTPATH/databases/sh_general_release_31.01.2016.fasta"
+silva="$SCRIPTPATH/databases/SILVA_128_SSURef_Nr99_tax_silva.fasta"
+silvalsu="$SCRIPTPATH/databases/SILVA_128_LSURef_tax_silva.fasta"
+underhill="$SCRIPTPATH/databases/THFv1.3.sequence.fasta"
+underhill_taxonomy="$SCRIPTPATH/databases/THFv1.3.tsv"
+unite="$SCRIPTPATH/databases/sh_general_release_dynamic_s_20.11.2016.fasta"
 
 #######################
 # Assembly Parameters #

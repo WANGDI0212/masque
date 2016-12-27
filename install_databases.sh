@@ -124,11 +124,12 @@ say "Elapsed time for Dario rerio database: $(timer $start_time)"
 # Homo sapiens one file
 say "Prepare Unite database"
 start_time=$(timer)
-sed "s:|reps|: :g" $databases_dir/sh_general_release_31.01.2016.fasta -i
-sed "s:|refs|: :g" $databases_dir/sh_general_release_31.01.2016.fasta -i
-sed "s:|refs_singleton|: :g" $databases_dir/sh_general_release_31.01.2016.fasta -i
-sed "s:\xeb:e:g" $databases_dir/sh_general_release_31.01.2016.fasta -i
-sed "s:\xd7:x:g" $databases_dir/sh_general_release_31.01.2016.fasta -i
+sed "s:|reps|: :g" $databases_dir/sh_general_release_dynamic_s_20.11.2016.fasta -i
+sed "s:|refs|: :g" $databases_dir/sh_general_release_dynamic_s_20.11.2016.fasta -i
+sed "s:|reps_singleton|: :g" $databases_dir/sh_general_release_dynamic_s_20.11.2016.fasta -i
+sed "s:|refs_singleton|: :g" $databases_dir/sh_general_release_dynamic_s_20.11.2016.fasta -i
+iconv -c -f utf-8 -t ascii//TRANSLIT $databases_dir/sh_general_release_dynamic_s_20.11.2016.fasta > $databases_dir/sh_general_release_dynamic_s_20.11.2016.fasta_ascii
+mv $databases_dir/sh_general_release_dynamic_s_20.11.2016.fasta_ascii $databases_dir/sh_general_release_dynamic_s_20.11.2016.fasta
 say "Elapsed time for Unite database: $(timer $start_time)"
 
 # Blast indexing
