@@ -20,6 +20,7 @@ import csv
 import glob
 import re
 import gzip
+from itertools import chain
 
 __author__ = "Amine Ghozlane"
 __copyright__ = "Copyright 2015, Institut Pasteur"
@@ -307,38 +308,37 @@ def parse_otu_table(sample_read, otu_table_file):
 
 
 
-def write_sample_result(sample_read, output_file, paired):
+def write_sample_result(sample_read, db_list, output_file, paired):
     """Write otu building process data
     """
+    map_list = ['mapping_{0}'.format(db) for db in db_list]
+    mapping_header = [map_head + typ for map_head in map_list
+                      for typ in ["_1_time", "_>1_time"]]
     if paired:
-        header = ["sample", "Raw_reads_fwd", "Raw_mean_length_fwd",
+        header = (["sample", "Raw_reads_fwd", "Raw_mean_length_fwd",
                   "Raw_median_length_fwd", "Raw_reads_rev",
                   "Raw_mean_length_rev", "Raw_median_length_rev",
                   "Trimmed", "Trimmed_fwd", "Trimmed_rev", "Removed",
-                  "Removed_fwd", "Removed_rev", "mapping_human_1_time",
-                  "mapping_human_>1_time", "mapping_mouse_1_time",
-                  "mapping_mouse_>1_time", "mapping_phiX_1_time",
-                  "mapping_phiX_>1_time", "Filtered_reads_fwd",
-                  "Filtered_mean_length_fwd", "Filtered_median_length_fwd",
-                  "Filtered_reads_rev", "Filtered_mean_length_rev",
-                  "Filtered_median_length_rev", "Combined pairs",
-                  "Uncombined pairs", "Selected_dereplication",
-                  "Selected_singleton", "Selected_chimera", "Selected_otu",
-                  "Mapped_reads", "Mapping_percent_combined"]
+                  "Removed_fwd", "Removed_rev"] + mapping_header + 
+                  ["Filtered_reads_fwd", "Filtered_mean_length_fwd", 
+                   "Filtered_median_length_fwd", "Filtered_reads_rev",
+                   "Filtered_mean_length_rev", "Filtered_median_length_rev",
+                   "Combined pairs", "Uncombined pairs",
+                   "Selected_dereplication", "Selected_singleton",
+                   "Selected_chimera", "Selected_otu", "Mapped_reads",
+                   "Mapping_percent_combined"])
     else:
-        header = ["sample", "Raw_reads", "Raw_mean_length", "Raw_median_length",
-                  "Trimmed", "Removed", "mapping_human_1_time",
-                  "mapping_human_>1_time", "mapping_mouse_1_time",
-                  "mapping_mouse_>1_time","mapping_phiX_1_time",
-                  "mapping_phiX_>1_time", "Filtered_reads",
-                  "Filtered_mean_length", "Filtered_median_length",
-                  "Selected_dereplication", "Selected_singleton",
-                  "Selected_chimera", "Selected_otu",
-                  "Mapped_reads", "Mapping_percent_proc"]
+        header = (["sample", "Raw_reads", "Raw_mean_length", "Raw_median_length",
+                  "Trimmed", "Removed"] + mapping_header +
+                 ["Filtered_reads", "Filtered_mean_length",
+                   "Filtered_median_length", "Selected_dereplication",
+                   "Selected_singleton", "Selected_chimera", "Selected_otu",
+                   "Mapped_reads", "Mapping_percent_proc"])
     try:
         with open(output_file, "wt") as output:
             output_writer = csv.writer(output, delimiter='\t')
             output_writer.writerow(header)
+            mapping_filter = ['mapping_{0}_{1}'.format(db, i) for i, db in enumerate(db_list)]
             for sample in sample_read:
                 if paired:
                     #print(sample)
@@ -356,12 +356,12 @@ def write_sample_result(sample_read, output_file, paired):
                     proc_data = sample_read[sample]['proc']
                     mapping_perc = round(float(sample_read[sample]['mapped'])/
                                     float(sample_read[sample]['proc'][0])*100.0, 2)
+                #print([sample_read[sample][)
+                #print([sample_read[sample][tag] for tag in mapping_filter])
                 output_writer.writerow(
                     [sample] + read_data +
                     sample_read[sample]['alientrimmer']+
-                    sample_read[sample]['mapping_1'] +
-                    sample_read[sample]['mapping_2'] +
-					sample_read[sample]['mapping_3'] +
+                    list(chain.from_iterable([sample_read[sample][tag] for tag in mapping_filter])) +
                     proc_data + flash_data +
                     [sample_read[sample]['dereplication'],
                     sample_read[sample]['singleton'],
@@ -449,15 +449,19 @@ def main():
                                 check_file(log_dir + "log_flash*.txt"),
                                 "flash", "")
         # Get log mapping
-        sample_read = get_log(sample_read,
-                              check_file(log_dir + "log_mapping*_1.txt"),
-                              "mapping", "_1")
-        sample_read = get_log(sample_read,
-                              check_file(log_dir + "log_mapping*_2.txt"),
-                              "mapping", "_2")
-        sample_read = get_log(sample_read,
-                              check_file(log_dir + "log_mapping*_3.txt"),
-                              "mapping", "_3")
+        filter_db = ["danio", "human", "mosquito", "mouse", "phi"]
+        db_list = []
+        for i in xrange(5):
+            mapping_log = check_file(log_dir + "log_mapping*{0}.txt".format(i))
+            if len(mapping_log) > 0 and mapping_log[0] != "":
+                db_list += [mapping_log[0].split("_")[-2]]
+                if db_list[-1] in filter_db:
+                    sample_read = get_log(
+                        sample_read, mapping_log,
+                        "mapping", "_" + db_list[-1] + "_" + str(i))
+                else:
+                    print("Unknown tag for mapping: {0}".format(db_list[-1]),
+                          file=sys.stderr)
     # Get dereplication data
     header_dict, seq_len_tab = parse_fasta(
                                 check_file(args.data_dir +
@@ -504,12 +508,13 @@ def main():
                                                           "*_otu_table.tsv")[0])
     # annotation
     tag = ["silva", "greengenes", "unite", "findley", "underhill", "rdp"]
-    annotation_files = [check_file(args.data_dir + "*_silva_annotation_*.tsv")[0],
-                        check_file(args.data_dir + "*_greengenes_annotation_*.tsv")[0],
-                        check_file(args.data_dir + "*_unite_annotation_*.tsv")[0],
-                        check_file(args.data_dir + "*_findley_annotation_*.tsv")[0],
-                        check_file(args.data_dir + "*_underhill_annotation_*.tsv")[0],
-                        check_file(args.data_dir + "*_rdp.tsv")[0]]
+    annotation_files = [
+        check_file(args.data_dir + "*_silva_annotation_*.tsv")[0],
+        check_file(args.data_dir + "*_greengenes_annotation_*.tsv")[0],
+        check_file(args.data_dir + "*_unite_annotation_*.tsv")[0],
+        check_file(args.data_dir + "*_findley_annotation_*.tsv")[0],
+        check_file(args.data_dir + "*_underhill_annotation_*.tsv")[0],
+        check_file(args.data_dir + "*_rdp.tsv")[0]]
     tag_present = []
     for i in xrange(len(annotation_files)):
         if os.path.isfile(annotation_files[i]):
@@ -522,7 +527,8 @@ def main():
         else:
             tag_present += [0]
     # write result
-    write_sample_result(sample_read, args.output_file1, args.paired_reads)
+    write_sample_result(sample_read, db_list, args.output_file1,
+                        args.paired_reads)
     write_otu_annotation(global_data, args.output_file2,
                          [tag[i] for i in xrange(len(tag)) if tag_present[i]])
 

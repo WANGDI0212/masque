@@ -12,7 +12,7 @@
 # ------------------------------------------------------------------
 # Author: Amine Ghozlane (amine.ghozlane@pasteur.fr)
 # Title:  16S-18S-23S-28S-ITS pipeline
-# Description : De novo 16S-18S-23S-28S-ITS pipeline assignation
+# Description: De novo 16S-18S-23S-28S-ITS pipeline assignation
 # ------------------------------------------------------------------
 
 function say_parameters {
@@ -94,10 +94,9 @@ function get_reverse_file {
         testname=$(echo $1|sed -r "s:R1\.(f):R2.\1:g")
         echo $testname
     fi
-    if [ ! -f "$testname" ]  || [ "$testname" == "$1" ]                              
-    then                                                                         
-        testname=$(echo $1|sed -r "s:R1\.(f):R2.\1:g")                         
-    
+    if [ ! -f "$testname" ]  || [ "$testname" == "$1" ]
+    then
+        testname=$(echo $1|sed -r "s:R1\.(f):R2.\1:g")
     fi
     if [ ! -f "$testname" ]  || [ "$testname" == "$1" ]
     then
@@ -105,7 +104,7 @@ function get_reverse_file {
     fi
     if [ ! -f "$testname" ]  || [ "$testname" == "$1" ]
     then
-        error "The program is unable to find the corresdponding R2 pair of $1. Please consider to simplify the pair name with R1.fastq and R2.fastq in the name and no point inside the name (like test_R1.fastq and test_R2.fastq). R1 and R2 serve to identify pair."
+        error "The program is unable to find the corresdponding R2 pair of $1. Please consider to simplify the pair name (like name_R1.fastq and name_R2.fastq) with no point inside the name. R1 and R2 tag serve to identify pair."
         exit 1
     fi
     echo "$testname" 
@@ -114,36 +113,37 @@ function get_reverse_file {
 display_help() {
     if [ "$1" -eq "0" ]
     then
-        echo -e """- 16S/18S: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -b
-- 23S/28S: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -l -b
-- ITS: $0 -i </path/to/input/directory/> -o </path/to/result/directory/> -f -b   
-- Amplicon: $0 -a <amplicon file> -o </path/to/result/directory/> -b 
-- All parameters:
--i\tProvide </path/to/input/directory/>
--a\tProvide <amplicon file>
--o\tProvide </path/to/result/directory/>
--n\tIndicate <project-name> (default: use the name of the input directory)
--t\tNumber of <thread> (default all cpu will be used)
--s\tPerform OTU clustering with swarm
--b\tPerform taxonomical annotation with blast (Default vsearch)
--l\tPerform taxonomical annotation against LSU databases: Silva/RDP
--f\tPerform taxonomical annotation against ITS databases: Unite/Findley/Underhill/RDP
---minreadlength\tMinimum read length take in accound in the study (Default 35nt)
---minphred\tQvalue must lie between [0-40] (Default minimum qvalue 20)
---minphredperc\tMinimum allowed percentage of correctly called nucleotides [0-100] (Default 80)
---NbMismatchMapping\tMaximum number of mismatch when mapping end-to-end against Human genome and Phi174 genome (Default 1 mismatch is accepted)
---maxoverlap\tMaximum overlap when paired reads are considered (Default 200 nt)
---minoverlap\tMini overlap when paired reads are considered (Default 50 nt)
---minampliconlength\tMinimum amplicon length (Default 64nt)
---minotusize\tIndicate minimum OTU size (Default 4)
---prefixdrep\tPerform prefix dereplication (Default: full length dereplication)
---chimeraslayerfiltering\tUse ChimeraSlayer database for chimera filtering (Default Perform a de novo chimera filtering)
---otudiffswarm\tNumber of difference accepted in an OTU with swarm (Default 1)
---evalueTaxAnnot\tevalue threshold for taxonomical annotation with blast (Default evalue=1E-5)
---maxTargetSeqs\tNumber of hit per OTU with blast (Default 1)
---identity_threshold\tIdentity threshold for taxonomical annotation with vsearch (Default 0.75)
---conservedPosition\tPercentage of conserved position in the multiple alignment considered for phylogenetic tree (Default 0.8)
---accurateTree\tActivate accurate tree calculation with IQ-TREE instead of FastTree (Default perform a fast calculation)"""
+        printf "%-10s $0 %3s %-30s %-35s\n" "16S/18S:" "" "-i </path/to/input/directory/>" "-o </path/to/result/directory/>"
+        printf "%-10s $0 %3s %-30s %-35s\n" "23S/28S:" "-l" "-i </path/to/input/directory/>" "-o </path/to/result/directory/>"
+        printf "%-10s $0 %3s %-30s %-35s\n" "ITS:" "-f" "-i </path/to/input/directory/>" "-o </path/to/result/directory/>"
+        printf "%-10s $0 %3s %-30s %-35s\n" "Amplicon:" "" "-a <amplicon file>" "-o </path/to/result/directory/>"
+        echo -e "\e[1;34mAll parameters:\e[m"
+        printf "%-25s %-30s\n" "-i" "Provide </path/to/input/directory/>"
+        printf "%-25s %-30s\n" "-a" "Provide <amplicon file>"
+        printf "%-25s %-30s\n" "-o" "Provide </path/to/result/directory/>"
+        printf "%-25s %-30s\n" "-n" "Indicate <project-name> (default: use the name of the input directory)"
+        printf "%-25s %-30s\n" "-t" "Number of <thread> (default all cpu will be used)"
+        printf "%-25s %-30s\n" "-c" "Contaminant filtering [danio,human,mouse,mosquito,phi] (Default: human,phi)"
+        printf "%-25s %-30s\n" "-s" "Perform OTU clustering with swarm"
+        printf "%-25s %-30s\n" "-b" "Perform taxonomical annotation with blast (Default vsearch)"
+        printf "%-25s %-30s\n" "-l" "Perform taxonomical annotation against LSU databases: Silva/RDP"
+        printf "%-25s %-30s\n" "-f" "Perform taxonomical annotation against ITS databases: Unite/Findley/Underhill/RDP"
+        printf "%-25s %-30s\n" "--minreadlength" "Minimum read length take in accound in the study (Default 35nt)"
+        printf "%-25s %-30s\n" "--minphred" "Qvalue must lie between [0-40] (Default minimum qvalue 20)"
+        printf "%-25s %-30s\n" "--minphredperc" "Minimum allowed percentage of correctly called nucleotides [0-100] (Default 80)"
+        printf "%-25s %-30s\n" "--NbMismatchMapping" "Maximum number of mismatch when mapping end-to-end against Human genome and Phi174 genome (Default 1 mismatch is accepted)"
+        printf "%-25s %-30s\n" "--maxoverlap" "Maximum overlap when paired reads are considered (Default 200)"
+        printf "%-25s %-30s\n" "--minoverlap" "Minimum overlap when paired reads are considered (Default 50)"
+        printf "%-25s %-30s\n" "--minampliconlength" "Minimum amplicon length (Default 64)"
+        printf "%-25s %-30s\n" "--minotusize" "Indicate minimum OTU size (Default 4)"
+        printf "%-25s %-30s\n" "--prefixdrep" "Perform prefix dereplication (Default: full length dereplication)"
+        printf "%-25s %-30s\n" "--chimeraslayerfiltering" "Use ChimeraSlayer database for chimera filtering (Default Perform a de novo chimera filtering)"
+        printf "%-25s %-30s\n" "--otudiffswarm" "Number of difference accepted in an OTU with swarm (Default 1)"
+        printf "%-25s %-30s\n" "--evalueTaxAnnot" "Evalue threshold for taxonomical annotation with blast (Default evalue=1E-5)"
+        printf "%-25s %-30s\n" "--maxTargetSeqs" "Number of hit per OTU with blast (Default 1)"
+        printf "%-25s %-30s\n" "--identityThreshold" "Identity threshold for taxonomical annotation with vsearch (Default 0.75)"
+        printf "%-25s %-30s\n" "--conservedPosition" "Percentage of conserved position in the multiple alignment considered for phylogenetic tree (Default 0.8)"
+        printf "%-25s %-30s\n" "--accurateTree" "Accurate tree calculation with IQ-TREE instead of FastTree (Default FastTree)"
     else
         display_parameters
     fi
@@ -151,80 +151,83 @@ display_help() {
 }
 
 display_parameters() {
-   # Display the parameters of the analysis
-   if [ "$input_dir" != "" ]
-   then
-    say_parameters "Sample input [-i]:"
-    echo $input_dir >&2
-   elif [ "amplicon" != "" ]
-   then
-    say_parameters "Amplicon input [-i]:"
-    echo $amplicon >&2
-   fi
-   say_parameters "Result output [-o]:"
-   echo $resultDir >&2
-   say_parameters "Number of threads [-n]= $NbProc" >&2
-   say_parameters "Read filtering:" >&2
-   echo "Minimum read length [--minreadlength]= $minreadlength" >&2
-   echo "Minimum phred quality [--minphred]= $minphred" >&2
-   echo "Minimum allowed percentage of correctly called nucleotides [--minphredperc]= $minphredperc" >&2
-   echo "Minimum number of mistach for the filtering [--NbMismatchMapping]= $NbMismatchMapping" >&2
-   if [ "$paired" -eq "1" ]
-   then
-    say_parameters "Merge reads parameters:"
-    echo "Maxoverlap [--maxoverlap]= $maxoverlap" >&2
-    echo "Minoverlap [--minoverlap]= $minoverlap" >&2
-   fi
-   say_parameters "OTU process:" >&2
-   if [ "$prefixdrep" -eq "1" ]
-   then
-    echo "Dereplication is in prefix mode [--prefixdrep]" >&2
-   else
-    echo "Dereplication is in full length mode" >&2
-   fi
-   echo "Minimum length of an amplicon [--minampliconlength]= $minampliconlength" >&2
-   echo "Minimum size of an OTU for singleton removal [--minotusize]= $minotusize" >&2
-   if [ "$chimeraslayerfiltering" -eq "1" ]
-   then
-    echo "Chimera filtering use chimera slayer database for filtering [--chimeraslayerfiltering]" >&2
-   else
-    echo "Chimera filtering is in de novo mode" >&2
-   fi
-   if [ "$swarm_clust" -eq "1" ]
-   then
-    echo "Clustering is performed with swarm [-s]" >&2
-    echo "Number of difference accepted in an OTU with swarm [--otudiffswarm]= $otudiffswarm"
-   else
-    echo "Clustering is performed with vsearch" >&2
-   fi
-   if [ "$fungi" -eq "1" ]
-   then
-    say_parameters "Fungi annotation [-f]" >&2
-   elif [ "$lsu" -eq "1" ]
-   then
-    say_parameters "23S/28S annotation [-l]" >&2
-   else
-    say_parameters "16S/18S annotation" >&2
-   fi
-   if [ "$blast_tax" -eq "0" ]
-   then
-    echo "Identity threshold with vsearch [--identity_threshold]= $identity_threshold" >&2
-   else
-    echo "E-value with blast [--evalueTaxAnnot]= $evalueTaxAnnot" >&2
-    echo "Maximum number of targets with blast [--maxTargetSeqs]= $maxTargetSeqs" >&2
-   fi
-   echo "Conserved position for alignment[--conservedPosition]= $conservedPosition" >&2
-   if [ "$accurateTree" -eq "1" ]
-   then
-       echo "Tree generated in accurate mode with IQ-TREE [--accurateTree]"
-   else
-       echo "Tree generated in fast mode with FastTree"
-   fi
+    # Display the parameters of the analysis
+    if [ "$input_dir" != "" ]
+    then
+        say_parameters "Sample input [-i]:"
+        echo $input_dir >&2
+    elif [ "amplicon" != "" ]
+    then
+        say_parameters "Amplicon input [-a]:"
+        echo $amplicon >&2
+    fi
+    say_parameters "Result output [-o]:"
+    echo $resultDir >&2
+    say_parameters "Number of threads [-n]:" >&2
+    echo "$NbProc processes will be used" >&2
+    say_parameters "Read filtering:" >&2
+    echo """Minimum read length [--minreadlength]= $minreadlength
+Minimum phred quality [--minphred]= $minphred
+Minimum allowed percentage of correctly called nucleotides [--minphredperc]= $minphredperc
+Minimum number of mistach for the filtering [--NbMismatchMapping]= $NbMismatchMapping
+Filtering databases= ${contaminant[@]}""">&2
+    if [ "$paired" -eq "1" ]
+    then
+        say_parameters "Merge reads parameters:"
+        echo """Maxoverlap [--maxoverlap]= $maxoverlap
+Minoverlap [--minoverlap]= $minoverlap""" >&2
+    fi
+    say_parameters "OTU process:" >&2
+    if [ "$prefixdrep" -eq "1" ]
+    then
+        echo "Dereplication is in prefix mode [--prefixdrep]" >&2
+    else
+        echo "Dereplication is in full length mode" >&2
+    fi
+    echo """Minimum length of an amplicon [--minampliconlength]= $minampliconlength
+Minimum size of an OTU for singleton removal [--minotusize]= $minotusize""" >&2
+    if [ "$chimeraslayerfiltering" -eq "1" ]
+    then
+        echo "Chimera filtering use chimera slayer database for filtering [--chimeraslayerfiltering]" >&2
+    else
+        echo "Chimera filtering is in de novo mode" >&2
+    fi
+    if [ "$swarm_clust" -eq "1" ]
+    then
+        echo """Clustering is performed with swarm [-s]
+Number of difference accepted in an OTU with swarm [--otudiffswarm]= $otudiffswarm""">&2
+    else
+        echo "Clustering is performed with vsearch" >&2
+    fi
+    if [ "$fungi" -eq "1" ]
+    then
+        say_parameters "Fungi annotation [-f]" >&2
+    elif [ "$lsu" -eq "1" ]
+    then
+        say_parameters "23S/28S annotation [-l]" >&2
+    else
+        say_parameters "16S/18S annotation" >&2
+    fi
+    if [ "$blast_tax" -eq "0" ]
+    then
+        echo "Identity threshold with vsearch [--identityThreshold]= $identityThreshold" >&2
+    else
+        echo """E-value with blast [--evalueTaxAnnot]= $evalueTaxAnnot
+Maximum number of targets with blast [--maxTargetSeqs]= $maxTargetSeqs""" >&2
+    fi
+    echo "Conserved position for alignment[--conservedPosition]= $conservedPosition" >&2
+    if [ "$accurateTree" -eq "1" ]
+    then
+        echo "Tree generated in accurate mode with IQ-TREE [--accurateTree]"
+    else
+        echo "Tree generated in fast mode with FastTree"
+    fi
 }
 
 function timer()
 {
-   if [[ $# -eq 0 ]]; then
+   if [[ $# -eq 0 ]]
+   then
          echo $(date '+%s')
    else
       local  stime=$1
@@ -249,7 +252,8 @@ gold="$SCRIPTPATH/databases/gold.fa"
 # Alien sequences
 alienseq="$SCRIPTPATH/databases/alienTrimmerPF8contaminants.fasta"
 # Filtering database
-filterRef=("$SCRIPTPATH/databases/homo_sapiens.fna" "$SCRIPTPATH/databases/mus_musculus.fna" "$SCRIPTPATH/databases/NC_001422.fna")
+declare -A filterRef
+filterRef=(["danio"]="$SCRIPTPATH/databases/danio_rerio.fna" ["human"]="$SCRIPTPATH/databases/homo_sapiens.fna" ["mosquito"]="$SCRIPTPATH/databases/anopheles_stephensi.fna" ["mouse"]="$SCRIPTPATH/databases/mus_musculus.fna" ["phi"]="$SCRIPTPATH/databases/NC_001422.fna")
 # Findley
 # http://www.mothur.org/w/images/2/20/Findley_ITS_database.zip
 findley="$SCRIPTPATH/databases/ITSdb.findley.fasta"
@@ -278,9 +282,10 @@ amplicon=""
 blast_tax=0
 chimeraslayerfiltering=0
 conservedPosition=0.5
+contaminant=("human" "phi")
 evalueTaxAnnot="1E-5"
 fungi=0
-identity_threshold=0.75
+identityThreshold=0.75
 input_dir=""
 lsu=0
 maxTargetSeqs=1
@@ -353,7 +358,7 @@ vsearch=$(check_soft "vsearch" "$SCRIPTPATH/vsearch_bin/bin/vsearch")
 # Main #
 ########
 # Execute getopt on the arguments passed to this program, identified by the special character $@
-PARSED_OPTIONS=$(getopt -n "$0"  -o hi:o:r:t:a:sblfn: --long "help,input_dir:,output:,thread:,minampliconlength:,maxoverlap:,maxTargetSeqs:,minotusize:,minoverlap:,minphred:,minphredperc:,minreadlength:,identity_threshold:,evalueTaxAnnot:,NbMismatchMapping:,amplicon:,swarm,blast,fungi,name:,prefixdrep,chimeraslayerfiltering,conservedPosition:,accurateTree"  -- "$@")
+PARSED_OPTIONS=$(getopt -n "$0"  -o hi:o:r:t:a:sblfn:c: --long "help,input_dir:,output:,thread:,minampliconlength:,maxoverlap:,maxTargetSeqs:,minotusize:,minoverlap:,minphred:,minphredperc:,minreadlength:,identityThreshold:,evalueTaxAnnot:,NbMismatchMapping:,amplicon:,swarm,blast,fungi,name:,prefixdrep,chimeraslayerfiltering,conservedPosition:,accurateTree,contaminant:"  -- "$@")
 
 #Check arguments
 if [ $# -eq 0 ]
@@ -414,6 +419,9 @@ do
     -n|--name)
         ProjectName=$2
         shift 2;;
+    -c|--contaminant)
+        contaminant=(${2//,/ })
+        shift 2;;
     --chimeraslayerfiltering)
         chimeraslayerfiltering=1
         shift ;;
@@ -452,8 +460,8 @@ do
     --prefixdrep)
         prefixdrep=1
         shift ;;
-    --identity_threshold)
-        identity_threshold=$2
+    --identityThreshold)
+        identityThreshold=$2
         shift 2;;
     --evalueTaxAnnot)
         evalueTaxAnnot=$2
@@ -552,35 +560,45 @@ then
                 say "$num_sample/$nb_samples - Elapsed time to trim with Alientrimmer: $(timer $start_time)"
             fi
             # Filtering reads against contaminant db
-            let "essai=1";
+            let "essai=0";
             if [ ! -f "${readsDir}/${SampleName}_alien_filt.fastq" ]
             then
-                for db in ${filterRef[@]}
+                let "totalFilter=${#contaminant[@]}-1"
+                for db in ${contaminant[@]}
                 do
+                    # Set to lowercase
+                    db=$(echo "${db,,}")
+                    if [ "${filterRef[$db]}" == "" ]
+                    then
+                        error "$db does not belong to the list of possible contaminant [danio,human,mouse,mosquito,phi]"
+                        echo "${filterRef[$db]}"
+                        exit 1
+                    else
                         let "num=$essai-1";
-                        if [ ! -f "${readsDir}/${SampleName}_${essai}.fastq" ] && [ -f "${readsDir}/${SampleName}_${num}.fastq" ] && [ ! -f "${readsDir}/${SampleName}_${#filterRef[@]}.fastq" ]
+                        if [ ! -f "${readsDir}/${SampleName}_${contaminant[${essai}]}_${essai}.fastq" ] && [ -f "${readsDir}/${SampleName}_${contaminant[${num}]}_${num}.fastq" ] && [ ! -f "${readsDir}/${SampleName}_${contaminant[${totalFilter}]}_${totalFilter}.fastq" ]
                         then
                                 say "$num_sample/$nb_samples - Filter reads against $db"
                                 start_time=$(timer)
                                 # Next mapping
-                                $bowtie2  -q -N $NbMismatchMapping -p $NbProc -x $db -U ${readsDir}/${SampleName}_${num}.fastq -S /dev/null --un ${readsDir}/${SampleName}_${essai}.fastq -t --end-to-end --very-fast  > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
-                                check_file ${readsDir}/${SampleName}_${essai}.fastq
+                                $bowtie2  -q -N $NbMismatchMapping -p $NbProc -x ${filterRef[$db]} -U ${readsDir}/${SampleName}_${contaminant[${num}]}_${num}.fastq -S /dev/null --un ${readsDir}/${SampleName}_${contaminant[${essai}]}_${essai}.fastq -t --end-to-end --very-fast  > ${logDir}/log_mapping_${SampleName}_${contaminant[${essai}]}_${essai}.txt 2>&1
+                                check_file ${readsDir}/${SampleName}_${contaminant[${essai}]}_${essai}.fastq
                                 # Remove old file
                                 rm -f ${readsDir}/${SampleName}_${num}.fastq
-                                say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
-                        elif [ -f "${readsDir}/${SampleName}_alien.fastq" ] && [ "$essai" -eq "1" ] && [ ! -f "${readsDir}/${SampleName}_${essai}.fastq" ] && [ ! -f "${readsDir}/${SampleName}_${#filterRef[@]}.fastq" ]
+                                say "$num_sample/$nb_samples - Elapsed time to filter reads with $db reference: $(timer $start_time)"
+                        elif [ -f "${readsDir}/${SampleName}_alien.fastq" ] && [ "$essai" -eq "0" ] && [ ! -f "${readsDir}/${SampleName}_${contaminant[${essai}]}_${essai}.fastq" ] && [ ! -f "${readsDir}/${SampleName}_${contaminant[${totalFilter}]}_${totalFilter}.fastq" ]
                         then
                                 say "$num_sample/$nb_samples - Filter reads against $db"
                                 start_time=$(timer)
                                 # First mapping
-                                $bowtie2 -q -N $NbMismatchMapping -p $NbProc -x $db  -U ${readsDir}/${SampleName}_alien.fastq  -S /dev/null --un ${readsDir}/${SampleName}_${essai}.fastq -t --end-to-end --very-fast  > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
-                                check_file ${readsDir}/${SampleName}_${essai}.fastq
+                                $bowtie2 -q -N $NbMismatchMapping -p $NbProc -x ${filterRef[$db]}  -U ${readsDir}/${SampleName}_alien.fastq  -S /dev/null --un ${readsDir}/${SampleName}_${contaminant[${essai}]}_${essai}.fastq -t --end-to-end --very-fast  > ${logDir}/log_mapping_${SampleName}_${contaminant[${essai}]}_${essai}.txt 2>&1
+                                check_file ${readsDir}/${SampleName}_${contaminant[${essai}]}_${essai}.fastq
                                 rm -f ${readsDir}/${SampleName}_alien.fastq
-                                say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
+                                say "$num_sample/$nb_samples - Elapsed time to filter reads with $db reference: $(timer $start_time)"
                         fi
                         let "essai=$essai+1";
+                    fi
                 done
-                mv ${readsDir}/${SampleName}_${#filterRef[@]}.fastq ${readsDir}/${SampleName}_alien_filt.fastq
+                mv ${readsDir}/${SampleName}_${contaminant[${totalFilter}]}_${totalFilter}.fastq ${readsDir}/${SampleName}_alien_filt.fastq
             fi
             # Quality control
             if [ -f "${readsDir}/${SampleName}_alien_filt.fastq" ] && [ ! -f "${readsDir}/${SampleName}_alien_filt_fastqc.html" ]
@@ -624,10 +642,10 @@ then
             then
                 say "$num_sample/$nb_samples - Triming reads with Alientrimmer"
                 start_time=$(timer)
-                filename=$(basename "$input1")                                    
-                extension=".${filename##*.}"                                     
-                if [ "$extension" == ".gz" ]                                     
-                then                                                             
+                filename=$(basename "$input1")
+                extension=".${filename##*.}"
+                if [ "$extension" == ".gz" ]
+                then
                     gunzip -c $input1 > ${readsDir}/${SampleName}_R1_tmp.fastq
                     gunzip -c $input2 > ${readsDir}/${SampleName}_R2_tmp.fastq
                     input1="${readsDir}/${SampleName}_R1_tmp.fastq"
@@ -641,39 +659,49 @@ then
                 say "$num_sample/$nb_samples - Elapsed time with Alientrimmer: $(timer $start_time)"
             fi
             # Filtering reads against contaminant db
-            let "essai=1";
+            let "essai=0";
+            let "totalFilter=${#contaminant[@]}-1"
             if [ ! -d "${readsDir}/filter_${#filterRef[@]}" ] && [ ! -f "${readsDir}/${SampleName}_alien_f_filt.fastq" ]
             then
-                    for db in ${filterRef[@]}
-                    do
-                            let "num=$essai-1";
-                            if [ ! -d "${readsDir}/filter_${essai}" ] && [ -d "${readsDir}/filter_${num}" ] || [ "$essai" -ne "1" ] 
-                            then
-                                    say "$num_sample/$nb_samples - Filter reads against $db"
-                                    start_time=$(timer)
-                                    mkdir ${readsDir}/filter_${essai}
-                                    # Next mapping
-                                    $bowtie2  -q -N $NbMismatchMapping -p $NbProc -x $db -1 ${readsDir}/filter_${num}/un-conc-mate.1  -2 ${readsDir}/filter_${num}/un-conc-mate.2 -S /dev/null --un-conc ${readsDir}/filter_${essai}/ -t --very-fast  > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
-                                    check_file ${readsDir}/filter_${essai}/un-conc-mate.1
-                                    # Remove old file
-                                    rm -rf ${readsDir}/filter_${num}
-                                    say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
-                            elif [ -f "${readsDir}/${SampleName}_alien_f.fastq" ] && [ -f "${readsDir}/${SampleName}_alien_r.fastq" ]  && [ "$essai" -eq "1" ] && [ ! -d "${readsDir}/filter_${essai}" ]
-                            then
-                                    say "$num_sample/$nb_samples - Filter reads against $db"
-                                    start_time=$(timer)
-                                    mkdir  ${readsDir}/filter_${essai}
-                                    # First mapping
-                                    $bowtie2 -q -N $NbMismatchMapping -p $NbProc -x $db  -1 ${readsDir}/${SampleName}_alien_f.fastq -2 ${readsDir}/${SampleName}_alien_r.fastq -S /dev/null --un-conc ${readsDir}/filter_${essai} -t --very-fast > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
-                                    check_file ${readsDir}/filter_${essai}/un-conc-mate.1
-                                    rm -f ${readsDir}/${SampleName}_alien_f.fastq ${readsDir}/${SampleName}_alien_r.fastq ${readsDir}/${SampleName}_alien_s.fastq
-                                    say "$num_sample/$nb_samples - Elapsed time to filter reads in $db : $(timer $start_time)"
-                            fi
-                            let "essai=$essai+1";
-                    done
-                    mv ${readsDir}/filter_${#filterRef[@]}/un-conc-mate.1 ${readsDir}/${SampleName}_alien_f_filt.fastq
-                    mv ${readsDir}/filter_${#filterRef[@]}/un-conc-mate.2 ${readsDir}/${SampleName}_alien_r_filt.fastq
-                    rmdir ${readsDir}/filter_${#filterRef[@]}
+                for db in ${contaminant[@]}
+                do
+                    # Set to lowercase
+                    db=$(echo "${db,,}")
+                    if [ "${filterRef[$db]}" == "" ]
+                    then
+                        error "$db does not belong to the list of possible contaminant [danio,human,mouse,mosquito,phi]"
+                        exit 1
+                    else
+                        #TODO to finish
+                        let "num=$essai-1";
+                        if [ ! -d "${readsDir}/filter_${contaminant[${essai}]}_${essai}" ] && [ -d "${readsDir}/filter_${contaminant[${num}]}_${num}" ] || [ "$essai" -ne "0" ] 
+                        then
+                            say "$num_sample/$nb_samples - Filter reads against $db"
+                            start_time=$(timer)
+                            mkdir ${readsDir}/filter_${contaminant[${essai}]}_${essai}
+                            # Next mapping
+                            $bowtie2  -q -N $NbMismatchMapping -p $NbProc -x ${filterRef[$db]} -1 ${readsDir}/filter_${contaminant[${num}]}_${num}/un-conc-mate.1  -2 ${readsDir}/filter_${contaminant[${num}]}_${num}/un-conc-mate.2 -S /dev/null --un-conc ${readsDir}/filter_${contaminant[${essai}]}_${essai}/ -t --very-fast  > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
+                            check_file ${readsDir}/filter_${contaminant[${essai}]}_${essai}/un-conc-mate.1
+                            # Remove old file
+                            rm -rf ${readsDir}/filter_${contaminant[${num}]}_${num}
+                            say "$num_sample/$nb_samples - Elapsed time to filter reads with $db reference: $(timer $start_time)"
+                        elif [ -f "${readsDir}/${SampleName}_alien_f.fastq" ] && [ -f "${readsDir}/${SampleName}_alien_r.fastq" ]  && [ "$essai" -eq "0" ] && [ ! -d "${readsDir}/filter_${contaminant[${num}]}_${essai}" ]
+                        then
+                            say "$num_sample/$nb_samples - Filter reads against $db"
+                            start_time=$(timer)
+                            mkdir  ${readsDir}/filter_${contaminant[${essai}]}_${essai}
+                            # First mapping
+                            $bowtie2 -q -N $NbMismatchMapping -p $NbProc -x ${filterRef[$db]}  -1 ${readsDir}/${SampleName}_alien_f.fastq -2 ${readsDir}/${SampleName}_alien_r.fastq -S /dev/null --un-conc ${readsDir}/filter_${contaminant[${essai}]}_${essai} -t --very-fast > ${logDir}/log_mapping_${SampleName}_${contaminant[${essai}]}_${essai}.txt 2>&1
+                            check_file ${readsDir}/filter_${contaminant[${essai}]}_${essai}/un-conc-mate.1
+                            rm -f ${readsDir}/${SampleName}_alien_f.fastq ${readsDir}/${SampleName}_alien_r.fastq ${readsDir}/${SampleName}_alien_s.fastq
+                            say "$num_sample/$nb_samples - Elapsed time to filter reads with $db reference: $(timer $start_time)"
+                        fi
+                        let "essai=$essai+1";
+                    fi
+                done
+                mv ${readsDir}/filter_${contaminant[${totalFilter}]}_${totalFilter}/un-conc-mate.1 ${readsDir}/${SampleName}_alien_f_filt.fastq
+                mv ${readsDir}/filter_${contaminant[${totalFilter}]}_${totalFilter}/un-conc-mate.2 ${readsDir}/${SampleName}_alien_r_filt.fastq
+                rmdir ${readsDir}/filter_${contaminant[${totalFilter}]}_${totalFilter}
             fi
             # Merging reads
             if [ -f "${readsDir}/${SampleName}_alien_f_filt.fastq" ] && [ -f "${readsDir}/${SampleName}_alien_r_filt.fastq" ] && [ ! -f "${readsDir}/${SampleName}.extendedFrags.fastq" ]
@@ -869,40 +897,40 @@ then
     fi
 
     # SILVA
-    if [ ! -f "${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv" ] && [ "$blast_tax" -eq "0" ]  && [ "$fungi" -eq "0" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv" ] && [ "$blast_tax" -eq "0" ]  && [ "$fungi" -eq "0" ]
     then
         say "Assign taxonomy against silva with vsearch"
         start_time=$(timer)
         #$usearch -utax ${resultDir}/${ProjectName}_otu.fasta -db $silva -strand both -taxconfs silva_16s_short.tc -utaxout ${resultDir}/${ProjectName}_otu_tax_silva.tsv -utax_cutoff 0.8
         if [ "$lsu" -eq "1" ]
         then
-            $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silvalsu --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv --strand both
+            $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silvalsu --id $identityThreshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv --strand both
         else
-            $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silva --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv --strand both
+            $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $silva --id $identityThreshold --blast6out ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv --strand both
         fi
-        #check_file ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv
-        say "Elapsed time with vsearch : $(timer $start_time)"
+        #check_file ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv
+        say "Elapsed time with vsearch: $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.tsv" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv" ]
     then
         say "Extract vsearch - silva annotation with get_taxonomy"
         start_time=$(timer)
         if [ "$lsu" -eq "1" ]
         then
-            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silvalsu -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.biomtsv
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silvalsu -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv
         else
-            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identity_threshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silva -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.biomtsv
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silva -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv
         fi
-        #check_file ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.tsv
+        #check_file ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv
         say "Elapsed time with get_taxonomy: $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_silva_id_${identity_threshold}.biom" ]
+    if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_silva_id_${identityThreshold}.biom" ]
     then
         say "Build vsearch-silva biom"
         start_time=$(timer)
-        $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_silva_id_${identity_threshold}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identity_threshold}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
-        check_file ${resultDir}/${ProjectName}_silva_id_${identity_threshold}.biom 
-        say "Elapsed time to build vsearch-silva biom : $(timer $start_time)"
+        $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_silva_id_${identityThreshold}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
+        check_file ${resultDir}/${ProjectName}_silva_id_${identityThreshold}.biom 
+        say "Elapsed time to build vsearch-silva biom: $(timer $start_time)"
     fi
     if [ ! -f "${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv" ] && [ "$blast_tax" -eq "1" ]  && [ "$fungi" -eq "0" ]
     then
@@ -939,29 +967,29 @@ then
         say "Elapsed time to build blast-silva biom: $(timer $start_time)"
     fi
     # Greengenes
-    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "0" ] && [ "$lsu" -eq "0" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_id_${identityThreshold}.tsv" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "0" ] && [ "$lsu" -eq "0" ]
     then
         say "Assign taxonomy against greengenes with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $greengenes --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv --strand both
-        #check_file ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv 
-        say "Elapsed time with vsearch : $(timer $start_time)"
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $greengenes --id $identityThreshold --blast6out ${resultDir}/${ProjectName}_vs_greengenes_id_${identityThreshold}.tsv --strand both
+        #check_file ${resultDir}/${ProjectName}_vs_greengenes_id_${identityThreshold}.tsv 
+        say "Elapsed time with vsearch: $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.tsv" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_greengenes_id_${identityThreshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identityThreshold}.tsv" ]
     then
         say "Extract vsearch - greengenes annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_greengenes_id_${identity_threshold}.tsv -d $greengenes -o ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.tsv -dtype greengenes -t $greengenes_taxonomy -ob ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.biomtsv -u ${resultDir}/${ProjectName}_otu.fasta
-        #check_file ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.tsv
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_greengenes_id_${identityThreshold}.tsv -d $greengenes -o ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identityThreshold}.tsv -dtype greengenes -t $greengenes_taxonomy -ob ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identityThreshold}.biomtsv -u ${resultDir}/${ProjectName}_otu.fasta
+        #check_file ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identityThreshold}.tsv
         say "Elapsed time with vsearch: $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_greengenes_id_${identity_threshold}.biom" ]
+    if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identityThreshold}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_greengenes_id_${identityThreshold}.biom" ]
     then
         say "Build vsearch-greengenes biom"
         start_time=$(timer)
-        $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_greengenes_id_${identity_threshold}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identity_threshold}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
-        check_file ${resultDir}/${ProjectName}_greengenes_id_${identity_threshold}.biom 
-        say "Elapsed time to build vsearch-greengenes biom : $(timer $start_time)"
+        $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_greengenes_id_${identityThreshold}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identityThreshold}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
+        check_file ${resultDir}/${ProjectName}_greengenes_id_${identityThreshold}.biom 
+        say "Elapsed time to build vsearch-greengenes biom: $(timer $start_time)"
     fi
     if [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "0" ] && [ "$lsu" -eq "0" ]
     then
@@ -969,7 +997,7 @@ then
         start_time=$(timer)
         $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $greengenes -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true
         #check_file ${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv
-        say "Elapsed time with blast : $(timer $start_time)"
+        say "Elapsed time with blast: $(timer $start_time)"
     fi
     if [ -f "${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.tsv" ]
     then
@@ -977,7 +1005,7 @@ then
         start_time=$(timer)
         python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv -d $greengenes -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.tsv -dtype greengenes -t $greengenes_taxonomy -ob ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.biomtsv
         #check_file ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.tsv
-        say "Elapsed time with get_taxonomy : $(timer $start_time)"
+        say "Elapsed time with get_taxonomy: $(timer $start_time)"
     fi
     if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_greengenes_eval_${evalueTaxAnnot}.biom" ]
     then
@@ -985,31 +1013,31 @@ then
         start_time=$(timer)
         $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_greengenes_eval_${evalueTaxAnnot}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
         check_file ${resultDir}/${ProjectName}_greengenes_eval_${evalueTaxAnnot}.biom 
-        say "Elapsed time to build blast-greengenes biom : $(timer $start_time)"
+        say "Elapsed time to build blast-greengenes biom: $(timer $start_time)"
     fi
-    if [ ! -f "${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_findley_id_${identityThreshold}.tsv" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
     then
         say "Assign taxonomy against findley with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $findley --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv --strand both
-        #check_file ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv
-        say "Elapsed time with vsearch : $(timer $start_time)"
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $findley --id $identityThreshold --blast6out ${resultDir}/${ProjectName}_vs_findley_id_${identityThreshold}.tsv --strand both
+        #check_file ${resultDir}/${ProjectName}_vs_findley_id_${identityThreshold}.tsv
+        say "Elapsed time with vsearch: $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.tsv" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_findley_id_${identityThreshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_findley_annotation_id_${identityThreshold}.tsv" ]
     then
         say "Extract vsearch - findley annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_findley_id_${identity_threshold}.tsv -d $findley  -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.tsv -ob ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.biomtsv  -dtype findley
-        #check_file ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.tsv
-        say "Elapsed time with vsearch : $(timer $start_time)"
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_findley_id_${identityThreshold}.tsv -d $findley  -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identityThreshold}.biomtsv  -dtype findley
+        #check_file ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identityThreshold}.tsv
+        say "Elapsed time with vsearch: $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_findley_id_${identity_threshold}.biom" ]
+    if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_findley_annotation_id_${identityThreshold}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_findley_id_${identityThreshold}.biom" ]
     then
         say "Build vsearch-findley biom"
         start_time=$(timer)
-        $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_findley_id_${identity_threshold}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identity_threshold}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
-        check_file ${resultDir}/${ProjectName}_findley_id_${identity_threshold}.biom 
-        say "Elapsed time to build vsearch-findley bim : $(timer $start_time)"
+        $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_findley_id_${identityThreshold}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identityThreshold}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
+        check_file ${resultDir}/${ProjectName}_findley_id_${identityThreshold}.biom 
+        say "Elapsed time to build vsearch-findley biom: $(timer $start_time)"
     fi
     if [ ! -f "${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.tsv" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "1" ]
     then
@@ -1017,7 +1045,7 @@ then
         start_time=$(timer)
         $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $findley -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.tsv -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true
         #check_file ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.tsv
-        say "Elapsed time with blast : $(timer $start_time)"
+        say "Elapsed time with blast: $(timer $start_time)"
     fi
     if [ -f "${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.tsv" ]
     then
@@ -1025,7 +1053,7 @@ then
         start_time=$(timer)
         python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_findley_eval_${evalueTaxAnnot}.tsv -d $findley -u  ${resultDir}/${ProjectName}_otu.fasta  -o ${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.biomtsv -dtype findley
         #check_file ${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.tsv
-        say "Elapsed time with get_taxonomy : $(timer $start_time)"
+        say "Elapsed time with get_taxonomy: $(timer $start_time)"
     fi
     if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_findley_eval_${evalueTaxAnnot}.biom" ]
     then
@@ -1033,32 +1061,32 @@ then
         start_time=$(timer)
         $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_findley_eval_${evalueTaxAnnot}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_findley_annotation_eval_${evalueTaxAnnot}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
         check_file ${resultDir}/${ProjectName}_findley_eval_${evalueTaxAnnot}.biom 
-        say "Elapsed time to build blast-findley biom : $(timer $start_time)"
+        say "Elapsed time to build blast-findley biom: $(timer $start_time)"
     fi
     # UNITE
-    if [ ! -f "${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_unite_id_${identityThreshold}.tsv" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
     then
         say "Assign taxonomy against unite with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $unite --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv --strand both
-        #check_file ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv
-        say "Elapsed time with vsearch : $(timer $start_time)"
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $unite --id $identityThreshold --blast6out ${resultDir}/${ProjectName}_vs_unite_id_${identityThreshold}.tsv --strand both
+        #check_file ${resultDir}/${ProjectName}_vs_unite_id_${identityThreshold}.tsv
+        say "Elapsed time with vsearch: $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.tsv" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_unite_id_${identityThreshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_unite_annotation_id_${identityThreshold}.tsv" ]
     then
         say "Extract vsearch - unite annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_unite_id_${identity_threshold}.tsv -d $unite -u  ${resultDir}/${ProjectName}_otu.fasta  -o ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.tsv -ob ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.biomtsv -dtype unite
-        #check_file ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.tsv
-        say "Elapsed time with vsearch : $(timer $start_time)"
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_unite_id_${identityThreshold}.tsv -d $unite -u  ${resultDir}/${ProjectName}_otu.fasta  -o ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identityThreshold}.biomtsv -dtype unite
+        #check_file ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identityThreshold}.tsv
+        say "Elapsed time with vsearch: $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_unite_id_${identity_threshold}.biom" ]
+    if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_unite_annotation_id_${identityThreshold}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_unite_id_${identityThreshold}.biom" ]
     then
         say "Build vsearch-unite biom"
         start_time=$(timer)
-        $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_unite_id_${identity_threshold}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identity_threshold}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
-        check_file ${resultDir}/${ProjectName}_unite_id_${identity_threshold}.biom 
-        say "Elapsed time to build vsearch-unite bim : $(timer $start_time)"
+        $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_unite_id_${identityThreshold}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identityThreshold}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
+        check_file ${resultDir}/${ProjectName}_unite_id_${identityThreshold}.biom 
+        say "Elapsed time to build vsearch-unite biom: $(timer $start_time)"
     fi
     if [ ! -f "${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "1" ]
     then
@@ -1066,7 +1094,7 @@ then
          start_time=$(timer)
          $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $unite -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true
          #check_file ${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv
-         say "Elapsed time with blast : $(timer $start_time)"
+         say "Elapsed time with blast: $(timer $start_time)"
     fi
     if [ -f "${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.tsv" ]
     then
@@ -1074,7 +1102,7 @@ then
          start_time=$(timer)
          python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv -d $unite -u  ${resultDir}/${ProjectName}_otu.fasta  -o ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.biomtsv -dtype unite
          #check_file ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.tsv
-         say "Elapsed time with get_taxonomy : $(timer $start_time)"
+         say "Elapsed time with get_taxonomy: $(timer $start_time)"
     fi
     if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_unite_eval_${evalueTaxAnnot}.biom" ]
     then
@@ -1082,32 +1110,32 @@ then
          start_time=$(timer)
          $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_unite_eval_${evalueTaxAnnot}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
          check_file ${resultDir}/${ProjectName}_unite_eval_${evalueTaxAnnot}.biom 
-         say "Elapsed time to build blast-unite biom : $(timer $start_time)"
+         say "Elapsed time to build blast-unite biom: $(timer $start_time)"
     fi
     #Underhill
-    if [ ! -f "${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
+    if [ ! -f "${resultDir}/${ProjectName}_vs_underhill_id_${identityThreshold}.tsv" ] && [ "$blast_tax" -eq "0" ] && [ "$fungi" -eq "1" ]
     then
         say "Assign taxonomy against underhill with vsearch"
         start_time=$(timer)
-        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $underhill --id $identity_threshold --blast6out ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv --strand both
-        #check_file ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv
-        say "Elapsed time with vsearch : $(timer $start_time)"
+        $vsearch --usearch_global ${resultDir}/${ProjectName}_otu.fasta --db $underhill --id $identityThreshold --blast6out ${resultDir}/${ProjectName}_vs_underhill_id_${identityThreshold}.tsv --strand both
+        #check_file ${resultDir}/${ProjectName}_vs_underhill_id_${identityThreshold}.tsv
+        say "Elapsed time with vsearch: $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identity_threshold}.tsv" ]
+    if [ -f "${resultDir}/${ProjectName}_vs_underhill_id_${identityThreshold}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.tsv" ]
     then
         say "Extract vsearch - underhill annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_underhill_id_${identity_threshold}.tsv -d $underhill -u  ${resultDir}/${ProjectName}_otu.fasta -t $underhill_taxonomy   -o ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identity_threshold}.tsv -ob ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identity_threshold}.biomtsv -dtype underhill
-        #check_file ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identity_threshold}.tsv
-        say "Elapsed time with vsearch : $(timer $start_time)"
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_underhill_id_${identityThreshold}.tsv -d $underhill -u  ${resultDir}/${ProjectName}_otu.fasta -t $underhill_taxonomy   -o ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.biomtsv -dtype underhill
+        #check_file ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.tsv
+        say "Elapsed time with vsearch: $(timer $start_time)"
     fi
-    if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identity_threshold}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_underhill_id_${identity_threshold}.biom" ]
+    if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_underhill_id_${identityThreshold}.biom" ]
     then
         say "Build vsearch-underhill biom"
         start_time=$(timer)
-        $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_underhill_id_${identity_threshold}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identity_threshold}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
-        check_file ${resultDir}/${ProjectName}_underhill_id_${identity_threshold}.biom 
-        say "Elapsed time to build vsearch-underhill bim : $(timer $start_time)"
+        $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_underhill_id_${identityThreshold}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
+        check_file ${resultDir}/${ProjectName}_underhill_id_${identityThreshold}.biom 
+        say "Elapsed time to build vsearch-underhill biom: $(timer $start_time)"
     fi
     if [ ! -f "${resultDir}/${ProjectName}_vs_underhill_eval_${evalueTaxAnnot}.tsv" ] && [ "$blast_tax" -eq "1" ] && [ "$fungi" -eq "1" ]
     then
@@ -1115,7 +1143,7 @@ then
          start_time=$(timer)
          $blastn -query ${resultDir}/${ProjectName}_otu.fasta -db $underhill -evalue $evalueTaxAnnot -num_threads $NbProc -out ${resultDir}/${ProjectName}_vs_underhill_eval_${evalueTaxAnnot}.tsv -max_target_seqs $maxTargetSeqs -task megablast -outfmt "6 qseqid sseqid  pident qcovs evalue" -use_index true
          #check_file ${resultDir}/${ProjectName}_vs_underhill_eval_${evalueTaxAnnot}.tsv
-         say "Elapsed time with blast : $(timer $start_time)"
+         say "Elapsed time with blast: $(timer $start_time)"
     fi
     if [ -f "${resultDir}/${ProjectName}_vs_underhill_eval_${evalueTaxAnnot}.tsv" ] && [ ! -f "${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.tsv" ]
     then
@@ -1123,7 +1151,7 @@ then
          start_time=$(timer)
          python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_underhill_eval_${evalueTaxAnnot}.tsv -d $underhill -u  ${resultDir}/${ProjectName}_otu.fasta -t $underhill_taxonomy  -o ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.biomtsv -dtype underhill
          #check_file ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.tsv
-         say "Elapsed time with get_taxonomy : $(timer $start_time)"
+         say "Elapsed time with get_taxonomy: $(timer $start_time)"
     fi
     if [ -f "${resultDir}/${ProjectName}_count.biom" ] && [ -f "${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.biomtsv" ] && [ ! -f "${resultDir}/${ProjectName}_underhill_eval_${evalueTaxAnnot}.biom" ]
     then
@@ -1131,7 +1159,7 @@ then
          start_time=$(timer)
          $biom add-metadata -i ${resultDir}/${ProjectName}_count.biom -o ${resultDir}/${ProjectName}_underhill_eval_${evalueTaxAnnot}.biom --observation-metadata-fp ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.biomtsv --observation-header id,taxonomy --sc-separated taxonomy --output-as-json
          check_file ${resultDir}/${ProjectName}_underhill_eval_${evalueTaxAnnot}.biom 
-         say "Elapsed time to build blast-underhill biom : $(timer $start_time)"
+         say "Elapsed time to build blast-underhill biom: $(timer $start_time)"
     fi
     ##
     # Phylogenetic analysis
@@ -1156,7 +1184,7 @@ then
             start_time=$(timer)
             python $extract_fasta -d ${resultDir}/${ProjectName}_otu.fasta -i $annotation -o ${resultDir}/${ProjectName}_otu_${soft}.fasta
             check_file ${resultDir}/${ProjectName}_otu_${soft}.fasta
-            say "Elapsed time with extract_fasta : $(timer $start_time)"
+            say "Elapsed time with extract_fasta: $(timer $start_time)"
         fi
         # Alignment
         if [ -f "${resultDir}/${ProjectName}_otu_${soft}.fasta" ] && [ ! -f "${resultDir}/${ProjectName}_otu_${soft}.ali" ]
@@ -1166,7 +1194,7 @@ then
             $mafft --adjustdirectionaccurately --thread $NbProc --genafpair --maxiterate 1000 --ep 0  ${resultDir}/${ProjectName}_otu_${soft}.fasta > ${resultDir}/${ProjectName}_otu_${soft}.ali 2> ${logDir}/log_mafft_${ProjectName}_${soft}.txt
             check_file ${resultDir}/${ProjectName}_otu_${soft}.ali
             sed "s:_R_::g" ${resultDir}/${ProjectName}_otu_${soft}.ali -i
-            say "Elapsed time with mafft : $(timer $start_time)"
+            say "Elapsed time with mafft: $(timer $start_time)"
         fi
 
         # BMGE
@@ -1176,7 +1204,7 @@ then
             start_time=$(timer)
             $BMGE -i ${resultDir}/${ProjectName}_otu_${soft}.ali -t DNA -m ID -h 1 -g $conservedPosition -w 1 -b 1 -of ${resultDir}/${ProjectName}_otu_${soft}_bmge.ali
             check_file ${resultDir}/${ProjectName}_otu_${soft}_bmge.ali
-            say "Elapsed time with BMGE : $(timer $start_time)"
+            say "Elapsed time with BMGE: $(timer $start_time)"
         fi
 
         # Phylogeny
@@ -1216,7 +1244,7 @@ then
 #         $extract_result -a $input_dir/ -p -o1 ${resultDir}/${ProjectName}_build_process.tsv -o2 ${resultDir}/${ProjectName}_annotation_process.tsv
     fi
     check_file ${resultDir}/${ProjectName}_build_process.tsv
-    say "Elapsed time with extract_result : $(timer $start_time)"
+    say "Elapsed time with extract_result: $(timer $start_time)"
 fi
 
 say "MASQUE analysis is done. Elapsed time: $(timer $wall_time)"

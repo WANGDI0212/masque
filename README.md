@@ -44,16 +44,19 @@ You can find more information in the presentation [here](tp/Targeted_metagenomic
 
 ### Docker install
 
-The easiest way to use masque is the docker. First, dowload the databases [here](
+The easiest way to use masque is the docker. First, download the databases [here](
 http://dl.pasteur.fr/fop/dzLDah1F/databases.zip), then unzip this dataset in a directory.
 Run docker as following:
 ```
 docker run -i -t -v /path/to/fastq-data:/mydata -v /path/to/databases:/usr/local/bin/databases/ aghozlane/masque
 ```
-Finally, data are stored in /mydata. masque program is directly accessible.
+Replace /path/to/fastq-data by a directory containing the reads and /path/to/databases by the directory containing the databases.
+Data are stored in /mydata. masque program is directly accessible.
+```
+masque -i /mydata/ -o /mydata/result/
+```
 
-
-### Git install (not recommanded)
+### Git install (deprecated)
 
 MASQUE comes with many binaries for Linux 64 bits. It will always use your existing installed versions if they exist, but will use the included ones if that fails. 
 You can consult the list of dependencies later in this document. For the correct deployment by git, install first [git-lfs](https://git-lfs.github.com/). 
@@ -77,17 +80,17 @@ Then, install the databases as follow :
 ## Command line options
 
 ```
- /bin/bash masque.sh -i </path/to/input/directory/> -o </path/to/result/directory/>
-- case high sensitive annotation: /pasteur/projets/policy01/Matrix/metagenomics/masque/masque.sh -i </path/to/input/directory/> -o </path/to/result/directory/> -b
-- case 23S/28S: /pasteur/projets/policy01/Matrix/metagenomics/masque/masque.sh -i </path/to/input/directory/> -o </path/to/result/directory/> -l
-- case its: /pasteur/projets/policy01/Matrix/metagenomics/masque/masque.sh -i </path/to/input/directory/> -o </path/to/result/directory/> -f
-- case amplicon: /pasteur/projets/policy01/Matrix/metagenomics/masque/masque.sh -a <amplicon file> -o </path/to/result/directory/>
+16S/18S: /bin/bash masque.sh -i </path/to/input/directory/> -o </path/to/result/directory/>
+23S/28S: /bin/bash masque.sh -l -i </path/to/input/directory/> -o </path/to/result/directory/>
+ITS: /bin/bash masque.sh -f -i </path/to/input/directory/> -o </path/to/result/directory/>
+Amplicon: /bin/bash masque.sh -a <amplicon file> -o </path/to/result/directory/>
 - All parameters:
 -i      Provide </path/to/input/directory/>
 -a      Provide <amplicon file>
 -o      Provide </path/to/result/directory/>
 -n      Indicate <project-name> (default: use the name of the input directory)
 -t      Number of <thread> (default all cpu will be used)
+-c      Contaminant filtering [danio,human,mouse,mosquito,phi] (Default: human,phi)
 -s      Perform OTU clustering with swarm
 -b      Perform taxonomical annotation with blast (Default vsearch)
 -l      Perform taxonomical annotation against LSU databases: Silva/RDP
@@ -105,8 +108,9 @@ Then, install the databases as follow :
 --otudiffswarm  Number of difference accepted in an OTU with swarm (Default 1)
 --evalueTaxAnnot        evalue threshold for taxonomical annotation with blast (Default evalue=1E-5)
 --maxTargetSeqs Number of hit per OTU with blast (Default 1)
---identity_threshold    Identity threshold for taxonomical annotation with vsearch (Default 0.75)
+--identityThreshold    Identity threshold for taxonomical annotation with vsearch (Default 0.75)
 --conservedPosition Percentage of conserved position in the multiple alignment considered for phylogenetic tree (Default 0.8)
+--accurateTree  Accurate tree calculation with IQ-TREE instead of FastTree (Default FastTree)
 ```
 
 ## SGE and SLURM deployments
@@ -223,8 +227,8 @@ MASQUE use several databases for taxonomical annotation and data filtering as fo
 *  __GOLD__  
    ChimeraSlayer reference database used for chimera filtering (default mode use de novo filtering instead)  
    http://drive5.com/uchime/uchime_download.html  
-*  __NCBI Homo Sapiens, Mus Musculus, PhiX174__  
-   Used to search Human, Mus Musculus and PhiX174 contaminants (manipulators and Phi phage used for the sequencing)  
+*  __NCBI Anopheles stephensi, Danio rerio, Homo Sapiens, Mus Musculus, PhiX174__  
+   Used to search for host or manipulator contamination. Phi phage used for the sequencing.  
 
 ## Test
 

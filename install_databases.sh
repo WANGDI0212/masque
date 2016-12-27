@@ -105,8 +105,21 @@ say "Elapsed time for Homo sapiens database: $(timer $start_time)"
 # Mus musculus one file
 say "Prepare Mus musculus database"
 start_time=$(timer)
-cat mm_ref_GRCm38.p4_*.fa  > $databases_dir/mus_musculus.fna
+cat $databases_dir/mm_ref_GRCm38.p4_*.fa  > $databases_dir/mus_musculus.fna
 say "Elapsed time for Mus musculus database: $(timer $start_time)"
+
+# Anopheles_stephensi one file
+say "Prepare Anopheles stephensi database"
+start_time=$(timer)
+mv $databases_dir/ALPR02.1.fsa_nt $databases_dir/anopheles_stephensi.fna
+say "Elapsed time for Anopheles stephensi database: $(timer $start_time)"
+
+# Dario rerio one file
+say "Prepare Dario rerio database"
+start_time=$(timer)
+cat dr_ref_GRCz10_*.fa  > $databases_dir/danio_rerio.fna
+say "Elapsed time for Dario rerio database: $(timer $start_time)"
+
 
 # Homo sapiens one file
 say "Prepare Unite database"
@@ -146,7 +159,7 @@ say "Elapsed time to index for bowtie2: $(timer $start_time)"
 # Cleanup
 say "Cleanup the installation"
 start_time=$(timer)
-rm -f $databases_dir/*.zip $databases_dir/sh_general_release_dynamic_31.01.2016_dev.fasta $databases_dir/README.txt  $databases_dir/._README.txt $databases_dir/ITSdb.findley.taxonomy $databases_dir/._ITSdb.findley.fasta $databases_dir/._ITSdb.findley.taxonomy $databases_dir/._ITSdb_v1 $databases_dir/hs_ref_GRCh38.p7_*.fa 
+rm -f $databases_dir/*.zip $databases_dir/sh_general_release_dynamic_31.01.2016_dev.fasta $databases_dir/README.txt  $databases_dir/._README.txt $databases_dir/ITSdb.findley.taxonomy $databases_dir/._ITSdb.findley.fasta $databases_dir/._ITSdb.findley.taxonomy $databases_dir/._ITSdb_v1 $databases_dir/hs_ref_GRCh38.p7_*.fa $databases_dir/mm_ref_GRCm38.p4_*.fa $databases_dir/dr_ref_GRCz10_*.fa 
 say "Elapsed time to clean : $(timer $start_time)"
 
 say "Databases preparation is done. Elapsed time: $(timer $wall_time)"
