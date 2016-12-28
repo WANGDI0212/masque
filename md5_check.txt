@@ -1,4 +1,4 @@
-2a9021e6149b08b55bc9fe2a0293e27d  alienTrimmerPF8contaminants.fasta
+267c58a3738347feeaa44ecdf40af8b2  alienTrimmerPF8contaminants.fasta
 f305fd9e402e6c527fb943d2ae7963f5  Findley_ITS_database.zip
 3a832c3f486ab5f311acccdddd2cb54b  gg_13_5.fasta.gz
 b6d5d28336af73ab46f3cfe89e26f654  gg_13_5_taxonomy.txt.gz
@@ -88,5 +88,5 @@ ca8cef43762a8f244b1b5389cb9d9456  NC_001422.fna
 9bbf654aa106726d40508ffc93e38bd1  sh_general_release_s_20.11.2016.zip
 d156734cd140af22bbff51f17e599da0  SILVA_128_LSURef_tax_silva.fasta.gz
 9f69e7583fca9b7900837279a3ad20ab  SILVA_128_SSURef_Nr99_tax_silva.fasta.gz
-4242df9e0b5c3d3867ba493d969e0e7e  THFv1.3.sequence.fasta
+d41d8cd98f00b204e9800998ecf8427e  THFv1.3.sequence.fasta
 43e8367a5fa39c6bd1758275dc49863e  THFv1.3.tsv
