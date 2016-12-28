@@ -23,8 +23,7 @@ The aim of this project is to provide an easy cluster interface to perform targe
 MASQUE allows :
 
 * to analyse 16S/18S/23S/28S/ITS data. It builds a count matrix, an annotation table and a phylogeny of the OTU.
-* to perform to use a set of parameters already tested on serveral projects for the numerous software used to perform the clustering and the annotation.
-* to perform an "uptodate" analysis considering the scientific litterature.
+* to perform an "uptodate" analysis considering the scientific literature. Parameters have been already tested on numerous projects.
 
 ## Process
 
