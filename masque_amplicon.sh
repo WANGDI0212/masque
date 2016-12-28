@@ -6,8 +6,8 @@ if [ $# -ne 7  ]
 then
     echo "Usage: $0 <amplicon_file> <output_dir> <contaminants> <project-name> <nb_cpu> <email> <queue>"
     echo "contaminants: danio,human,mouse,mosquito,phi (add contaminants separated by comma)"
-    echo "nb_cpu: max is 12 on tars"
-    echo "qos: fast or normal or long"
+    echo "nb_cpu: max is 12 on bic"
+    echo "qos: name of your team"
     exit
 fi
 
