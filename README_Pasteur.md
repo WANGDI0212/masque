@@ -27,15 +27,16 @@ module add masque/tars or masque/standalone
 
 Three programs are available with the following options :
 ```
-masque_16S-18S <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
-masque_23S-28S <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
-masque_ITS <reads_dir> <output_dir> <project-name> <nb_cpu> <email> <queue>
-masque_amplicon <amplicon_file> <output_dir> <project-name> <nb_cpu> <email> <queue>
+masque_16S-18S <reads_dir> <output_dir> <contaminants> <project-name> <nb_cpu> <email> <queue>
+masque_23S-28S <reads_dir> <output_dir> <contaminants> <project-name> <nb_cpu> <email> <queue>
+masque_ITS <reads_dir> <output_dir> <contaminants> <project-name> <nb_cpu> <email> <queue>
+masque_amplicon <amplicon_file> <output_dir> <contaminants> <project-name> <nb_cpu> <email> <queue>
 ```
 
 which correspond to :
 - reads_dir: directory with the read files (*.fq or *.fastq, if paired : *_R1.fastq, *_R2.fastq or *_R1.fq, *_R2.fq)
 - output_dir: directory where to put the results
+- contaminants: danio,human,mouse,mosquito,phi (add contaminants separated by comma)
 - project-name: a name for the project
 - nb_cpu: Number of cpu used, max on bic is 12.
 - email: your email address (it will send a start|error|success message). You have to provide a pasteur mail.
