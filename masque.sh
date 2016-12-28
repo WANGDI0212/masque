@@ -649,7 +649,7 @@ then
                     input1="${readsDir}/${SampleName}_R1_tmp.fastq"
                     input2="${readsDir}/${SampleName}_R2_tmp.fastq"
                 fi
-                $alientrimmer -if $input1 -ir $input2 -of ${readsDir}/${SampleName}_alien_f.fastq -or ${readsDir}/${SampleName}_alien_r.fastq -os ${readsDir}/${SampleName}_alien_s.fastq -c $alienseq  > ${logDir}/log_alientrimmer_${SampleName}.txt -p 80 2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
+                $alientrimmer -if $input1 -ir $input2 -of ${readsDir}/${SampleName}_alien_f.fastq -or ${readsDir}/${SampleName}_alien_r.fastq -os ${readsDir}/${SampleName}_alien_s.fastq -c $alienseq -l $minreadlength -p $minphredperc -q $minphred > ${logDir}/log_alientrimmer_${SampleName}.txt  2> ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
                 check_file ${readsDir}/${SampleName}_alien_f.fastq
                 check_file ${readsDir}/${SampleName}_alien_r.fastq
                 check_log ${errorlogDir}/error_log_alientrimmer_${SampleName}.txt
