@@ -92,7 +92,6 @@ function get_reverse_file {
     if [ ! -f "$testname" ] || [ "$testname" == "$1" ] 
     then
         testname=$(echo $1|sed -r "s:R1\.(f):R2.\1:g")
-        echo $testname
     fi
     if [ ! -f "$testname" ]  || [ "$testname" == "$1" ]
     then
