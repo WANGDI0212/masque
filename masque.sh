@@ -678,7 +678,7 @@ then
                             start_time=$(timer)
                             mkdir ${readsDir}/filter_${contaminant[${essai}]}_${essai}
                             # Next mapping
-                            $bowtie2  -q -N $NbMismatchMapping -p $NbProc -x ${filterRef[$db]} -1 ${readsDir}/filter_${contaminant[${num}]}_${num}/un-conc-mate.1  -2 ${readsDir}/filter_${contaminant[${num}]}_${num}/un-conc-mate.2 -S /dev/null --un-conc ${readsDir}/filter_${contaminant[${essai}]}_${essai}/ -t --very-fast  > ${logDir}/log_mapping_${SampleName}_${essai}.txt 2>&1
+                            $bowtie2  -q -N $NbMismatchMapping -p $NbProc -x ${filterRef[$db]} -1 ${readsDir}/filter_${contaminant[${num}]}_${num}/un-conc-mate.1  -2 ${readsDir}/filter_${contaminant[${num}]}_${num}/un-conc-mate.2 -S /dev/null --un-conc ${readsDir}/filter_${contaminant[${essai}]}_${essai}/ -t --very-fast  > ${logDir}/log_mapping_${SampleName}_${contaminant[${essai}]}_${essai}.txt 2>&1
                             check_file ${readsDir}/filter_${contaminant[${essai}]}_${essai}/un-conc-mate.1
                             # Remove old file
                             rm -rf ${readsDir}/filter_${contaminant[${num}]}_${num}
