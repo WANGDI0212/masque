@@ -192,6 +192,7 @@ def get_reads_data(sample_read, list_reads, paired, tag):
             if ext == ".gz":
                 name = os.path.splitext(name)[0]
             name = name.replace("-R1","").replace("_R1_001","")
+            name = name.replace("_R1","")
             name = name.replace("_alien_f_filt","")
             seq_len_tab_fwd = parse_fastq(list_reads[0][i])
             seq_len_tab_rev = parse_fastq(list_reads[1][i])
@@ -246,7 +247,7 @@ def parse_log(log_file, regex, tag_alien):
 
 
 def get_log(sample_read, list_file, soft, tag, paired=False):
-    """
+    """Parse the log of alientrimmer and flash
     """
     tag_alien = 0
     if soft == "alientrimmer":
@@ -410,6 +411,8 @@ def main():
             list_r1 = check_file(args.raw_reads_dir + "*R1*.f*q*")
             list_file = ([list_r1] +
                         [[r.replace("R1", "R2") for r in list_r1]])
+            #print(list_r1)
+            #print(list_file)
         else:
             list_file = check_file(args.raw_reads_dir + "*.f*q*")
         #print(list_file)
