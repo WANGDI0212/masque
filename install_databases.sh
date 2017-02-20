@@ -117,7 +117,7 @@ say "Elapsed time for Anopheles stephensi database: $(timer $start_time)"
 # Dario rerio one file
 say "Prepare Dario rerio database"
 start_time=$(timer)
-cat dr_ref_GRCz10_*.fa  > $databases_dir/danio_rerio.fna
+cat $databases_dir/dr_ref_GRCz10_*.fa  > $databases_dir/danio_rerio.fna
 say "Elapsed time for Dario rerio database: $(timer $start_time)"
 
 
