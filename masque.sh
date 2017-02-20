@@ -151,6 +151,8 @@ display_help() {
 
 display_parameters() {
     # Display the parameters of the analysis
+    say_parameters "Project name [-n]:"                                          
+    echo $ProjectName  >&2
     if [ "$input_dir" != "" ]
     then
         say_parameters "Sample input [-i]:"
@@ -162,7 +164,7 @@ display_parameters() {
     fi
     say_parameters "Result output [-o]:"
     echo $resultDir >&2
-    say_parameters "Number of threads [-n]:" >&2
+    say_parameters "Number of threads [-t]:" >&2
     echo "$NbProc processes will be used" >&2
     say_parameters "Read filtering:" >&2
     echo """Minimum read length [--minreadlength]= $minreadlength
