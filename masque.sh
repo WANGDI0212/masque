@@ -120,7 +120,7 @@ display_help() {
         printf "%-25s %-30s\n" "-i" "Provide </path/to/input/directory/>"
         printf "%-25s %-30s\n" "-a" "Provide <amplicon file>"
         printf "%-25s %-30s\n" "-o" "Provide </path/to/result/directory/>"
-        printf "%-25s %-30s\n" "-n" "Indicate <project-name> (default: use the name of the input directory)"
+        printf "%-25s %-30s\n" "-n" "Indicate <project-name> (default: use the name of the input directory or meta)"
         printf "%-25s %-30s\n" "-t" "Number of <thread> (default all cpu will be used)"
         printf "%-25s %-30s\n" "-c" "Contaminant filtering [danio,human,mouse,mosquito,phi] (Default: human,phi)"
         printf "%-25s %-30s\n" "-s" "Perform OTU clustering with swarm"
@@ -495,7 +495,13 @@ if [ -d "$input_dir" ]
 then
     if [ "$ProjectName" = "" ]
     then
-        ProjectName=$(basename "$input_dir")
+        dir_name=$(basename "$input_dir")
+        if [ "$dir_name" == "." ]
+        then
+            ProjectName="meta"
+        else
+            ProjectName=$(basename "$input_dir")
+        fi
     fi
     amplicon="${resultDir}/${ProjectName}_extendedFrags.fasta"
 elif [ -f "$amplicon" ]
