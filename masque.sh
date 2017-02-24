@@ -1189,8 +1189,13 @@ then
         then
             say "Align OTU annotated with $soft with mafft"
             start_time=$(timer)
-            $mafft --adjustdirectionaccurately --thread $NbProc --genafpair --maxiterate 1000 --ep 0  ${resultDir}/${ProjectName}_otu_${soft}.fasta > ${resultDir}/${ProjectName}_otu_${soft}.ali 2> ${logDir}/log_mafft_${ProjectName}_${soft}.txt
-            check_file ${resultDir}/${ProjectName}_otu_${soft}.ali
+            if [ "$accurateTree" == "1" ]                                        
+            then 
+                $mafft --adjustdirectionaccurately --thread $NbProc --genafpair --maxiterate 1000 --ep 0  ${resultDir}/${ProjectName}_otu_${soft}.fasta > ${resultDir}/${ProjectName}_otu_${soft}.ali 2> ${logDir}/log_mafft_${ProjectName}_${soft}.txt
+            else
+                $mafft --adjustdirectionaccurately --thread $NbProc --auto  ${resultDir}/${ProjectName}_otu_${soft}.fasta > ${resultDir}/${ProjectName}_otu_${soft}.ali 2> ${logDir}/log_mafft_${ProjectName}_${soft}.txt
+            fi
+            #check_file ${resultDir}/${ProjectName}_otu_${soft}.ali
             sed "s:_R_::g" ${resultDir}/${ProjectName}_otu_${soft}.ali -i
             say "Elapsed time with mafft: $(timer $start_time)"
         fi
@@ -1201,7 +1206,7 @@ then
             say "Cut the alignment with BMGE for $soft annotation"
             start_time=$(timer)
             $BMGE -i ${resultDir}/${ProjectName}_otu_${soft}.ali -t DNA -m ID -h 1 -g $conservedPosition -w 1 -b 1 -of ${resultDir}/${ProjectName}_otu_${soft}_bmge.ali
-            check_file ${resultDir}/${ProjectName}_otu_${soft}_bmge.ali
+            #check_file ${resultDir}/${ProjectName}_otu_${soft}_bmge.ali
             say "Elapsed time with BMGE: $(timer $start_time)"
         fi
 
@@ -1218,7 +1223,7 @@ then
                 say "Compute tree with FastTree $soft annotation"
                 $FastTreeMP -nt ${resultDir}/${ProjectName}_otu_${soft}_bmge.ali > ${resultDir}/${ProjectName}_otu_${soft}_bmge.ali.treefile 2> ${logDir}/log_fasttree_${soft}.txt
             fi
-            check_file ${resultDir}/${ProjectName}_otu_${soft}_bmge.ali.treefile
+            #check_file ${resultDir}/${ProjectName}_otu_${soft}_bmge.ali.treefile
             #$FastTreeMP -nt ${resultDir}/${ProjectName}_otu_${soft}_bmge.ali > ${resultDir}/${ProjectName}_otu_${soft}_bmge.tree
             #check_file ${resultDir}/${ProjectName}_otu_${soft}_bmge.tree
             say "Elapsed time with tree building: $(timer $start_time)"
