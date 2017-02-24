@@ -83,10 +83,10 @@ e96672da34ff761bbeb31ad8d58087cd  dr_ref_GRCz10_chr6.fa.gz
 322a1037d765efd014f08edb3a8c8ba3  dr_ref_GRCz10_chr9.fa.gz
 dc7c8451b1577e3b07c63e07a149be47  dr_ref_GRCz10_chrMT.fa.gz
 750041ed546bcd7d98a37734f341f9f2  dr_ref_GRCz10_unplaced.fa.gz
-c9934765e3c7dd105c0c454786b226f2  ALPR02.1.fsa_nt.gz
+058e457c14f09ed12d3c32ceb7575daa  ALPR02.1.fsa_nt.gz
 ca8cef43762a8f244b1b5389cb9d9456  NC_001422.fna
 9bbf654aa106726d40508ffc93e38bd1  sh_general_release_s_20.11.2016.zip
 d156734cd140af22bbff51f17e599da0  SILVA_128_LSURef_tax_silva.fasta.gz
 9f69e7583fca9b7900837279a3ad20ab  SILVA_128_SSURef_Nr99_tax_silva.fasta.gz
-d41d8cd98f00b204e9800998ecf8427e  THFv1.3.sequence.fasta
+4242df9e0b5c3d3867ba493d969e0e7e  THFv1.3.sequence.fasta
 43e8367a5fa39c6bd1758275dc49863e  THFv1.3.tsv

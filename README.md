@@ -79,6 +79,7 @@ Then, install the databases as follow :
 ## Command line options
 
 ```
+masque -h
 16S/18S: /bin/bash masque.sh -i </path/to/input/directory/> -o </path/to/result/directory/>
 23S/28S: /bin/bash masque.sh -l -i </path/to/input/directory/> -o </path/to/result/directory/>
 ITS: /bin/bash masque.sh -f -i </path/to/input/directory/> -o </path/to/result/directory/>

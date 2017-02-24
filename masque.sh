@@ -120,7 +120,7 @@ display_help() {
         printf "%-25s %-30s\n" "-i" "Provide </path/to/input/directory/>"
         printf "%-25s %-30s\n" "-a" "Provide <amplicon file>"
         printf "%-25s %-30s\n" "-o" "Provide </path/to/result/directory/>"
-        printf "%-25s %-30s\n" "-n" "Indicate <project-name> (default: use the name of the input directory)"
+        printf "%-25s %-30s\n" "-n" "Indicate <project-name> (default: use the name of the input directory or meta)"
         printf "%-25s %-30s\n" "-t" "Number of <thread> (default all cpu will be used)"
         printf "%-25s %-30s\n" "-c" "Contaminant filtering [danio,human,mouse,mosquito,phi] (Default: human,phi)"
         printf "%-25s %-30s\n" "-s" "Perform OTU clustering with swarm"
@@ -151,6 +151,8 @@ display_help() {
 
 display_parameters() {
     # Display the parameters of the analysis
+    say_parameters "Project name [-n]:"                                          
+    echo $ProjectName  >&2
     if [ "$input_dir" != "" ]
     then
         say_parameters "Sample input [-i]:"
@@ -162,7 +164,7 @@ display_parameters() {
     fi
     say_parameters "Result output [-o]:"
     echo $resultDir >&2
-    say_parameters "Number of threads [-n]:" >&2
+    say_parameters "Number of threads [-t]:" >&2
     echo "$NbProc processes will be used" >&2
     say_parameters "Read filtering:" >&2
     echo """Minimum read length [--minreadlength]= $minreadlength
@@ -495,7 +497,13 @@ if [ -d "$input_dir" ]
 then
     if [ "$ProjectName" = "" ]
     then
-        ProjectName=$(basename "$input_dir")
+        dir_name=$(basename "$input_dir")
+        if [ "$dir_name" == "." ]
+        then
+            ProjectName="meta"
+        else
+            ProjectName=$(basename "$input_dir")
+        fi
     fi
     amplicon="${resultDir}/${ProjectName}_extendedFrags.fasta"
 elif [ -f "$amplicon" ]
