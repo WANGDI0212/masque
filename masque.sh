@@ -534,7 +534,7 @@ if [ -d "$input_dir" ]
 then
     list_product_fa=""
 
-    nb_samples=$(ls $input_dir/*R1*.{fastq,fq,fastq.gz,fq.gz} -1  2>/dev/null |wc -l)
+    nb_samples=$(ls $input_dir/*{-,.,_}R1*.{fastq,fq,fastq.gz,fq.gz} -1  2>/dev/null |wc -l)
     num_sample=0
     if [ "$nb_samples" -eq "0" ]
     then
