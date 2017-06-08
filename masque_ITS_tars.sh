@@ -3,12 +3,13 @@
 SLURM_SCRIPT=$HOME/masque_submission.sh
 
 #Check arguments
-if [ $# -ne 7 ]
+if [ $# -ne 8 ]
 then
-    echo "Usage: $0 <reads_dir> <output_dir> <contaminants> <project-name> <nb_cpu> <email> <qos>"
+    echo "Usage: $0 <reads_dir> <output_dir> <contaminants> <project-name> <nb_cpu> <email> <qos> <partition>"
     echo "contaminants: danio,human,mouse,mosquito,phi (add contaminants separated by comma)"
     echo "nb_cpu: max is 12 on tars"
     echo "qos: fast or normal or long"
+    echo "partition: common or dedicated or common,dedicated with qos fast"
     exit
 fi
 
@@ -24,7 +25,7 @@ echo """#!/bin/bash
 #SBATCH --mail-user=$6
 #SBATCH --mail-type=ALL
 #SBATCH --qos=$7
-#SBATCH -p common,dedicated
+#SBATCH -p $8
 #SBATCH --cpus-per-task=$5
 #SBATCH --mem=50000
 #SBATCH --job-name="masque_$4"
