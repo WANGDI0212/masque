@@ -270,7 +270,7 @@ greengenes="/local/databases/fasta/greengenes"
 #http://www.arb-silva.de/no_cache/download/archive/release_123/Exports/
 silva="/local/databases/fasta/silva_ssu"
 silvalsu="/local/databases/fasta/silva_lsu"
-underhill="$SCRIPTPATH/databases/itsdb_underhill"
+underhill="/local/databases/fasta/underhill"
 unite="/local/databases/fasta/itsdb_unite"
 
 #######################
