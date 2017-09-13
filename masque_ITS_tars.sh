@@ -3,9 +3,9 @@
 SLURM_SCRIPT=$HOME/masque_submission.sh
 
 #Check arguments
-if [ $# -ne 8 ]
+if [ $# -lt 8 ]
 then
-    echo "Usage: $0 <reads_dir> <output_dir> <contaminants> <project-name> <nb_cpu> <email> <qos> <partition>"
+    echo "Usage: $0 <reads_dir> <output_dir> <contaminants> <project-name> <nb_cpu> <email> <qos> <partition> (<account>)"
     echo "contaminants: danio,human,mouse,mosquito,phi (add contaminants separated by comma)"
     echo "nb_cpu: max is 12 on tars"
     echo "qos: fast or normal or long"
@@ -18,6 +18,11 @@ mkdir -p $2
 readdir=$(readlink -e "$1")
 outdir=$(readlink -e "$2")
 
+account=""
+if [ "$9" != "" ]
+then
+    account="#SBATCH --account=$9"
+fi
 
 SCRIPTPATH=$(dirname "${BASH_SOURCE[0]}")
 
@@ -29,6 +34,7 @@ echo """#!/bin/bash
 #SBATCH --cpus-per-task=$5
 #SBATCH --mem=50000
 #SBATCH --job-name="masque_$4"
+$account
 source /local/gensoft2/adm/etc/profile.d/modules.sh
 module purge
 export PATH=/pasteur/projets/policy01/Matrix/metagenomics/python-lib/bin:$PATH
