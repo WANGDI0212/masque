@@ -254,24 +254,25 @@ gold="$SCRIPTPATH/databases/gold.fa"
 alienseq="$SCRIPTPATH/databases/alienTrimmerPF8contaminants.fasta"
 # Filtering database
 declare -A filterRef
-filterRef=(["danio"]="/local/databases/index/bowtie/2.1.0/drerio.fa" ["human"]="/local/databases/index/bowtie/2.1.0/hg38.fa" ["mosquito"]="/local/databases/index/bowtie/2.1.0/astephensi.fa" ["mouse"]="/local/databases/index/bowtie/2.1.0/mm10.fa" ["phi"]="/local/databases/index/bowtie/2.1.0/phiX.fa")
+filterRef=(["danio"]="$SCRIPTPATH/databases/danio_rerio.fna" ["human"]="$SCRIPTPATH/databases/homo_sapiens.fna" ["mosquito"]="$SCRIPTPATH/databases/anopheles_stephensi.fna" ["mouse"]="$SCRIPTPATH/databases/mus_musculus.fna" ["phi"]="$SCRIPTPATH/databases/NC_001422.fna")
 # Findley
 # http://www.mothur.org/w/images/2/20/Findley_ITS_database.zip
-findley="/local/databases/fasta/itsdb_findley"
+findley="$SCRIPTPATH/databases/ITSdb.findley.fasta"
 # Greengenes
 # ftp://greengenes.microbio.me/greengenes_release/gg_13_5/
-greengenes="/local/databases/fasta/greengenes"
+greengenes="$SCRIPTPATH/databases/gg_13_5.fasta"
 #greengenes="/local/databases/fasta/greengenes.fa"
-#greengenes_taxonomy="$SCRIPTPATH/databases/gg_13_5_taxonomy.txt"
+greengenes_taxonomy="$SCRIPTPATH/databases/gg_13_5_taxonomy.txt"
 # RDP
 #http://rdp.cme.msu.edu/misc/resources.jsp
 # rdp="$SCRIPTPATH/databases/rdp_11_4.fa"
 # Silva
 #http://www.arb-silva.de/no_cache/download/archive/release_123/Exports/
-silva="/local/databases/fasta/silva_ssu"
-silvalsu="/local/databases/fasta/silva_lsu"
-underhill="$SCRIPTPATH/databases/itsdb_underhill"
-unite="/local/databases/fasta/itsdb_unite"
+silva="$SCRIPTPATH/databases/SILVA_128_SSURef_Nr99_tax_silva.fasta"
+silvalsu="$SCRIPTPATH/databases/SILVA_128_LSURef_tax_silva.fasta"
+underhill="$SCRIPTPATH/databases/THFv1.3.sequence.fasta"
+underhill_taxonomy="$SCRIPTPATH/databases/THFv1.3.tsv"
+unite="$SCRIPTPATH/databases/sh_general_release_dynamic_s_20.11.2016.fasta"
 
 #######################
 # Assembly Parameters #
