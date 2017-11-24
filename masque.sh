@@ -930,9 +930,9 @@ then
         start_time=$(timer)
         if [ "$lsu" -eq "1" ]
         then
-            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silvalsu -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silvalsu -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv -dbtype silva_lsu
         else
-            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silva -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silva -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv -dbtype silva_ssu
         fi
         #check_file ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv
         say "Elapsed time with get_taxonomy: $(timer $start_time)"
@@ -964,9 +964,9 @@ then
         start_time=$(timer)
         if [ "$lsu" -eq "1" ]
         then
-            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silvalsu -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.biomtsv
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silvalsu -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.biomtsv -dbtype silva_lsu
         else
-            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silva -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.biomtsv
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silva -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.biomtsv -dbtype silva_ssu
         fi
         #check_file ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv
         say "Elapsed time with get_taxonomy: $(timer $start_time)"
@@ -1040,7 +1040,7 @@ then
     then
         say "Extract vsearch - findley annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_findley_id_${identityThreshold}.tsv -d $findley  -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identityThreshold}.biomtsv  -dtype findley
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_findley_id_${identityThreshold}.tsv -d $findley  -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identityThreshold}.biomtsv  -dtype itsdb_findley
         #check_file ${resultDir}/${ProjectName}_vs_findley_annotation_id_${identityThreshold}.tsv
         say "Elapsed time with vsearch: $(timer $start_time)"
     fi
@@ -1089,7 +1089,7 @@ then
     then
         say "Extract vsearch - unite annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_unite_id_${identityThreshold}.tsv -d $unite -u  ${resultDir}/${ProjectName}_otu.fasta  -o ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identityThreshold}.biomtsv -dtype unite
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_unite_id_${identityThreshold}.tsv -d $unite -u  ${resultDir}/${ProjectName}_otu.fasta  -o ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identityThreshold}.biomtsv -dtype itsdb_unite
         #check_file ${resultDir}/${ProjectName}_vs_unite_annotation_id_${identityThreshold}.tsv
         say "Elapsed time with vsearch: $(timer $start_time)"
     fi
@@ -1113,7 +1113,7 @@ then
     then
          say "Extract unite annotation with get_taxonomy"
          start_time=$(timer)
-         python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv -d $unite -u  ${resultDir}/${ProjectName}_otu.fasta  -o ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.biomtsv -dtype unite
+         python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_unite_eval_${evalueTaxAnnot}.tsv -d $unite -u  ${resultDir}/${ProjectName}_otu.fasta  -o ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.biomtsv -dtype itsdb_unite
          #check_file ${resultDir}/${ProjectName}_vs_unite_annotation_eval_${evalueTaxAnnot}.tsv
          say "Elapsed time with get_taxonomy: $(timer $start_time)"
     fi
@@ -1138,7 +1138,7 @@ then
     then
         say "Extract vsearch - underhill annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_underhill_id_${identityThreshold}.tsv -d $underhill -u  ${resultDir}/${ProjectName}_otu.fasta -t $underhill_taxonomy   -o ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.biomtsv -dtype underhill
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_underhill_id_${identityThreshold}.tsv -d $underhill -u  ${resultDir}/${ProjectName}_otu.fasta -t $underhill_taxonomy   -o ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.biomtsv -dtype itsdb_underhill
         #check_file ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.tsv
         say "Elapsed time with vsearch: $(timer $start_time)"
     fi
@@ -1162,7 +1162,7 @@ then
     then
          say "Extract underhill annotation with get_taxonomy"
          start_time=$(timer)
-         python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_underhill_eval_${evalueTaxAnnot}.tsv -d $underhill -u  ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.biomtsv -dtype underhill
+         python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_underhill_eval_${evalueTaxAnnot}.tsv -d $underhill -u  ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.biomtsv -dtype itsdb_underhill
          #check_file ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.tsv
          say "Elapsed time with get_taxonomy: $(timer $start_time)"
     fi
