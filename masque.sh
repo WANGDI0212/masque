@@ -138,6 +138,7 @@ display_help() {
         printf "%-25s %-30s\n" "--prefixdrep" "Perform prefix dereplication (Default: full length dereplication)"
         printf "%-25s %-30s\n" "--chimeraslayerfiltering" "Use ChimeraSlayer database for chimera filtering (Default Perform a de novo chimera filtering)"
         printf "%-25s %-30s\n" "--otudiffswarm" "Number of difference accepted in an OTU with swarm (Default 1)"
+        printf "%-25s %-30s\n" "--clusteridentity" "Clustering identity threshold (Default 0.97)"
         printf "%-25s %-30s\n" "--evalueTaxAnnot" "Evalue threshold for taxonomical annotation with blast (Default evalue=1E-5)"
         printf "%-25s %-30s\n" "--maxTargetSeqs" "Number of hit per OTU with blast (Default 1)"
         printf "%-25s %-30s\n" "--identityThreshold" "Identity threshold for taxonomical annotation with vsearch (Default 0.75)"
@@ -270,7 +271,7 @@ greengenes="/local/databases/fasta/greengenes"
 #http://www.arb-silva.de/no_cache/download/archive/release_123/Exports/
 silva="/local/databases/fasta/silva_ssu"
 silvalsu="/local/databases/fasta/silva_lsu"
-underhill="$SCRIPTPATH/databases/itsdb_underhill"
+underhill="/local/databases/fasta/underhill"
 unite="/local/databases/fasta/itsdb_unite"
 
 #######################
@@ -280,6 +281,7 @@ accurateTree=0
 amplicon=""
 blast_tax=0
 chimeraslayerfiltering=0
+clusteridentity=0.97
 conservedPosition=0.5
 contaminant=("human" "phi")
 evalueTaxAnnot="1E-5"
@@ -302,6 +304,7 @@ paired=0
 prefixdrep=0
 ProjectName=""
 swarm_clust=0
+
 
 ############
 # Programs #
@@ -357,7 +360,7 @@ vsearch=$(check_soft "vsearch" "$SCRIPTPATH/vsearch_bin/bin/vsearch")
 # Main #
 ########
 # Execute getopt on the arguments passed to this program, identified by the special character $@
-PARSED_OPTIONS=$(getopt -n "$0"  -o hi:o:r:t:a:sblfn:c: --long "help,input_dir:,output:,thread:,minampliconlength:,maxoverlap:,maxTargetSeqs:,minotusize:,minoverlap:,minphred:,minphredperc:,minreadlength:,identityThreshold:,evalueTaxAnnot:,NbMismatchMapping:,amplicon:,swarm,blast,fungi,name:,prefixdrep,chimeraslayerfiltering,conservedPosition:,accurateTree,contaminant:"  -- "$@")
+PARSED_OPTIONS=$(getopt -n "$0"  -o hi:o:r:t:a:sblfn:c: --long "help,input_dir:,output:,thread:,minampliconlength:,maxoverlap:,maxTargetSeqs:,minotusize:,minoverlap:,minphred:,minphredperc:,minreadlength:,identityThreshold:,evalueTaxAnnot:,NbMismatchMapping:,amplicon:,swarm,blast,fungi,name:,prefixdrep,chimeraslayerfiltering,conservedPosition:,accurateTree,contaminant:,clusteridentity:"  -- "$@")
 
 #Check arguments
 if [ $# -eq 0 ]
@@ -479,6 +482,9 @@ do
     --accurateTree)
         accurateTree=1
         shift ;;
+    --clusteridentity)
+        clusteridentity=$2
+        shift 2;;
     --)
       shift
       break;;
@@ -827,7 +833,7 @@ then
      start_time=$(timer)
      #$usearch -cluster_otus ${resultDir}/${ProjectName}_sorted.fasta -otus ${resultDir}/${ProjectName}_otu.fasta -uparseout ${resultDir}/${ProjectName}_uparse.txt -relabel OTU_ -sizein #-sizeout
      # --relabel OTU_
-     $vsearch --cluster_size ${resultDir}/${ProjectName}_nochim.fasta --id 0.97 --centroids ${resultDir}/${ProjectName}_otu_compl.fasta --sizein --strand both #--sizeout
+     $vsearch --cluster_size ${resultDir}/${ProjectName}_nochim.fasta --id $clusteridentity --centroids ${resultDir}/${ProjectName}_otu_compl.fasta --sizein --strand both #--sizeout
      python $rename_otu -i ${resultDir}/${ProjectName}_otu_compl.fasta -o ${resultDir}/${ProjectName}_otu.fasta
      check_file ${resultDir}/${ProjectName}_otu.fasta
      say "Elapsed time to OTU clustering with vsearch: $(timer $start_time)"
@@ -860,7 +866,7 @@ then
     #$usearch -usearch_global ${resultDir}/${SampleName}_extendedFrags.fasta -db ${resultDir}/${SampleName}_otu_nochim.fasta -strand plus -id 0.97 -uc ${resultDir}/${SampleName}_map.txt
     #${resultDir}/${ProjectName}_extendedFrags.fasta
     #$vsearch -usearch_global $amplicon -db ${resultDir}/${ProjectName}_otu.fasta --strand both --id 0.97 -uc ${resultDir}/${ProjectName}_map.txt
-    $vsearch -usearch_global $amplicon -db ${resultDir}/${ProjectName}_otu.fasta --strand both --id 0.97 --otutabout ${resultDir}/${ProjectName}_otu_table.tsv --biomout ${resultDir}/${ProjectName}_count.biom
+    $vsearch -usearch_global $amplicon -db ${resultDir}/${ProjectName}_otu.fasta --strand both --id $clusteridentity --otutabout ${resultDir}/${ProjectName}_otu_table.tsv --biomout ${resultDir}/${ProjectName}_count.biom
     #check_file ${resultDir}/${ProjectName}_map.txt
     check_file ${resultDir}/${ProjectName}_otu_table.tsv
     check_file ${resultDir}/${ProjectName}_count.biom
