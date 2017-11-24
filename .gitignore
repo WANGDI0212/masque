@@ -93,3 +93,5 @@ usearch_python_scripts/
 fastalabel/
 merge_annotation/
 otu_tab_size/
+databases/sh_general_release_dynamic_*
+databases/underhill.fa

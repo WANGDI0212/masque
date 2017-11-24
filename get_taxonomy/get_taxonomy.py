@@ -65,13 +65,14 @@ def getArguments():
     parser.add_argument('-d', dest='database_file', type=isfile, required=True,
                         help='Path to the database file.')
     parser.add_argument('-dtype', dest='database_type', type=str,
-                        default="silva", choices=["findley", "greengenes",
-                                                  "rdp", "silva", "underhill",
-                                                  "unite"],
-                        help='Database format (default = silva).')
-    parser.add_argument('-t', dest='taxonomy_file', type=isfile,
-                        help='Path to the taxonomy file (Greengenes and '
-                        'Underhill only).')
+                        default="silva_ssu", choices=["itsdb_findley", "greengenes",
+                                                  "rdp", "silva_lsu", 
+                                                  "silva_ssu", "itsdb_underhill",
+                                                  "itsdb_unite"],
+                        help='Database format (default = silva_ssu).')
+    #parser.add_argument('-t', dest='taxonomy_file', type=isfile,
+    #                    help='Path to the taxonomy file (Greengenes and '
+    #                    'Underhill only).')
     parser.add_argument('-u', dest='otu_file', type=isfile,
                         help='Path to the otu fasta file (for biom output '
                         'only).')
@@ -129,8 +130,13 @@ def parse_unite(header, vsearch_dict, annotation_dict):
     """Parse unite annotation
     """
     identified = 0
-    tax = header.strip().split(" ")[0][1:]
-    lineage = header.strip().split(" ")[1]
+    header = header.strip()
+    tax = header[1:]#.split(" ")[0][1:]
+    header = header.replace("|reps|", " ")
+    header = header.replace("|refs|", " ")
+    header = header.replace("|reps_singleton|", " ")
+    header = header.replace("|refs_singleton|", " ")
+    lineage = header.split(" ")[1]
     if tax in vsearch_dict:
         lineage = lineage.split(";")
         lineage = [lineage[i].split("_")[2] for i in xrange(0, len(lineage))]
@@ -143,9 +149,11 @@ def parse_findley(header, vsearch_dict, annotation_dict):
     """Parse findley database annotations
     """
     identified = 0
-    tax = header.strip().split("\t")
+    tax = header.strip().split(" ")
+    #print(tax)
     if tax[0][1:] in vsearch_dict:
         annotation_dict[tax[0][1:]] = tax[1].replace("Root;", "")
+        #print(annotation_dict[tax[0][1:]])
         identified = 1
     return annotation_dict, identified
 
@@ -162,8 +170,6 @@ def parse_silva(header, vsearch_dict, annotation_dict):
         #print(header.strip())
         #print(tax[0][1:].strip())
         annotation = " ".join(tax[1:])
-        #.replace(";uncultured", "").replace(";Incertae", "")
-        #annotation = annotation.replace(";unidentified ", "")
         check_taxo = annotation.split(";")
         annotation = ";".join(["" if annot in useless_mention else annot
                                for annot in check_taxo ])
@@ -179,49 +185,53 @@ def parse_silva(header, vsearch_dict, annotation_dict):
             annotation = ";".join(simplified_tax)
         #print(annotation)
         annotation_dict[tax[0][1:].strip()] = annotation
+        #print(annotation_dict[tax[0][1:].strip()])
         identified = 1
     return annotation_dict, identified
 
-
-def load_taxonomy_uh(taxonomy_file, vsearch_dict):
-    """Load underhill taxonomy file
+def parse_greengenes(header, vsearch_dict, annotation_dict):
+    """Parse greengenes database annotations
     """
-    annotation_dict = {}
-    try:
-        with open(taxonomy_file, "rt") as taxonomy:
-            taxonomy_reader = csv.reader(taxonomy, delimiter="\t")
-            for line in taxonomy_reader:
-                annotation_dict[line[0]] = ";".join(line[1:])
-    except IOError:
-        sys.exit("Error cannot open {0}".format(taxonomy_file))
-    return annotation_dict
+    identified = 0
+    #print(header)
+    tax = header.strip().split("\t")
+    #print(tax)
+    idname = tax[0][1:].strip()
+    if idname in vsearch_dict:
+        annotation_dict[idname] = "".join([annot[3:]
+                                           for annot in tax[3].split(" ")])
+        identified = 1
+    return annotation_dict, identified
 
-
-def load_taxonomy_gg(taxonomy_file, vsearch_dict):
-    """Load greengenes taxonomy file
+def parse_underhill(header, vsearch_dict, annotation_dict):
+    """Parse underhill database annotations
     """
-    annotation_dict = {}
-    try:
-        with open(taxonomy_file, "rt") as taxonomy:
-            taxonomy_reader = csv.reader(taxonomy, delimiter="\t")
-            for line in taxonomy_reader:
-                annotation_dict[line[0]] = "".join(
-                    [annot[3:] for annot in line[1].split(" ")])
-    except IOError:
-        sys.exit("Error cannot open {0}".format(taxonomy_file))
-    return annotation_dict
+    identified = 0
+    tax = header.strip().split(" ")
+    idname = tax[0][1:].strip()
+    #print(tax)
+    if idname in vsearch_dict:
+        annotation_dict[idname] = ";".join([annot[3:]
+                                           for annot in tax[1].split(";")])
+        identified = 1
+    return annotation_dict, identified
 
 
 def load_taxonomy(database_file, vsearch_dict, database_type):
     """Load rdp and silva annotations
     """
     annotation_dict = {}
-    if database_type == "rdp":
+    # UGLY
+    if database_type == "greengenes":
+        parse_result = parse_greengenes
+    elif database_type == "rdp":
         parse_result = parse_rdp
-    elif database_type == "unite":
+    elif database_type == "itsdb_unite":
         parse_result = parse_unite
-    elif  database_type == "findley":
+    elif database_type == "itsdb_findley":
         parse_result = parse_findley
+    elif database_type == "itsdb_underhill":
+        parse_result = parse_underhill
     else:
         parse_result = parse_silva
     nb_id = len(vsearch_dict)
@@ -232,7 +242,7 @@ def load_taxonomy(database_file, vsearch_dict, database_type):
             for line in database:
                 if line.startswith(">"):
                     annotation_dict, count = parse_result(line, vsearch_dict,
-                                                      annotation_dict)
+                                                          annotation_dict)
                     count_identified += count
                     if count_identified == nb_id:
                         break
@@ -294,6 +304,8 @@ def write_tax_table(vsearch_dict, annotation_dict, output_file, otu_tab,
                 empty_prefix = [";".join(prefix)]
                 for otu in otu_tab:
                     output_writer.writerow([otu] + empty_prefix)
+    except KeyError:
+        sys.exit("The key: {0} is missing in the database".format(tax))
     except IOError:
         sys.exit("Error cannot open {0}".format(output_file))
 
@@ -320,17 +332,10 @@ def main():
     """
     args = getArguments()
     vsearch_dict = load_vsearch(args.input_file)
-    if args.database_type == "greengenes" and args.taxonomy_file:
-        annotation_dict = load_taxonomy_gg(args.taxonomy_file, vsearch_dict)
-    elif args.database_type == "underhill" and args.taxonomy_file:
-        annotation_dict = load_taxonomy_uh(args.taxonomy_file, vsearch_dict)
-    elif args.database_type == "greengenes" and not args.taxonomy_file:
-        sys.exit("Please provide the greengenes taxonomy file")
-    elif args.database_type == "underhill" and not args.taxonomy_file:
-        sys.exit("Please provide the underhill taxonomy file")
-    else:
-        annotation_dict = load_taxonomy(args.database_file, vsearch_dict,
-                                        args.database_type)
+    # Load database annotation
+    annotation_dict = load_taxonomy(args.database_file, vsearch_dict,
+                                    args.database_type)
+    # write result
     write_tax_table(vsearch_dict, annotation_dict, args.output_file, [])
     if args.output_file_biom:
         if args.otu_file:

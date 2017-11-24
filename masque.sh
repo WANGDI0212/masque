@@ -254,25 +254,24 @@ gold="$SCRIPTPATH/databases/gold.fa"
 alienseq="$SCRIPTPATH/databases/alienTrimmerPF8contaminants.fasta"
 # Filtering database
 declare -A filterRef
-filterRef=(["danio"]="$SCRIPTPATH/databases/danio_rerio.fna" ["human"]="$SCRIPTPATH/databases/homo_sapiens.fna" ["mosquito"]="$SCRIPTPATH/databases/anopheles_stephensi.fna" ["mouse"]="$SCRIPTPATH/databases/mus_musculus.fna" ["phi"]="$SCRIPTPATH/databases/NC_001422.fna")
+filterRef=(["danio"]="/local/databases/index/bowtie/2.1.0/drerio.fa" ["human"]="/local/databases/index/bowtie/2.1.0/hg38.fa" ["mosquito"]="/local/databases/index/bowtie/2.1.0/astephensi.fa" ["mouse"]="/local/databases/index/bowtie/2.1.0/mm10.fa" ["phi"]="/local/databases/index/bowtie/2.1.0/phiX.fa")
 # Findley
 # http://www.mothur.org/w/images/2/20/Findley_ITS_database.zip
-findley="$SCRIPTPATH/databases/ITSdb.findley.fasta"
+findley="/local/databases/fasta/itsdb_findley"
 # Greengenes
 # ftp://greengenes.microbio.me/greengenes_release/gg_13_5/
-greengenes="$SCRIPTPATH/databases/gg_13_5.fasta"
+greengenes="/local/databases/fasta/greengenes"
 #greengenes="/local/databases/fasta/greengenes.fa"
-greengenes_taxonomy="$SCRIPTPATH/databases/gg_13_5_taxonomy.txt"
+#greengenes_taxonomy="$SCRIPTPATH/databases/gg_13_5_taxonomy.txt"
 # RDP
 #http://rdp.cme.msu.edu/misc/resources.jsp
 # rdp="$SCRIPTPATH/databases/rdp_11_4.fa"
 # Silva
 #http://www.arb-silva.de/no_cache/download/archive/release_123/Exports/
-silva="$SCRIPTPATH/databases/SILVA_128_SSURef_Nr99_tax_silva.fasta"
-silvalsu="$SCRIPTPATH/databases/SILVA_128_LSURef_tax_silva.fasta"
-underhill="$SCRIPTPATH/databases/THFv1.3.sequence.fasta"
-underhill_taxonomy="$SCRIPTPATH/databases/THFv1.3.tsv"
-unite="$SCRIPTPATH/databases/sh_general_release_dynamic_s_20.11.2016.fasta"
+silva="/local/databases/fasta/silva_ssu"
+silvalsu="/local/databases/fasta/silva_lsu"
+underhill="$SCRIPTPATH/databases/itsdb_underhill"
+unite="/local/databases/fasta/itsdb_unite"
 
 #######################
 # Assembly Parameters #
@@ -985,7 +984,7 @@ then
     then
         say "Extract vsearch - greengenes annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_greengenes_id_${identityThreshold}.tsv -d $greengenes -o ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identityThreshold}.tsv -dtype greengenes -t $greengenes_taxonomy -ob ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identityThreshold}.biomtsv -u ${resultDir}/${ProjectName}_otu.fasta
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_greengenes_id_${identityThreshold}.tsv -d $greengenes -o ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identityThreshold}.tsv -dtype greengenes -ob ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identityThreshold}.biomtsv -u ${resultDir}/${ProjectName}_otu.fasta
         #check_file ${resultDir}/${ProjectName}_vs_greengenes_annotation_id_${identityThreshold}.tsv
         say "Elapsed time with vsearch: $(timer $start_time)"
     fi
@@ -1009,7 +1008,7 @@ then
     then
         say "Extract greengenes annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv -d $greengenes -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.tsv -dtype greengenes -t $greengenes_taxonomy -ob ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.biomtsv
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_greengenes_eval_${evalueTaxAnnot}.tsv -d $greengenes -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.tsv -dtype greengenes -ob ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.biomtsv
         #check_file ${resultDir}/${ProjectName}_vs_greengenes_annotation_eval_${evalueTaxAnnot}.tsv
         say "Elapsed time with get_taxonomy: $(timer $start_time)"
     fi
@@ -1155,7 +1154,7 @@ then
     then
          say "Extract underhill annotation with get_taxonomy"
          start_time=$(timer)
-         python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_underhill_eval_${evalueTaxAnnot}.tsv -d $underhill -u  ${resultDir}/${ProjectName}_otu.fasta -t $underhill_taxonomy  -o ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.biomtsv -dtype underhill
+         python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_underhill_eval_${evalueTaxAnnot}.tsv -d $underhill -u  ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.biomtsv -dtype underhill
          #check_file ${resultDir}/${ProjectName}_vs_underhill_annotation_eval_${evalueTaxAnnot}.tsv
          say "Elapsed time with get_taxonomy: $(timer $start_time)"
     fi
