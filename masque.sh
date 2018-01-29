@@ -539,15 +539,7 @@ if [ -d "$input_dir" ]
 then
     list_product_fa=""
 
-<<<<<<< HEAD
-    nb_samples=$(ls $input_dir/*{-,_,.}R1*.{fastq,fq,fastq.gz,fq.gz} -1  2>/dev/null |wc -l)
-    echo "nb samples = $nb_samples"
-    #nb_samples_R2=$(ls $input_dir/*R2*.{fastq,fq,fastq.gz,fq.gz} -1  2>/dev/null |wc -l)
-    #nb_samples=$(ls $input_dir/*.{fastq,fq,fastq.gz,fq.gz} -1  2>/dev/null |wc -l)
-    #let "sum_R1_R2=$nb_samples_R1+$nb_samples_R2"
-=======
     nb_samples=$(ls $input_dir/*{-,.,_}R1*.{fastq,fq,fastq.gz,fq.gz} -1  2>/dev/null |wc -l)
->>>>>>> e6c35aa91b19f2d6ecf4e1af41ed930ab26bebbf
     num_sample=0
     if [ "$nb_samples" -eq "0" ]
     then
