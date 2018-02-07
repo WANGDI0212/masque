@@ -1136,7 +1136,7 @@ then
     then
         say "Extract vsearch - underhill annotation with get_taxonomy"
         start_time=$(timer)
-        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_underhill_id_${identityThreshold}.tsv -d $underhill -u  ${resultDir}/${ProjectName}_otu.fasta -t $underhill_taxonomy   -o ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.biomtsv -dtype itsdb_underhill
+        python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_underhill_id_${identityThreshold}.tsv -d $underhill -u  ${resultDir}/${ProjectName}_otu.fasta   -o ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.biomtsv -dtype itsdb_underhill
         #check_file ${resultDir}/${ProjectName}_vs_underhill_annotation_id_${identityThreshold}.tsv
         say "Elapsed time with vsearch: $(timer $start_time)"
     fi
