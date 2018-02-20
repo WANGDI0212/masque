@@ -928,9 +928,9 @@ then
         start_time=$(timer)
         if [ "$lsu" -eq "1" ]
         then
-            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silvalsu -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv -dbtype silva_lsu
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silvalsu -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv -dtype silva_lsu
         else
-            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silva -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv -dbtype silva_ssu
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_id_${identityThreshold}.tsv -u ${resultDir}/${ProjectName}_otu.fasta -d $silva -o ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.biomtsv -dtype silva_ssu
         fi
         #check_file ${resultDir}/${ProjectName}_vs_silva_annotation_id_${identityThreshold}.tsv
         say "Elapsed time with get_taxonomy: $(timer $start_time)"
@@ -962,9 +962,9 @@ then
         start_time=$(timer)
         if [ "$lsu" -eq "1" ]
         then
-            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silvalsu -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.biomtsv -dbtype silva_lsu
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silvalsu -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.biomtsv -dtype silva_lsu
         else
-            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silva -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.biomtsv -dbtype silva_ssu
+            python $get_taxonomy -i ${resultDir}/${ProjectName}_vs_silva_eval_${evalueTaxAnnot}.tsv -d $silva -u ${resultDir}/${ProjectName}_otu.fasta -o ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv -ob ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.biomtsv -dtype silva_ssu
         fi
         #check_file ${resultDir}/${ProjectName}_vs_silva_annotation_eval_${evalueTaxAnnot}.tsv
         say "Elapsed time with get_taxonomy: $(timer $start_time)"
