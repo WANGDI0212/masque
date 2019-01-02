@@ -44,7 +44,7 @@ You can find more information in the presentation [here](tp/Targeted_metagenomic
 ### Docker install
 
 The easiest way to use MASQUE is the docker. First, download the databases [here](
-https://robot.freeboxos.fr:56956/share/hvnX49c7RDLNngOI/databases.zip), then unzip this dataset in a directory.
+http://dl.pasteur.fr/fop/vJlf2Krl/database.zip), then unzip this dataset in a directory.
 Run docker as following:
 ```
 docker run -i -t -v /path/to/fastq-data:/mydata -v /path/to/databases:/usr/local/bin/databases/ aghozlane/masque
