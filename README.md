@@ -43,10 +43,10 @@ You can find more information in the presentation [here](tp/Targeted_metagenomic
 
 ### Docker install
 
-The easiest way to use MASQUE is the docker. First, download the databases [here](
-ftp://shiny01.hosting.pasteur.fr/pub/database.zip), then unzip this dataset in a directory.
-Run docker as following:
+The easiest way to use MASQUE is the docker as following:
 ```
+wget ftp://shiny01.hosting.pasteur.fr/pub/database.zip
+unzip database.zip -d /path/to/databases
 docker run -i -t -v /path/to/fastq-data:/mydata -v /path/to/databases:/usr/local/bin/databases/ aghozlane/masque
 ```
 Replace /path/to/fastq-data by a directory containing the reads and /path/to/databases by the directory containing the databases.
