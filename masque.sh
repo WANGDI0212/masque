@@ -269,7 +269,7 @@ greengenes="/local/databases/fasta/greengenes"
 # rdp="$SCRIPTPATH/databases/rdp_11_4.fa"
 # Silva
 #http://www.arb-silva.de/no_cache/download/archive/release_123/Exports/
-silva="/local/databases/fasta/silva_ssu"
+silva="/pasteur/projets/policy01/BioIT/amine/ghigo/stressman_ssu"
 silvalsu="/local/databases/fasta/silva_lsu"
 underhill="/local/databases/fasta/underhill"
 unite="/local/databases/fasta/itsdb_unite"

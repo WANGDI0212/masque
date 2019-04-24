@@ -1,20 +1,21 @@
 .\" ============================================================================
-.TH vsearch 1 "October 5, 2017" "version 2.5.0" "USER COMMANDS"
+.TH vsearch 1 "October 29, 2018" "version 2.9.1" "USER COMMANDS"
 .\" ============================================================================
 .SH NAME
 vsearch \(em chimera detection, clustering, dereplication and
 rereplication, FASTA/FASTQ file processing, masking, pairwise
-alignment, searching, shuffling, sorting and subsampling of amplicons
-for metagenomics, genomics, and population genetics.
+alignment, searching, shuffling, sorting, subsampling, and taxonomic
+classification of amplicons for metagenomics, genomics, and population
+genetics.
 .\" ============================================================================
 .SH SYNOPSIS
 .\" left justified, ragged right
 .ad l
 Chimera detection:
 .RS
-\fBvsearch\fR \-\-uchime_denovo \fIfastafile\fR (\-\-chimeras |
-\-\-nonchimeras | \-\-uchimealns | \-\-uchimeout) \fIoutputfile\fR
-[\fIoptions\fR]
+\fBvsearch\fR (\-\-uchime_denovo | \-\-uchime2_denovo |
+\-\-uchime3_denovo) \fIfastafile\fR (\-\-chimeras | \-\-nonchimeras |
+\-\-uchimealns | \-\-uchimeout) \fIoutputfile\fR [\fIoptions\fR]
 .PP
 \fBvsearch\fR \-\-uchime_ref \fIfastafile\fR (\-\-chimeras |
 \-\-nonchimeras | \-\-uchimealns | \-\-uchimeout) \fIoutputfile\fR
@@ -24,10 +25,11 @@ Chimera detection:
 Clustering:
 .RS
 \fBvsearch\fR (\-\-cluster_fast | \-\-cluster_size |
-\-\-cluster_smallmem) \fIfastafile\fR (\-\-alnout | \-\-biomout |
-\-\-blast6out | \-\-centroids | \-\-clusters | \-\-mothur_shared_out |
-\-\-msaout | \-\-otutabout | \-\-profile | \-\-samout | \-\-uc |
-\-\-userout) \fIoutputfile\fR \-\-id \fIreal\fR [\fIoptions\fR]
+\-\-cluster_smallmem | \-\-cluster_unoise) \fIfastafile\fR (\-\-alnout
+| \-\-biomout | \-\-blast6out | \-\-centroids | \-\-clusters |
+\-\-mothur_shared_out | \-\-msaout | \-\-otutabout | \-\-profile |
+\-\-samout | \-\-uc | \-\-userout) \fIoutputfile\fR \-\-id \fIreal\fR
+[\fIoptions\fR]
 .PP
 .RE
 Dereplication and rereplication:
@@ -52,6 +54,10 @@ FASTA/FASTQ file processing:
 \fBvsearch\fR \-\-fastq_filter \fIfastqfile\fR (\-\-fastaout |
 \-\-fastaout_discarded | \-\-fastqout | \-\-fastqout_discarded)
 \fIoutputfile\fR [\fIoptions\fR]
+.PP
+\fBvsearch\fR \-\-fastq_join \fIfastqfile\fR \-\-reverse
+\fIfastqfile\fR (\-\-fastaout | \-\-fastqout) \fIoutputfile\fR
+[\fIoptions\fR]
 .PP
 \fBvsearch\fR \-\-fastq_mergepairs \fIfastqfile\fR \-\-reverse
 \fIfastqfile\fR (\-\-fastaout | \-\-fastqout |
@@ -107,6 +113,22 @@ Subsampling:
 \fBvsearch\fR \-\-fastx_subsample \fIfastafile\fR (\-\-fastaout |
 \-\-fastqout) \fIoutputfile\fR (\-\-sample_pct \fIreal\fR |
 \-\-sample_size \fIpositive integer\fR) [\fIoptions\fR]
+.PP
+.RE
+Taxonomic classification:
+.RS
+\fBvsearch\fR \-\-sintax \fIfastafile\fR \-\-db \fIfastafile\fR
+\-\-tabbedout \fIoutputfile\fR [\-\-sintax_cutoff \fIreal\fR]
+[\fIoptions\fR]
+.PP
+.RE
+UDB database handling:
+.RS
+\fBvsearch\fR \-\-makeudb_usearch \fIfastafile\fR \-\-output \fIoutputfile\fR [\fIoptions\fR]
+.PP
+\fBvsearch\fR \-\-udb2fasta \fIudbfile\fR \-\-output \fIoutputfile\fR [\fIoptions\fR]
+.PP
+\fBvsearch\fR (\-\-udbinfo | \-\-udbstats) \fIudbfile\fR [\fIoptions\fR]
 .PP
 .RE
 .\" left and right justified (default)
@@ -194,7 +216,8 @@ or '/dev/stdout' for output files,
 .IP -
 a named pipe created with the command mkfifo,
 .IP -
-a process substitution '<(command)' as input or '>(command)' as output.
+a process substitution '<(command)' as input or '>(command)' as
+output.
 .RE
 .PP
 \fBvsearch\fR can automatically read compressed gzip or bzip2 files if
@@ -304,9 +327,10 @@ When using \-\-uchime_denovo, the abundance skew is used to
 distinguish in a three-way alignment which sequence is the chimera and
 which are the parents. The assumption is that chimeras appear later in
 the PCR amplification process and are therefore less abundant than
-their parents. The default value is 2.0, which means that the parents
-should be at least 2 times more abundant than their chimera. Any
-positive value equal or greater than 1.0 can be used.
+their parents. For \-\-uchime3_denovo the default value is 16.0. For
+the other commands, the default value is 2.0, which means that the
+parents should be at least 2 times more abundant than their
+chimera. Any positive value equal or greater than 1.0 can be used.
 .TP
 .BI \-\-alignwidth\~ "positive integer"
 When using \-\-uchimealns, set the width of the three-way alignments
@@ -314,7 +338,7 @@ When using \-\-uchimealns, set the width of the three-way alignments
 .TP
 .BI \-\-borderline \0filename
 Output borderline chimeric sequences to \fIfilename\fR, in fasta
-format.  Borderline chimeric sequences are sequences that have a high
+format. Borderline chimeric sequences are sequences that have a high
 enough score but which are not sufficiently different from their
 closest parent.
 .TP
@@ -339,15 +363,18 @@ chimeras, non-chimeras and borderline sequences, using the format
 ';uchime_denovo=\fIfloat\fR;'.
 .TP
 .BI \-\-mindiffs\~ "positive integer"
-Minimum number of differences per segment (default value is 3).
+Minimum number of differences per segment (default value is 3). The
+parameter is ignored with \-\-uchime2_denovo and \-\-uchime3_denovo.
 .TP
 .BI \-\-mindiv \0real
-Minimum divergence from closest parent (default value is 0.8).
+Minimum divergence from closest parent (default value is 0.8). The
+parameter is ignored with \-\-uchime2_denovo and \-\-uchime3_denovo.
 .TP
 .BI \-\-minh \0real
 Minimum score (\fIh\fR). Increasing this value tends to reduce the
 number of false positives and to decrease sensitivity. Default value
-is 0.28, and values ranging from 0.0 to 1.0 included are accepted.
+is 0.28, and values ranging from 0.0 to 1.0 included are accepted. The
+parameter is ignored with \-\-uchime2_denovo and \-\-uchime3_denovo.
 .TP
 .BI \-\-nonchimeras \0filename
 Output non-chimeric sequences to \fIfilename\fR, in fasta
@@ -405,6 +432,19 @@ Detect chimeras present in the fasta-formatted \fIfilename\fR, without
 external references (i.e. \fIde novo\fR). Automatically sort the
 sequences in \fIfilename\fR by decreasing abundance beforehand (see
 the sorting section for details). Multithreading is not supported.
+.TP
+.BI \-\-uchime2_denovo \0filename
+Detect chimeras present in the fasta-formatted \fIfilename\fR, using
+the UCHIME2 algorithm. This algorithm is designed for denoised
+amplicons (see \-\-cluster_unoise). Automatically sort the sequences
+in \fIfilename\fR by decreasing abundance beforehand (see the sorting
+section for details).  Multithreading is not supported.
+.TP
+.BI \-\-uchime3_denovo \0filename
+Detect chimeras present in the fasta-formatted \fIfilename\fR, using
+the UCHIME2 algorithm. The only difference from \-\-uchime2_denovo is
+that the default minimum abundance skew (\-\-abskew) is set to 16.0
+rather than 2.0.
 .TP
 .BI \-\-uchime_ref \0filename
 Detect chimeras present in the fasta-formatted \fIfilename\fR by
@@ -486,11 +526,11 @@ file.
 Clustering options:
 .RS
 .PP
-\fBvsearch\fR implements a single-pass, greedy star-clustering
-algorithm, similar to the algorithms implemented in usearch, DNAclust
-and sumaclust for example. Important parameters are the global
-clustering threshold (\-\-id) and the pairwise identity definition
-(\-\-iddef).
+\fBvsearch\fR implements a single-pass, greedy centroid-based
+clustering algorithm, similar to the algorithms implemented in
+usearch, DNAclust and sumaclust for example. Important parameters are
+the global clustering threshold (\-\-id) and the pairwise identity
+definition (\-\-iddef).
 .PP
 Input sequences are masked as specified with the \-\-qmask and
 \-\-hardmask options.
@@ -559,6 +599,14 @@ Clusterize the fasta sequences in \fIfilename\fR without automatically
 modifying their order beforehand. Sequence are expected to be sorted
 by decreasing sequence length, unless \-\-usersort is used.
 .TP
+.BI \-\-cluster_unoise \0filename
+Perform denoising of the fasta sequences in \fIfilename\fR according
+to the UNOISE version 3 algorithm by Robert Edgar, but without the
+chimera removal step. The options \-\-minsize (default 8) and
+\-\-unoise_alpha (default 2.0) may be specified. Chimera removal
+(\fIde novo\fR) should be performed afterwards with
+\-\-uchime3_denovo.
+.TP
 .BI \-\-clusters \0string
 Output each cluster to a separate fasta file using the prefix
 \fIstring\fR and a ticker (0, 1, 2, etc.) to construct the path and
@@ -575,10 +623,10 @@ are skipped, except for terminal gaps.
 This command is ignored. A warning is issued.
 .\" .TP
 .\" .B \-\-cons_truncate
-.\" when using the \-\-consout option to build consensus sequences, do not
-.\" ignore terminal gaps. That option skips terminal columns if they
-.\" contain a majority of gaps, yielding shorter consensus sequences than
-.\" when using \-\-consout alone.
+.\" when using the \-\-consout option to build consensus sequences,
+.\" do not ignore terminal gaps. That option skips terminal columns
+.\" if they contain a majority of gaps, yielding shorter consensus
+.\" sequences than when using \-\-consout alone.
 .TP
 .BI \-\-id \0real
 Do not add the target to the cluster if the pairwise identity with the
@@ -609,6 +657,10 @@ BLAST definition, equivalent to \-\-iddef 1 in a context of global
 pairwise alignment.
 .RE
 .RE
+.TP
+.BI \-\-minsize\~ "positive integer"
+Specify the minimum abundance of sequences for denoising using
+\-\-cluster_unoise. The default is 8.
 .TP
 .BI \-\-msaout \0filename
 Output a multiple sequence alignment and a consensus sequence for each
@@ -752,6 +804,10 @@ Label of the centroid sequence (H), or set to '*' (S, C).
 .RE
 .RE
 .TP
+.BI \-\-unoise_alpha\~ real
+Specify the alpha parameter to the \-\-cluster_unoise command. The
+default i 2.0.
+.TP
 .B \-\-usersort
 When using \-\-cluster_smallmem, allow any sequence input order, not
 just a decreasing length ordering.
@@ -776,7 +832,8 @@ Dereplication and rereplication options:
 Merge strictly identical sequences contained in
 \fIfilename\fR. Identical sequences are defined as having the same
 length and the same string of nucleotides (case insensitive, T and U
-are considered the same).
+are considered the same). See the options \-\-sizein and \-\-sizeout
+to take into account and compute abundance values.
 .TP
 .BI \-\-derep_prefix \0filename
 Merge sequences with identical prefixes contained in \fIfilename\fR.
@@ -821,17 +878,18 @@ for details.
 .TP
 .BI \-\-rereplicate \0filename
 Duplicate each sequence the number of times indicated by the abundance
-of each sequence in the specified file. The sequence labels are
-identical for the same sequence, unless \-\-relabel, \-\-relabel_sha1
-or \-\-relabel_md5 is used to create unique labels. Output is written
-to the file specified with the \-\-output option, in FASTA format. The
-output file does not contain abundance information unless \-\-sizeout
-is specified, in which case an abundance of 1 is used.
+of each sequence in the specified file (option \-\-sizein is always
+implied). The sequence labels are identical for the same sequence,
+unless \-\-relabel, \-\-relabel_sha1 or \-\-relabel_md5 is used to
+create unique labels. Output is written to the file specified with the
+\-\-output option, in FASTA format. The output file does not contain
+abundance information unless \-\-sizeout is specified, in which case
+an abundance of 1 is used.
 .TP
 .B \-\-sizein
 Take into account the abundance annotations present in the input fasta
 file (search for the pattern '[>;]size=\fIinteger\fR[;]' in sequence
-headers).
+headers). That option is active by default when rereplicating.
 .TP
 .B \-\-sizeout
 Add abundance annotations to the output fasta file (add the pattern
@@ -1038,11 +1096,34 @@ Shorten and/or filter sequences in the given FASTQ file. Similar to
 the \-\-fastx_filter command, but works only on FASTQ files. See
 \-\-fastx_filter for details.
 .TP
+.BI \-\-fastq_join\0 filename
+Join paired-end sequence reads into one sequence and add a gap between
+them using a padding sequence. The sequences are not merged as with
+the fastq_mergepairs command, but simply joined with a gap. The
+forward reads are specified as the argument to this option and the
+reverse reads are specified with the \-\-reverse option. The resulting
+sequences consist of the forward read, the padding sequence and the
+reverse complement of the reverse read. The padding sequence is
+specified with the \-\-join_padgap option and the padding quality is
+specified with the \-\-join_padgapq option. The default padding
+sequence string is NNNNNNNN and the default padding quality string is
+IIIIIIII, corresponding to a base quality score of 40 (a very high
+quality score with error probability 0.0001). The joined sequences are
+output to the file(s) specified with the \-\-fastaout or \-\-fastqout
+options.
+.TP
 .BI \-\-fastq_maxdiffs\~ "positive integer"
 When using \-\-fastq_mergepairs, specify the maximum number of
 non-matching nucleotides allowed in the overlap region. That option
 has a strong influence on the merging success rate. The default
-value is 5.
+value is 10.
+.TP
+.BI \-\-fastq_maxdiffpct\~ real
+When using \-\-fastq_mergepairs, specify the maximum percentage of
+non-matching nucleotides allowed in the overlap region. The default
+value is 100.0%. There are other more sophisticated rules in the
+merging algorithm that will discard read pairs with a high fraction of
+mismatches.
 .TP
 .BI \-\-fastq_maxee\~ real
 When using \-\-fastq_filter, \-\-fastq_mergepairs or \-\-fastx_filter,
@@ -1066,31 +1147,33 @@ When using \-\-fastq_filter, \-\-fastq_mergepairs or \-\-fastx_filter,
 discard sequences with more than the specified number of N's.
 .TP
 .BI \-\-fastq_mergepairs\0 filename
-Merge paired-end sequence reads into one sequence. The method has some
-similarities to the PEAR algorithm (Zhang, Kobert, Flouri &
-Stamatakis, 2014). The forward reads are specified as the argument to
-this option and the reverse reads are specified with the \-\-reverse
-option. The merged sequences are output to the file(s) specified with
-the \-\-fastaout or \-\-fastqout options. The non-merged reads can be
-output to the files specified with the \-\-fastaout_notmerged_fwd,
-\-\-fastaout_notmerged_rev, \-\-fastqout_notmerged_fwd and
-\-\-fastqout_notmerged_rev options. Statistics may be output to the
-file specified with the \-\-eetabbedout option. Sequences are
-truncated as specified with the \-\-fastq_truncqual option to remove
-low-quality bases in the 3' end. Sequences shorter than specified with
-\-\-fastq_minlen (after truncation) are discarded (1 by
-default). Sequences with too many ambiguous bases (N's), as specified
-with the \-\-fastq_maxns are also discarded (no limit by
-default). Staggered reads are not merged unless the
-\-\-fastq_allowmergestagger option is specified. The minimum length of
-the overlap region between the reads may be specified with the
-\-\-fastq_minovlen option (default 16), and the overlap region may not
-include more mismatches than specified with the \-\-fastq_maxdiffs
-option (5 by default), otherwise the read pair is discarded. The
-mimimum and maximum length of the merged sequence may be specified
-with the \-\-fastq_minmergelen and \-\-fastq_maxmergelen options,
-respectively. Other relevant options are: \-\-fastq_ascii,
-\-\-fastq_maxee, \-\-fastq_nostagger, \-\-fastq_qmax, \-\-fastq_qmin,
+Merge paired-end sequence reads into one sequence. The forward reads
+are specified as the argument to this option and the reverse reads are
+specified with the \-\-reverse option. The merged sequences are output
+to the file(s) specified with the \-\-fastaout or \-\-fastqout
+options. The non-merged reads can be output to the files specified
+with the \-\-fastaout_notmerged_fwd, \-\-fastaout_notmerged_rev,
+\-\-fastqout_notmerged_fwd and \-\-fastqout_notmerged_rev
+options. Statistics may be output to the file specified with the
+\-\-eetabbedout option. Sequences are truncated as specified with the
+\-\-fastq_truncqual option to remove low-quality bases in the 3'
+end. Sequences shorter than specified with \-\-fastq_minlen (after
+truncation) are discarded (1 by default). Sequences with too many
+ambiguous bases (N's), as specified with the \-\-fastq_maxns are also
+discarded (no limit by default). Staggered reads are not merged unless
+the \-\-fastq_allowmergestagger option is specified. The minimum
+length of the overlap region between the reads may be specified with
+the \-\-fastq_minovlen option (default 10). The overlap region may
+not include more mismatches than specified with the \-\-fastq_maxdiffs
+option (10 by default) or a higher percentage of mismatches than
+specified with the \-\-fastq_maxdiffpct option (100.0% by default),
+otherwise the read pair is discarded. Additional rules will avoid
+merging of reads that cannot be aligned reliably and
+unambiguously. The mimimum and maximum length of the merged sequence
+may be specified with the \-\-fastq_minmergelen and
+\-\-fastq_maxmergelen options, respectively. Other relevant options
+are: \-\-fastq_ascii, \-\-fastq_maxee, \-\-fastq_nostagger,
+\-\-fastq_qmax, \-\-fastq_qmaxout, \-\-fastq_qmin, \-\-fastq_qminout,
 and \-\-label_suffix.
 .TP
 .BI \-\-fastq_minlen\~ "positive integer"
@@ -1104,7 +1187,7 @@ merged sequence. The default is 1.
 .TP
 .BI \-\-fastq_minovlen\~ "positive integer"
 When using \-\-fastq_mergepairs, specify the minimum overlap between
-the merged reads. The default is 16.
+the merged reads. The default is 10.
 .TP
 .B \-\-fastq_nostagger
 When using \-\-fastq_mergepairs, forbid the merging of staggered read
@@ -1292,17 +1375,27 @@ file specified with the \-\-fastaout and/or \-\-fastqout options. If
 the input file is in FASTA format, the output can not be written back
 to a FASTQ file due to missing base quality scores.
 .TP
+.BI \-\-join_padgap\~ string
+When running \-\-fastq_join, use the \fIstring\fR as a sequence
+padding string. The default is NNNNNNNN (8 N's).
+.TP
+.BI \-\-join_padgapq\~ string
+When running \-\-fastq_join, use the \fIstring\fR as a quality padding
+string. The default is a string of I's equal in length to the sequence
+padding string. The letter I corresponds to a base quality score of 40
+indicating a very high quality base with error probability of 0.0001.
+.TP
 .BI \-\-label_suffix\~ string
 When using \-\-fastx_revcomp or \-\-fastq_mergepairs, add the suffix
 \fIstring\fR to sequence headers.
 .TP
 .BI \-\-maxsize\~ "positive integer"
-When using \-\-fastq_filter or \-\-fastx_filter, discard sequences with
-an abundance higher than the specified value.
+When using \-\-fastq_filter or \-\-fastx_filter, discard sequences
+with an abundance higher than the specified value.
 .TP
 .BI \-\-minsize\~ "positive integer"
-When using \-\-fastq_filter or \-\-fastx_filter, discard sequences with
-an abundance lower than the specified value.
+When using \-\-fastq_filter or \-\-fastx_filter, discard sequences
+with an abundance lower than the specified value.
 .TP
 .BI \-\-output \0filename
 When using \-\-fastq_eestats or \-\-fastq_eestats2, write tabulated
@@ -1327,11 +1420,12 @@ Please see the description of the same option under Chimera detection
 for details.
 .TP
 .BI \-\-reverse \0filename
-When using \-\-fastq_mergepairs, specify the FASTQ file containing
-containing the reverse reads.
+When using \-\-fastq_mergepairs or \-\-fastq_join, specify the FASTQ
+file containing containing the reverse reads.
 .TP
 .B \-\-xsize
-Strip abundance information from the headers when writing the output file.
+Strip abundance information from the headers when writing the output
+file.
 .RE
 .PP
 .\" ----------------------------------------------------------------------------
@@ -1551,8 +1645,8 @@ of this manual.
 .IP \n[step]. 4
 \fIquery\fR: query label.
 .IP \n+[step].
-\fItarget\fR: target (database sequence) label. The field is set to
-'*' if there is no alignment.
+\fItarget\fR: target (database sequence) label. The field is set
+to '*' if there is no alignment.
 .IP \n+[step].
 \fIid\fR: percentage of identity (real value ranging from 0.0 to
 100.0). The percentage identity is defined as 100 * (matching columns)
@@ -1576,7 +1670,7 @@ target. Always equal to 1 if there is an alignment, 0 otherwise (see
 target. Always equal to the length of the pairwise alignment, 0
 otherwise (see \fIqihi\fR to ignore terminal gaps).
 .IP \n+[step].
-\fItlo\fR: irst nucleotide of the target aligned with the
+\fItlo\fR: first nucleotide of the target aligned with the
 query. Always equal to 1 if there is an alignment, 0 otherwise (see
 \fItilo\fR to ignore initial gaps).
 .IP \n+[step].
@@ -1595,7 +1689,9 @@ alignments). Always set to 0.
 .BI \-\-db \0filename
 Compare query sequences (specified with \-\-usearch_global) to the
 fasta-formatted target sequences contained in \fIfilename\fR, using
-global pairwise alignment.
+global pairwise alignment. Alternatively, the name of a preformatted
+UDB database created using the makeudb_usearch command (see below) may
+be specified.
 .TP
 .BI \-\-dbmask\~ "none|dust|soft"
 Mask regions in the target database sequences using the dust method or
@@ -1685,8 +1781,8 @@ columns) / (alignment length - terminal gaps). That definition can be
 modified by \-\-iddef.
 .TP
 .BI \-\-iddef\~ "0|1|2|3|4"
-Change the pairwise identity definition used in \-\-id. Values accepted
-are:
+Change the pairwise identity definition used in \-\-id. Values
+accepted are:
 .RS
 .RS
 .nr step 0 1
@@ -1839,11 +1935,12 @@ Write query sequences not matching database target sequences to
 \fIfilename\fR, in fasta format.
 .TP
 .BI \-\-otutabout \0filename
-Write search results to an OTU table in the classic tab-separated plain text
-format. The query file contains the samples, while the database file
-contains the OTUs. Sample and OTU identifiers are extracted from the
-header of these sequences. See the \-\-mothur_shared_out option in the
-Clustering section for further details.
+Write search results to an OTU table in the classic tab-separated
+plain text format. The query file contains the samples, while the
+database file contains the OTUs. Sample and OTU identifiers are
+extracted from the header of these sequences. See the
+\-\-mothur_shared_out option in the Clustering section for further
+details.
 .TP
 .B \-\-output_no_hits
 Write both matching and non-matching queries to \-\-alnout,
@@ -2307,6 +2404,109 @@ file.
 .RE
 .PP
 .\" ----------------------------------------------------------------------------
+Taxonomic classification options:
+.RS
+The vsearch command \-\-sintax will classify the input sequences
+according to the Sintax algorithm as described by Robert Edgar (2016)
+in SINTAX: a simple non-Bayesian taxonomy classifier for 16S and ITS
+sequences, BioRxiv, 074161. Preprint. doi: https://doi.org/10.1101/074161.
+
+The name of the fasta file containing the input sequences to be
+classified is given as an argument to the \-\-sintax command. The reference
+sequence database is specified with the \-\-db option. The results are
+written in a tab delimited text file whose name is specified with the
+\-\-tabbedout option. The \-\-sintax_cutoff option may be used to set a
+minimum level of bootstrap support for the taxonomic ranks to be reported.
+
+Multithreading is supported. Databases in UDB files are supported.
+The strand option may be specified.
+
+The reference database must contain taxonomic information in the
+header of each sequence in the form of a string starting with ";tax="
+and followed by a comma-separated list of up to eight taxonomic
+identifiers. Each taxonomic identifier must start with an indication
+of the rank by one of the letters d (for domain) k (kingdom), p
+(phylum), c (class), o (order), f (family), g (genus), or s
+(species). The letter is followed by a colon (:) and the name of that
+rank. Commas and semicolons are not allowed in the name of the rank.
+
+Example: ">X80725_S000004313;tax=d:Bacteria,p:Proteobacteria,c:Gammaproteobacteria,o:Enterobacteriales,f:Enterobacteriaceae,g:Escherichia/Shigella,s:Escherichia_coli".
+.PP
+.TP 9
+.BI \-\-db \0filename
+Read the reference sequences from \fIfilename\fR, in FASTA, FASTQ or UDB format. These sequences needs to be annotated with taxonomy.
+.TP
+.BI \-\-sintax_cutoff\~ "real"
+Specify a minimum level of bootstrap support for the taxonomic ranks that will be included in column 4 of the output file. For instance 0.9, corresponding to 90%.
+.TP
+.BI \-\-sintax \0filename
+Read the input sequences from \fIfilename\fR, in FASTA or FASTQ format.
+.TP
+.BI \-\-tabbedout \0filename
+Write the results to \fIfilename\fR, in a tab-separated text
+format. Column 1 contains the query label. Column 2 contains the
+predicted taxonomy in the same format as for the reference data, with
+bootstrap support indicated in parentheses after each rank. Column 3
+contains the strand. If the \-\-sintax_cutoff option is used, the
+predicted taxonomy will be repeated in column 4 while omitting the
+bootstrap values and including only the ranks with support at or above
+the threshold.
+.RE
+.PP
+.\" ----------------------------------------------------------------------------
+UDB options:
+.RS
+Databases to be used with the \-\-usearch_global command may be
+prepared from FASTA files and stored to a binary UDB formatted file in
+order to speed up searching. This may be worthwhile when searching a
+large database repeatedly. The sequences are indexed and stored in a
+way that can be quickly loaded into memory. The commands and options
+below can be used to create and inspect UDB files. An UDB file may be
+specified with the \-\-db option instead of a FASTA formatted file
+with the \-\-usearch_global command.
+.PP
+.TP 9
+.BI \-\-dbmask\~ "none|dust|soft"
+Specify the sequence masking method used with the \-\-makeudb_usearch
+command, either none, dust or soft. No masking is performed when none
+is specified. When dust is specified, the DUST algorithm will be used
+for masking low complexity regions (short repeats and skewed
+composition). Lower case letters in the input file will be masked when
+soft is specified (soft masking).
+.TP
+.B \-\-hardmask
+Mask sequences by replacing letters with N for the \-\-makeudb_usearch
+command. The default is to use lower case letters (soft masking).
+.TP
+.BI \-\-makeudb_usearch \0filename
+Create an UDB database file from the FASTA-formatted sequences in the
+file with the given \fIfilename\fR. The UDB database is written to the
+file specified with the \-\-output option.
+.TP
+.BI \-\-output \0filename
+Specify the \fIfilename\fR of a FASTA or UDB output file for the
+\-\-makeudb_usearch or the \-\-udb2fasta command, respectively.
+.TP
+.BI \-\-udb2fasta \0filename
+Read the UDB database in the file with the given \fIfilename\fR and
+output the sequences in FASTA format in the file specified by the
+\-\-output option.
+.TP
+.BI \-\-udbinfo \0filename
+Show information about the UDB database in the file with the given
+\fIfilename\fR.
+.TP
+.BI \-\-udbstats \0filename
+Report statistics about the indexed words in the UDB database in the
+file with the given \fIfilename\fR.
+.TP
+.BI \-\-wordlength\~ "positive integer"
+Specify the length of the words to be used when creating the UDB
+database index using the \-\-makeudb_usearch command. Valid numbers
+range from 3 to 15. The default is 8.
+.RE
+.PP
+.\" ----------------------------------------------------------------------------
 Userfields (fields accepted by the \-\-userfields option):
 .RS
 .TP 9
@@ -2563,9 +2763,11 @@ usearch 7. They are described in the 'Options' section of this
 manual. Here is a short list:
 .RS
 .IP - 2
-alignwidth, borderline, fasta_score (chimera checking)
+uchime2_denovo, uchime3_denovo, alignwidth, borderline, fasta_score
+(chimera checking)
 .IP -
-cluster_size, clusterout_id, clusterout_sort, profile (clustering)
+cluster_size, cluster_unoise, clusterout_id, clusterout_sort, profile
+(clustering)
 .IP -
 fasta_width, gzip_decompress, bzip2_decompress (general option)
 .IP -
@@ -2578,7 +2780,8 @@ processing, shuffling, sorting)
 .IP -
 shuffle (shuffling)
 .IP -
-fastq_eestats, fastq_eestats2, fastq_maxlen, fastq_truncee (FASTQ processing)
+fastq_eestats, fastq_eestats2, fastq_maxlen, fastq_truncee (FASTQ
+processing)
 .IP -
 fastaout_discarded, fastqout_discarded (subsampling)
 .IP -
@@ -2704,7 +2907,8 @@ Source code and binaries are available at
 .PP
 .\" ============================================================================
 .SH COPYRIGHT
-Copyright (C) 2014-2017, Torbjørn Rognes, Frédéric Mahé and Tomás Flouri
+Copyright (C) 2014-2018, Torbjørn Rognes, Frédéric Mahé and Tomás
+Flouri
 .PP
 All rights reserved.
 .PP
@@ -3182,6 +3386,83 @@ fastq_eestats2, makeudb_usearch, udb2fasta, udbinfo, and udbstats. New
 general option: no_progress. New options minsize and maxsize to
 fastx_filter. Minor bug fixes, error message improvements and
 documentation updates.
+.TP
+.BR v2.5.1\~ "released October 25th, 2017"
+Fixed bug with bad default value of 1 instead of 32 for minseqlength
+when using the makeudb_usearch command.
+.TP
+.BR v2.5.2\~ "released October 30th, 2017"
+Fixed bug with where '-' as an argument to the fastq_eestats2 option
+was treated literally instead of equivalent to stdin.
+.TP
+.BR v2.6.0\~ "released November 10th, 2017"
+Rewritten paired-end reads merger with improved accuracy. Decreased
+default value for fastq_minovlen option from 16 to 10. The default
+value for the fastq_maxdiffs option is increased from 5 to 10. There
+are now other more important restrictions that will avoid merging
+reads that cannot be reliably aligned.
+.TP
+.BR v2.6.1\~ "released December 8th, 2017"
+Improved parallelisation of paired end reads merging.
+.TP
+.BR v2.6.2\~ "released December 18th, 2017"
+Fixed option xsize that was partially inactive for commands
+uchime_denovo, uchime_ref, and fastx_filter.
+.TP
+.BR v2.7.0\~ "released February 13th, 2018"
+Added commands cluster_unoise, uchime2_denovo and uchime3_denovo
+contributed by Davide Albanese based on Robert Edgar's
+papers. Refactored fasta and fastq print functions as well as code for
+extraction of abundance and other attributes from the headers.
+.TP
+.BR v2.7.1\~ "released February 16th, 2018"
+Fix several bugs on Windows related to large files, use of "-" as a
+file name to mean stdin or stdout, alignment errors, missed kmers and
+corrupted UDB files. Added documentation of UDB-related commands.
+.TP
+.BR v2.7.2\~ "released April 20th, 2018"
+Added the sintax command for taxonomic classification. Fixed a bug with
+incorrect FASTA headers of consensus sequences after clustering.
+.TP
+.BR v2.8.0\~ "released April 24th, 2018"
+Added the fastq_maxdiffpct option to the fastq_mergepairs command.
+.TP
+.BR v2.8.1\~ "released June 22nd, 2018"
+Fixes for compilation warnings with GCC 8.
+.TP
+.BR v2.8.2\~ "released August 21st, 2018"
+Fix for wrong placement of semicolons in header lines in some cases
+when using the sizeout or xsize options. Reduced memory requirements
+for full-length dereplication in cases with many duplicate sequences.
+Improved wording of fastq_mergepairs report. Updated manual regarding
+use of sizein and sizeout with dereplication. Changed a compiler
+option.
+.TP
+.BR v2.8.3\~ "released August 31st, 2018"
+Fix for segmentation fault for \-\-derep_fulllength with \-\-uc.
+.TP
+.BR v2.8.4\~ "released September 3rd, 2018"
+Further reduce memory requirements for dereplication when not using
+the uc option. Fix output during subsampling when quiet or log options
+are in effect.
+.TP
+.BR v2.8.5\~ "released September 26th, 2018"
+Fixed a bug in fastq_eestats2 that caused the values for large lengths
+to be much too high when the input sequences had varying lengths.
+.TP
+.BR v2.8.6\~ "released October 9th, 2018"
+Fixed a bug introduced in version 2.8.2 that caused derep_fulllength
+to include the full FASTA header in its output instead of stopping at
+the first space (unless the notrunclabels option is in effect).
+.TP
+.BR v2.9.0\~ "released October 10th, 2018"
+Added the fastq_join command.
+.TP
+.BR v2.9.1\~ "released October 29th, 2018"
+Changed compiler options that select the target cpu and tuning to
+allow the software to run on any 64-bit x86 system, while tuning for
+more modern variants. Avoid illegal instruction error on some
+architectures. Update documentation of rereplicate command.
 .RE
 .LP
 .\" ============================================================================
@@ -3191,7 +3472,3 @@ documentation updates.
 .\" visualize and output to pdf
 .\" man -l vsearch.1
 .\" man -t ./doc/vsearch.1 | ps2pdf - > ./doc/vsearch_manual.pdf
-.\"
-.\" INSTALL (sysadmin)
-.\" gzip -c vsearch.1 > vsearch.1.gz
-.\" mv vsearch.1.gz /usr/share/man/man1/

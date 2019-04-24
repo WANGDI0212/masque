@@ -73,6 +73,9 @@ def getArguments():
     #parser.add_argument('-t', dest='taxonomy_file', type=isfile,
     #                    help='Path to the taxonomy file (Greengenes and '
     #                    'Underhill only).')
+    parser.add_argument('-n', dest='no_filtering', action="store_true",
+                        default=False, help='Deactivate identity filtering '
+                        '(Default filtering is activated).')
     parser.add_argument('-u', dest='otu_file', type=isfile,
                         help='Path to the otu fasta file (for biom output '
                         'only).')
@@ -251,8 +254,8 @@ def load_taxonomy(database_file, vsearch_dict, database_type):
     return annotation_dict
 
 
-def write_tax_table(vsearch_dict, annotation_dict, output_file, otu_tab,
-                    biom=False):
+def write_tax_table(vsearch_dict, annotation_dict, output_file, no_filtering,
+                    otu_tab, biom=False):
     """
     """
     # Identity threshold :
@@ -276,7 +279,7 @@ def write_tax_table(vsearch_dict, annotation_dict, output_file, otu_tab,
                         otu_tab.remove(OTU[0])
                     taxonomy = annotation_dict[tax].split(";")
                     # Genus and the rest
-                    if OTU[1] >= 94.5:
+                    if OTU[1] >= 94.5 or no_filtering:
                         pass
                         #taxonomy = taxonomy[:-1]
                     # Family
@@ -336,14 +339,15 @@ def main():
     annotation_dict = load_taxonomy(args.database_file, vsearch_dict,
                                     args.database_type)
     # write result
-    write_tax_table(vsearch_dict, annotation_dict, args.output_file, [])
+    write_tax_table(vsearch_dict, annotation_dict, args.output_file,
+                    args.no_filtering, [])
     if args.output_file_biom:
         if args.otu_file:
             otu_tab = get_id(args.otu_file)
         else:
             sys.exit("Please provide OTU fasta file")
         write_tax_table(vsearch_dict, annotation_dict, args.output_file_biom,
-                        otu_tab, True)
+                        args.no_filtering, otu_tab, True)
 
 
 if __name__ == '__main__':

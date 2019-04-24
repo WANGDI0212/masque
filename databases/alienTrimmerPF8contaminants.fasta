@@ -43,7 +43,7 @@ CCCCCCCCCCCCCCCCCCCC
 >poly-G
 GGGGGGGGGGGGGGGGGGGG
 >poly-T
-TTTTTTTTTTTTTTTTTTTT 
+TTTTTTTTTTTTTTTTTTTT
 
 
 ###################################################################################################
@@ -472,7 +472,7 @@ CCACTACGCCTCCGCTTTCCTCTCTATGGGCAGTCGGTGAT
 CCACTACGCCTCCGCTTTCCTCTCTATG
 >ABI Solid3 3' AMP Primer - Multiplex Library PCR-2
 CTGCCCCGGGTTCCTCATTCT
->ABI Solid3 EF1 alpha Sense Primer 
+>ABI Solid3 EF1 alpha Sense Primer
 CATGTGTGTTGAGAGCTTC
 >ABI Solid3 EF1 alpha Antisense Primer
 GAAAACCAAAGTGGTCCAC

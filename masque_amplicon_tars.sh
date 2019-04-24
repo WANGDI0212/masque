@@ -5,7 +5,7 @@ SLURM_SCRIPT=$HOME/masque_submission.sh
 #Check arguments
 if [ $# -lt 8 ]
 then
-    echo "Usage: $0 <reads_dir> <output_dir> <contaminants> <project-name> <nb_cpu> <email> <qos> <partition> (<account>)"
+    echo "Usage: $0 <amplicon_file> <output_dir> <contaminants> <project-name> <nb_cpu> <email> <qos> <partition> (<account>)"
     echo "contaminants: danio,human,mouse,mosquito,phi (add contaminants separated by comma)"
     echo "nb_cpu: max is 12 on tars"
     echo "qos: fast or normal or long"
